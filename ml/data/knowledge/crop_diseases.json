@@ -1,0 +1,205 @@
+[
+  {
+    "crop": "rice", "disease": "Blast (Pyricularia oryzae)",
+    "symptoms": "Diamond-shaped spots on leaves with grey center and brown border. Neck rot causes panicles to break.",
+    "cause": "Fungal infection favored by high humidity (>90%), moderate temperature (25-28C), and excess nitrogen fertilization.",
+    "treatment": "Apply Tricyclazole 75WP @ 0.6g/L or Isoprothiolane 40EC @ 1.5ml/L. Spray at tillering and panicle initiation stage.",
+    "prevention": "Use resistant varieties (IR64, Pusa Basmati). Avoid excess nitrogen. Ensure proper spacing for air circulation. Treat seeds with Carbendazim."
+  },
+  {
+    "crop": "rice", "disease": "Bacterial Leaf Blight (Xanthomonas oryzae)",
+    "symptoms": "Water-soaked lesions on leaf margins that turn yellow and then white/grey. Leaves dry from tips downward.",
+    "cause": "Bacterial infection spread through wind, rain, and contaminated irrigation water. Worsens in rainy season with warm temperatures.",
+    "treatment": "No effective chemical cure once infected. Remove and destroy infected plants. Apply Streptocycline 0.01% + Copper oxychloride 0.05%.",
+    "prevention": "Use resistant varieties. Avoid clipping seedling tips during transplanting. Drain excess standing water. Balanced NPK fertilization."
+  },
+  {
+    "crop": "rice", "disease": "Sheath Blight (Rhizoctonia solani)",
+    "symptoms": "Oval/irregular greenish-grey lesions on leaf sheaths near water level. Lesions merge and cause lodging.",
+    "cause": "Fungus survives in soil. Favored by dense planting, high nitrogen, and warm humid weather (28-32C).",
+    "treatment": "Spray Validamycin 3L @ 2.5ml/L or Hexaconazole 5EC @ 2ml/L at boot leaf stage.",
+    "prevention": "Maintain proper spacing. Avoid excess nitrogen. Remove crop residues. Use Trichoderma viride for biocontrol."
+  },
+  {
+    "crop": "wheat", "disease": "Rust (Puccinia spp.)",
+    "symptoms": "Orange-brown pustules on leaves (brown rust) or stems (black rust). Yellow rust shows as yellow stripes on leaves.",
+    "cause": "Fungal spores spread by wind over long distances. Favored by cool nights (10-15C) and warm days (20-25C) with dew.",
+    "treatment": "Spray Propiconazole 25EC @ 1ml/L immediately when pustules appear. Repeat after 15 days if needed.",
+    "prevention": "Grow resistant varieties (HD-2967, PBW-343). Early sowing (before November 15). Avoid late nitrogen application."
+  },
+  {
+    "crop": "wheat", "disease": "Karnal Bunt (Tilletia indica)",
+    "symptoms": "Partial conversion of grain into black powder with fishy smell. Only a portion of grains in the ear are affected.",
+    "cause": "Soil-borne fungus activated by cool temperatures and high humidity during flowering. Rain during heading is critical.",
+    "treatment": "Spray Propiconazole 25EC @ 0.1% at boot leaf and 50% ear emergence stage.",
+    "prevention": "Seed treatment with Carboxin + Thiram. Avoid irrigation at heading stage if forecast shows rain. Deep summer ploughing."
+  },
+  {
+    "crop": "groundnut", "disease": "Tikka Disease / Leaf Spot (Cercospora)",
+    "symptoms": "Circular dark brown spots on upper leaf surface. Lower surface shows grey sporulation. Severe defoliation occurs.",
+    "cause": "Fungal infection favored by warm humid weather (25-30C, >80% RH). Spreads through rain splash.",
+    "treatment": "Spray Chlorothalonil 75WP @ 2g/L or Mancozeb 75WP @ 2.5g/L at 30 and 45 days after sowing.",
+    "prevention": "Crop rotation with cereals. Remove crop debris. Use resistant varieties like GPBD-4, TAG-24."
+  },
+  {
+    "crop": "groundnut", "disease": "Stem Rot (Sclerotium rolfsii)",
+    "symptoms": "Yellowing and wilting of branches. White fungal mat at stem base. Small round brown sclerotia visible on soil surface.",
+    "cause": "Soil-borne fungus activated by warm moist conditions. Spreads through contaminated soil and water.",
+    "treatment": "Apply Carbendazim 50WP @ 1g/L as soil drench around plant base. Repeat after 15 days.",
+    "prevention": "Seed treatment with Trichoderma viride @ 4g/kg seed. Deep ploughing in summer. Avoid waterlogging."
+  },
+  {
+    "crop": "cotton", "disease": "Bacterial Blight (Xanthomonas citri pv. malvacearum)",
+    "symptoms": "Water-soaked angular spots on leaves that turn brown with yellow halo. Black arm on stems. Boll rot in severe cases.",
+    "cause": "Bacterial infection spread by rain, wind, and contaminated seed. Warm humid weather (28-33C) favors spread.",
+    "treatment": "Spray Streptocycline 100ppm + Copper oxychloride 0.3% at first symptom. Repeat every 10 days.",
+    "prevention": "Acid-delinted seed treatment. Use resistant varieties. Avoid overhead irrigation. 3-year crop rotation."
+  },
+  {
+    "crop": "cotton", "disease": "Bollworm (Helicoverpa armigera)",
+    "symptoms": "Circular holes in bolls with larva feeding inside. Frass visible at entry point. Premature boll opening and shedding.",
+    "cause": "Moth lays eggs on tender parts. Larvae bore into bolls. Peak activity during flowering (Aug-Oct). Temperature 25-32C ideal.",
+    "treatment": "Spray Emamectin benzoate 5SG @ 0.2g/L or Chlorantraniliprole 18.5SC @ 0.3ml/L. Apply at ETL of 1 larva per plant.",
+    "prevention": "Bt cotton varieties. Pheromone traps @ 5/acre. Bird perches @ 20/acre. Neem seed kernel extract 5% as deterrent."
+  },
+  {
+    "crop": "tomato", "disease": "Early Blight (Alternaria solani)",
+    "symptoms": "Dark brown concentric ring spots on lower leaves first (target-board appearance). Leads to defoliation and fruit rot.",
+    "cause": "Fungus survives in crop debris. Favored by warm weather (24-29C), high humidity, and stressed plants.",
+    "treatment": "Spray Mancozeb 75WP @ 2.5g/L or Chlorothalonil 75WP @ 2g/L every 10-14 days starting from first symptoms.",
+    "prevention": "Mulching. Staking to improve air circulation. Avoid overhead irrigation. Remove lower infected leaves."
+  },
+  {
+    "crop": "tomato", "disease": "Tomato Leaf Curl Virus (ToLCV)",
+    "symptoms": "Upward curling of leaves, thickening, and puckering. Stunted growth. Reduced fruit set. Plants appear bushy.",
+    "cause": "Virus transmitted by whitefly (Bemisia tabaci). No cure once infected. Warm dry weather increases whitefly population.",
+    "treatment": "No cure. Remove and destroy infected plants. Control whitefly with Imidacloprid 17.8SL @ 0.3ml/L.",
+    "prevention": "Use ToLCV-resistant varieties (Arka Rakshak). Yellow sticky traps for whitefly monitoring. Neem oil 2% spray."
+  },
+  {
+    "crop": "tomato", "disease": "Late Blight (Phytophthora infestans)",
+    "symptoms": "Water-soaked dark patches on leaves and stems. White fungal growth on underside of leaves. Rapid plant death in humid conditions.",
+    "cause": "Oomycete pathogen favored by cool temperatures (15-22C) and prolonged leaf wetness. Can destroy crop in days.",
+    "treatment": "Spray Metalaxyl + Mancozeb (Ridomil) @ 2.5g/L immediately. Spray every 5-7 days during active infection.",
+    "prevention": "Use resistant varieties. Avoid evening irrigation. Ensure proper drainage. Remove volunteer plants."
+  },
+  {
+    "crop": "onion", "disease": "Purple Blotch (Alternaria porri)",
+    "symptoms": "Small water-soaked lesions that enlarge to oval purple spots with concentric rings. Leaves collapse from tip.",
+    "cause": "Fungal infection favored by warm humid weather (21-30C, >90% RH). Spreads through rain splash and wind.",
+    "treatment": "Spray Mancozeb 75WP @ 2.5g/L + sticker. Alternate with Tricyclazole. Spray every 10-12 days.",
+    "prevention": "Proper spacing (15x10cm). Avoid excess irrigation. Raised beds for drainage. Rotate with non-allium crops."
+  },
+  {
+    "crop": "onion", "disease": "Thrips (Thrips tabaci)",
+    "symptoms": "Silvery white patches on leaves. Leaves curl and distort. Stunted growth. Bulb size reduction up to 50%.",
+    "cause": "Tiny sucking insects that rasp leaf surface. Population peaks in hot dry weather (30-35C). Major pest across India.",
+    "treatment": "Spray Fipronil 5SC @ 1.5ml/L or Spinosad 45SC @ 0.3ml/L. Add sticker for better adhesion on waxy leaves.",
+    "prevention": "Overhead sprinkler irrigation dislodges thrips. Blue/white sticky traps. Intercrop with coriander as repellent."
+  },
+  {
+    "crop": "chilli", "disease": "Anthracnose / Die-back (Colletotrichum capsici)",
+    "symptoms": "Dark sunken spots on ripe fruits. Die-back of branches from tip downward. Straw-colored acervuli on lesions.",
+    "cause": "Seed-borne fungus. Spreads rapidly in warm humid weather (28-32C). Rain splash is primary dispersal method.",
+    "treatment": "Spray Carbendazim 50WP @ 1g/L + Mancozeb 75WP @ 2.5g/L alternately every 10 days from fruit formation.",
+    "prevention": "Hot water seed treatment (52C for 30 min). Use certified disease-free seed. Avoid continuous chilli cropping."
+  },
+  {
+    "crop": "chilli", "disease": "Chilli Leaf Curl Virus",
+    "symptoms": "Upward curling of leaves, bushy appearance, stunted growth. Small leaves with thickened veins. Reduced fruit size.",
+    "cause": "Transmitted by whiteflies. Similar to tomato leaf curl. Once infected, no cure possible.",
+    "treatment": "Remove infected plants. Control whitefly vectors with systemic insecticides. Spray Thiamethoxam 25WG @ 0.3g/L.",
+    "prevention": "Use virus-free nursery. Barrier crops of maize/sorghum. Reflective mulch to repel whiteflies."
+  },
+  {
+    "crop": "sugarcane", "disease": "Red Rot (Colletotrichum falcatum)",
+    "symptoms": "Reddening of internal cane tissue with white patches. Split cane shows red discoloration. Drying and withering of top.",
+    "cause": "Fungus enters through borer holes or cut ends. Spreads through contaminated setts and soil. Rainy season peak.",
+    "treatment": "No effective chemical control. Remove and burn infected canes. Sett treatment with Carbendazim 0.1% for 15-20 minutes.",
+    "prevention": "Use disease-free setts from healthy crop. Resistant varieties (Co 86032, CoC 671). Hot water treatment of setts (52C, 30 min)."
+  },
+  {
+    "crop": "banana", "disease": "Panama Wilt / Fusarium Wilt (Fusarium oxysporum f.sp. cubense)",
+    "symptoms": "Yellowing of older leaves from margins. Leaf sheaths split longitudinally. Internal pseudostem shows brown/purple discoloration.",
+    "cause": "Soil-borne fungus that blocks vascular tissue. Spreads through infected suckers and contaminated soil. No cure once in soil.",
+    "treatment": "No effective chemical treatment. Inject Carbendazim 50WP at stem base of healthy plants as preventive.",
+    "prevention": "Use tissue-culture plants. Avoid planting in previously infected fields for 5 years. Resistant varieties (FHIA-01)."
+  },
+  {
+    "crop": "banana", "disease": "Sigatoka Leaf Spot (Mycosphaerella musicola)",
+    "symptoms": "Yellow streaks on leaves that enlarge to oval brown spots with grey center. Severe cases cause premature leaf death.",
+    "cause": "Fungal airborne spores. Warm humid conditions (25-28C, >90% RH). Windward side of plants affected first.",
+    "treatment": "Spray Propiconazole 25EC @ 1ml/L or Mancozeb 75WP @ 2.5g/L. Alternate fungicides to prevent resistance.",
+    "prevention": "Remove infected leaves. Ensure proper drainage and spacing. Avoid overhead irrigation."
+  },
+  {
+    "crop": "maize", "disease": "Fall Armyworm (Spodoptera frugiperda)",
+    "symptoms": "Ragged holes in leaves with large amounts of frass. Larvae hide in whorl. Can destroy young crop completely.",
+    "cause": "Invasive pest (arrived India 2018). Moths migrate long distances. Multiple generations per year. Active at night.",
+    "treatment": "Spray Emamectin benzoate 5SG @ 0.4g/L in whorl. Chlorantraniliprole 18.5SC @ 0.4ml/L. Apply with high volume.",
+    "prevention": "Early sowing. Pheromone traps for monitoring. Sand + lime powder application in whorl. Release Trichogramma parasitoid."
+  },
+  {
+    "crop": "soybean", "disease": "Yellow Mosaic Virus (SMV)",
+    "symptoms": "Bright yellow mosaic pattern on leaves. Leaves become small and distorted. Pod formation severely reduced.",
+    "cause": "Transmitted by whitefly (Bemisia tabaci). No cure. Warm weather (28-35C) increases vector activity.",
+    "treatment": "No chemical cure. Remove infected plants. Control whitefly with Thiamethoxam 25WG @ 0.3g/L.",
+    "prevention": "Use resistant varieties (JS 335, JS 97-52). Early sowing to escape peak whitefly season. Border crop of maize."
+  },
+  {
+    "crop": "turmeric", "disease": "Rhizome Rot (Pythium aphanidermatum)",
+    "symptoms": "Water-soaked lesions on rhizome. Yellowing and wilting of pseudostem from base upward. Foul smell from rotting rhizome.",
+    "cause": "Soil-borne oomycete. Waterlogging and poor drainage trigger infection. High soil moisture and warm temperature.",
+    "treatment": "Drench with Metalaxyl (Ridomil) 2g/L around plant base. Remove and destroy infected plants. Improve drainage.",
+    "prevention": "Seed rhizome treatment with Mancozeb 0.3% for 30 min. Raised beds. Trichoderma harzianum application @ 5kg/acre."
+  },
+  {
+    "crop": "mustard", "disease": "White Rust (Albugo candida)",
+    "symptoms": "White blister-like pustules on lower leaf surface. Malformation of flowers (stag-head symptom). Stunted pods.",
+    "cause": "Oomycete pathogen favored by cool humid weather (10-20C, >70% RH). Peak in December-January in North India.",
+    "treatment": "Spray Metalaxyl + Mancozeb (Ridomil MZ) 2.5g/L at onset. Repeat after 15 days.",
+    "prevention": "Resistant varieties. Timely sowing (October). Removal of infected plant parts. Avoid excess nitrogen."
+  },
+  {
+    "crop": "chickpea", "disease": "Wilt (Fusarium oxysporum f.sp. ciceris)",
+    "symptoms": "Drooping of petioles and leaflets without yellowing. Plants dry while maintaining green color (sudden wilt). Root shows dark discoloration.",
+    "cause": "Soil-borne fungus. Can persist in soil for 6+ years. Warm temperature (25-30C) and moderate soil moisture trigger disease.",
+    "treatment": "No effective field control. Seed treatment with Carbendazim + Thiram (1:1) @ 3g/kg seed.",
+    "prevention": "Resistant varieties (JG-62, Avrodhi). 4-5 year crop rotation with cereals. Trichoderma viride @ 2.5kg mixed with FYM."
+  },
+  {
+    "crop": "millet", "disease": "Downy Mildew (Sclerospora graminicola)",
+    "symptoms": "Chlorotic streaks on leaves. White cottony growth on lower leaf surface. Ear malformation (green ear disease).",
+    "cause": "Oomycete spread through soil-borne oospores and airborne sporangia. Cool nights with dew favor infection.",
+    "treatment": "Spray Metalaxyl 35SD @ 2g/kg seed as treatment. Remove and destroy infected plants showing green ear.",
+    "prevention": "Seed treatment with Metalaxyl. Resistant hybrids (ICTP 8203). Avoid ratooning from infected fields."
+  },
+  {
+    "crop": "general", "disease": "Nitrogen Deficiency",
+    "symptoms": "Older leaves turn uniformly pale yellow-green. Stunted growth. Reduced tillering in cereals. Early maturity with low yield.",
+    "cause": "Low soil nitrogen, heavy rains leaching nitrogen, sandy soils with poor retention, or insufficient fertilization.",
+    "treatment": "Apply urea @ 25-50 kg/acre as top dressing. Foliar spray of 2% urea solution for quick correction.",
+    "prevention": "Split nitrogen application in 3 doses. Green manuring with dhaincha/sunnhemp. Use neem-coated urea for slow release."
+  },
+  {
+    "crop": "general", "disease": "Phosphorus Deficiency",
+    "symptoms": "Dark green leaves with purple/reddish discoloration on lower leaves. Delayed maturity. Poor root development.",
+    "cause": "Low available phosphorus in soil (common in acidic and alkaline soils). Fixation in iron/aluminum-rich soils.",
+    "treatment": "Apply Single Super Phosphate @ 50kg/acre or DAP @ 25kg/acre. Rock phosphite for acidic soils.",
+    "prevention": "Apply phosphorus at sowing time near root zone. Use PSB (Phosphate Solubilizing Bacteria) biofertilizer."
+  },
+  {
+    "crop": "general", "disease": "Potassium Deficiency",
+    "symptoms": "Marginal leaf scorch (browning of leaf edges) starting from older leaves. Weak stems prone to lodging. Small, shriveled grains.",
+    "cause": "Light-textured soils with low K reserves. Intensive cropping without K fertilization. Heavy leaching in sandy soils.",
+    "treatment": "Apply Muriate of Potash (MOP) @ 25-40 kg/acre. Foliar spray of 1% KCl solution for quick response.",
+    "prevention": "Regular soil testing. Include K in fertilizer schedule. Crop residue incorporation recycles K."
+  },
+  {
+    "crop": "general", "disease": "Iron Deficiency (Chlorosis)",
+    "symptoms": "Interveinal chlorosis on young leaves (veins remain green, tissue turns yellow). Severe cases show white leaves. Common in calcareous soils.",
+    "cause": "High soil pH (>7.5) makes iron unavailable. Waterlogging. Excess phosphorus or zinc in soil.",
+    "treatment": "Foliar spray of Ferrous sulfate 0.5% + citric acid 0.1%. Soil application of FeSO4 @ 10kg/acre with organic matter.",
+    "prevention": "Maintain soil pH below 7.5. Apply organic matter. Use iron-efficient crop varieties."
+  }
+]

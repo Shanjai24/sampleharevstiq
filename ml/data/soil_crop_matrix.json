@@ -1,0 +1,22 @@
+{
+  "sandy": {
+    "rice": 0.3, "wheat": 0.5, "groundnut": 0.9, "cotton": 0.4, "sugarcane": 0.3,
+    "maize": 0.7, "soybean": 0.5, "tomato": 0.7, "onion": 0.8, "turmeric": 0.4,
+    "chickpea": 0.7, "mustard": 0.7, "banana": 0.4, "millet": 0.9, "chilli": 0.7
+  },
+  "loam": {
+    "rice": 0.7, "wheat": 0.9, "groundnut": 0.8, "cotton": 0.8, "sugarcane": 0.8,
+    "maize": 0.9, "soybean": 0.8, "tomato": 0.9, "onion": 0.8, "turmeric": 0.8,
+    "chickpea": 0.7, "mustard": 0.8, "banana": 0.8, "millet": 0.7, "chilli": 0.8
+  },
+  "clay": {
+    "rice": 0.9, "wheat": 0.7, "groundnut": 0.3, "cotton": 0.8, "sugarcane": 0.7,
+    "maize": 0.5, "soybean": 0.7, "tomato": 0.4, "onion": 0.4, "turmeric": 0.7,
+    "chickpea": 0.5, "mustard": 0.5, "banana": 0.7, "millet": 0.4, "chilli": 0.5
+  },
+  "silt": {
+    "rice": 0.8, "wheat": 0.8, "groundnut": 0.6, "cotton": 0.6, "sugarcane": 0.7,
+    "maize": 0.7, "soybean": 0.7, "tomato": 0.7, "onion": 0.7, "turmeric": 0.7,
+    "chickpea": 0.6, "mustard": 0.7, "banana": 0.7, "millet": 0.5, "chilli": 0.7
+  }
+}

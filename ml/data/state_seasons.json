@@ -1,0 +1,52 @@
+{
+  "Tamil Nadu": {
+    "kharif": { "months": [6, 7, 8, 9], "crops": ["rice", "groundnut", "cotton", "sugarcane", "maize", "turmeric", "millet", "chilli"] },
+    "rabi": { "months": [10, 11, 12, 1], "crops": ["rice", "groundnut", "maize", "onion", "chickpea", "mustard", "tomato"] },
+    "summer": { "months": [2, 3, 4, 5], "crops": ["groundnut", "tomato", "chilli", "banana"] }
+  },
+  "Maharashtra": {
+    "kharif": { "months": [6, 7, 8, 9], "crops": ["rice", "cotton", "soybean", "sugarcane", "maize", "turmeric", "millet"] },
+    "rabi": { "months": [10, 11, 12, 1], "crops": ["wheat", "chickpea", "onion", "mustard", "tomato"] },
+    "summer": { "months": [2, 3, 4, 5], "crops": ["tomato", "onion", "banana"] }
+  },
+  "Madhya Pradesh": {
+    "kharif": { "months": [6, 7, 8, 9], "crops": ["soybean", "cotton", "maize", "rice", "millet"] },
+    "rabi": { "months": [10, 11, 12, 1], "crops": ["wheat", "chickpea", "mustard", "onion"] },
+    "summer": { "months": [2, 3, 4, 5], "crops": ["tomato", "chilli"] }
+  },
+  "Gujarat": {
+    "kharif": { "months": [6, 7, 8, 9], "crops": ["groundnut", "cotton", "millet", "rice", "maize"] },
+    "rabi": { "months": [10, 11, 12, 1], "crops": ["wheat", "chickpea", "mustard", "onion", "tomato"] },
+    "summer": { "months": [2, 3, 4, 5], "crops": ["groundnut", "tomato", "banana"] }
+  },
+  "Uttar Pradesh": {
+    "kharif": { "months": [6, 7, 8, 9], "crops": ["rice", "sugarcane", "maize", "cotton", "millet"] },
+    "rabi": { "months": [10, 11, 12, 1], "crops": ["wheat", "mustard", "chickpea", "onion", "tomato"] },
+    "summer": { "months": [2, 3, 4, 5], "crops": ["tomato", "banana", "chilli"] }
+  },
+  "Karnataka": {
+    "kharif": { "months": [6, 7, 8, 9], "crops": ["rice", "maize", "cotton", "groundnut", "sugarcane", "turmeric"] },
+    "rabi": { "months": [10, 11, 12, 1], "crops": ["chickpea", "wheat", "onion", "tomato", "chilli"] },
+    "summer": { "months": [2, 3, 4, 5], "crops": ["tomato", "chilli", "banana"] }
+  },
+  "Andhra Pradesh": {
+    "kharif": { "months": [6, 7, 8, 9], "crops": ["rice", "cotton", "groundnut", "chilli", "maize", "sugarcane"] },
+    "rabi": { "months": [10, 11, 12, 1], "crops": ["rice", "chickpea", "onion", "tomato", "mustard"] },
+    "summer": { "months": [2, 3, 4, 5], "crops": ["chilli", "banana", "groundnut"] }
+  },
+  "Rajasthan": {
+    "kharif": { "months": [6, 7, 8, 9], "crops": ["millet", "maize", "groundnut", "cotton", "soybean"] },
+    "rabi": { "months": [10, 11, 12, 1], "crops": ["wheat", "mustard", "chickpea", "onion"] },
+    "summer": { "months": [2, 3, 4, 5], "crops": ["tomato", "chilli"] }
+  },
+  "Punjab": {
+    "kharif": { "months": [6, 7, 8, 9], "crops": ["rice", "maize", "cotton", "sugarcane"] },
+    "rabi": { "months": [10, 11, 12, 1], "crops": ["wheat", "mustard", "chickpea", "onion"] },
+    "summer": { "months": [2, 3, 4, 5], "crops": ["tomato", "onion"] }
+  },
+  "Telangana": {
+    "kharif": { "months": [6, 7, 8, 9], "crops": ["rice", "cotton", "maize", "soybean", "chilli", "turmeric"] },
+    "rabi": { "months": [10, 11, 12, 1], "crops": ["rice", "chickpea", "onion", "tomato"] },
+    "summer": { "months": [2, 3, 4, 5], "crops": ["chilli", "tomato", "banana"] }
+  }
+}

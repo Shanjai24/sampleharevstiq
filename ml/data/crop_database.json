@@ -1,0 +1,107 @@
+{
+  "rice": {
+    "name": "Rice", "nameHi": "चावल", "nameTa": "அரிசி",
+    "harvestDays": 120, "waterPerDay": 8, "minTemp": 20, "maxTemp": 37,
+    "bestSoil": ["clay", "loam"], "phRange": [5.5, 7.5],
+    "seasons": ["kharif"], "plantMonths": [6, 7],
+    "tips": ["Maintain 2-5cm standing water during tillering", "Apply nitrogen fertilizer in 3 splits", "Drain field 15 days before harvest"]
+  },
+  "wheat": {
+    "name": "Wheat", "nameHi": "गेहूं", "nameTa": "கோதுமை",
+    "harvestDays": 135, "waterPerDay": 4, "minTemp": 10, "maxTemp": 25,
+    "bestSoil": ["loam", "clay"], "phRange": [6.0, 7.5],
+    "seasons": ["rabi"], "plantMonths": [10, 11],
+    "tips": ["Irrigate at crown root initiation stage", "First irrigation 21 days after sowing is critical", "Avoid waterlogging during grain filling"]
+  },
+  "groundnut": {
+    "name": "Groundnut", "nameHi": "मूंगफली", "nameTa": "நிலக்கடலை",
+    "harvestDays": 105, "waterPerDay": 5, "minTemp": 25, "maxTemp": 35,
+    "bestSoil": ["sandy", "loam"], "phRange": [6.0, 7.0],
+    "seasons": ["kharif", "rabi"], "plantMonths": [6, 7, 1, 2],
+    "tips": ["Apply gypsum at flowering for better pod filling", "Ensure well-drained soil to prevent aflatoxin", "Harvest when 75% leaves turn yellow"]
+  },
+  "cotton": {
+    "name": "Cotton", "nameHi": "कपास", "nameTa": "பருத்தி",
+    "harvestDays": 165, "waterPerDay": 6, "minTemp": 21, "maxTemp": 35,
+    "bestSoil": ["clay", "loam"], "phRange": [6.0, 8.0],
+    "seasons": ["kharif"], "plantMonths": [4, 5, 6],
+    "tips": ["Use Bt cotton varieties for bollworm resistance", "Maintain spacing of 90×60cm", "Pick cotton when bolls are fully open and dry"]
+  },
+  "sugarcane": {
+    "name": "Sugarcane", "nameHi": "गन्ना", "nameTa": "கரும்பு",
+    "harvestDays": 330, "waterPerDay": 10, "minTemp": 20, "maxTemp": 38,
+    "bestSoil": ["loam", "clay"], "phRange": [6.0, 7.5],
+    "seasons": ["kharif"], "plantMonths": [1, 2, 10],
+    "tips": ["Earthing up at 90 and 120 days improves yield", "Trash mulching reduces weed growth by 60%", "Ratoon management can save 30% input costs"]
+  },
+  "maize": {
+    "name": "Maize", "nameHi": "मक्का", "nameTa": "மக்காச்சோளம்",
+    "harvestDays": 95, "waterPerDay": 5, "minTemp": 18, "maxTemp": 32,
+    "bestSoil": ["loam", "sandy"], "phRange": [5.5, 7.5],
+    "seasons": ["kharif", "rabi"], "plantMonths": [6, 7, 10, 11],
+    "tips": ["Critical irrigation at tasseling and silking stages", "Apply zinc sulfate if soil zinc is deficient", "Harvest at 20-25% grain moisture"]
+  },
+  "soybean": {
+    "name": "Soybean", "nameHi": "सोयाबीन", "nameTa": "சோயாபீன்",
+    "harvestDays": 100, "waterPerDay": 5, "minTemp": 20, "maxTemp": 32,
+    "bestSoil": ["loam", "clay"], "phRange": [6.0, 7.0],
+    "seasons": ["kharif"], "plantMonths": [6, 7],
+    "tips": ["Seed treatment with Rhizobium fixes atmospheric nitrogen", "Maintain plant population of 4-4.5 lakh/hectare", "Harvest when 95% pods turn brown"]
+  },
+  "tomato": {
+    "name": "Tomato", "nameHi": "टमाटर", "nameTa": "தக்காளி",
+    "harvestDays": 75, "waterPerDay": 6, "minTemp": 18, "maxTemp": 30,
+    "bestSoil": ["loam", "sandy"], "phRange": [6.0, 7.0],
+    "seasons": ["kharif", "rabi"], "plantMonths": [6, 7, 9, 10, 1],
+    "tips": ["Stake plants to prevent fruit rot from soil contact", "Mulching reduces water need by 30%", "Harvest at pink stage for distant markets"]
+  },
+  "onion": {
+    "name": "Onion", "nameHi": "प्याज", "nameTa": "வெங்காயம்",
+    "harvestDays": 130, "waterPerDay": 4, "minTemp": 13, "maxTemp": 30,
+    "bestSoil": ["loam", "sandy"], "phRange": [6.0, 7.0],
+    "seasons": ["rabi", "kharif"], "plantMonths": [10, 11, 12, 6],
+    "tips": ["Stop irrigation 10 days before harvest", "Cure bulbs in shade for 7-10 days post-harvest", "Use raised beds in areas with poor drainage"]
+  },
+  "turmeric": {
+    "name": "Turmeric", "nameHi": "हल्दी", "nameTa": "மஞ்சள்",
+    "harvestDays": 270, "waterPerDay": 7, "minTemp": 20, "maxTemp": 35,
+    "bestSoil": ["loam", "clay"], "phRange": [5.5, 7.5],
+    "seasons": ["kharif"], "plantMonths": [5, 6],
+    "tips": ["Apply mulch after planting to conserve moisture", "Earthing up at 60 and 120 days", "Harvest when leaves turn yellow and dry"]
+  },
+  "chickpea": {
+    "name": "Chickpea (Chana)", "nameHi": "चना", "nameTa": "கொண்டைக்கடலை",
+    "harvestDays": 110, "waterPerDay": 3, "minTemp": 15, "maxTemp": 30,
+    "bestSoil": ["loam", "sandy"], "phRange": [6.0, 8.0],
+    "seasons": ["rabi"], "plantMonths": [10, 11],
+    "tips": ["Requires minimal irrigation — excess water causes root rot", "Good crop for rainfed areas", "Nipping at 25 days increases branching"]
+  },
+  "mustard": {
+    "name": "Mustard", "nameHi": "सरसों", "nameTa": "கடுகு",
+    "harvestDays": 110, "waterPerDay": 3, "minTemp": 10, "maxTemp": 25,
+    "bestSoil": ["loam", "sandy"], "phRange": [6.0, 7.5],
+    "seasons": ["rabi"], "plantMonths": [10, 11],
+    "tips": ["First irrigation at 30 days is critical", "Aphid monitoring essential during flowering", "Harvesting at physiological maturity prevents shattering loss"]
+  },
+  "banana": {
+    "name": "Banana", "nameHi": "केला", "nameTa": "வாழை",
+    "harvestDays": 300, "waterPerDay": 12, "minTemp": 22, "maxTemp": 38,
+    "bestSoil": ["loam", "clay"], "phRange": [6.0, 7.5],
+    "seasons": ["kharif"], "plantMonths": [2, 3, 6, 7],
+    "tips": ["Drip irrigation saves 40% water vs flood irrigation", "Propping of bunches prevents toppling", "Desuckering keeps energy focused on main bunch"]
+  },
+  "millet": {
+    "name": "Pearl Millet (Bajra)", "nameHi": "बाजरा", "nameTa": "கம்பு",
+    "harvestDays": 80, "waterPerDay": 3, "minTemp": 25, "maxTemp": 40,
+    "bestSoil": ["sandy", "loam"], "phRange": [5.5, 7.5],
+    "seasons": ["kharif"], "plantMonths": [6, 7],
+    "tips": ["Best crop for dry, sandy regions with low rainfall", "Thinning at 10-12 days to maintain optimal spacing", "Can withstand drought better than most cereals"]
+  },
+  "chilli": {
+    "name": "Chilli", "nameHi": "मिर्ची", "nameTa": "மிளகாய்",
+    "harvestDays": 90, "waterPerDay": 5, "minTemp": 18, "maxTemp": 35,
+    "bestSoil": ["loam", "sandy"], "phRange": [6.0, 7.0],
+    "seasons": ["kharif", "rabi"], "plantMonths": [5, 6, 9, 10],
+    "tips": ["Use drip irrigation to avoid leaf diseases", "Pinching terminal buds increases lateral branching", "Red ripe chillies fetch 30% higher price than green"]
+  }
+}

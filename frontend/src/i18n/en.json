@@ -1,0 +1,78 @@
+{
+  "app": { "name": "FarmSense", "tagline": "AI-Powered Smart Farming" },
+  "nav": { "map": "Map", "crops": "Crops", "chat": "AI Chat", "market": "Market", "weather": "Weather", "history": "History" },
+  "home": {
+    "title": "Analyse My Farm",
+    "subtitle": "Tap to get AI-powered recommendations for your location",
+    "detecting": "Detecting your location...",
+    "analyzing": "Analyzing farm conditions..."
+  },
+  "dashboard": {
+    "title": "Farm Analysis",
+    "groundwater": "Groundwater Risk",
+    "weather": "Weather Today",
+    "crops": "Top Crops",
+    "market": "Mandi Prices"
+  },
+  "crop": {
+    "plantWindow": "Best Planting Window",
+    "harvestDays": "Days to Harvest",
+    "waterPerDay": "Water Needed (L/acre/day)",
+    "soilMatch": "Soil Compatibility",
+    "weatherMatch": "Weather Match",
+    "currentPrice": "Current Mandi Price",
+    "priceTrend": "Price Trend",
+    "tips": "Growing Tips",
+    "match": "match for your location"
+  },
+  "borewell": {
+    "title": "Borewell Risk Assessment",
+    "riskScore": "Risk Score",
+    "breakdown": "Risk Breakdown",
+    "recommendation": "Recommendation",
+    "whyRisky": "Why is this risky?",
+    "estimatedCost": "Estimated Cost of Failed Bore",
+    "HIGH": "HIGH RISK",
+    "MODERATE": "MODERATE RISK",
+    "LOW": "LOW RISK"
+  },
+  "market": {
+    "title": "Market Prices",
+    "selectCrop": "Select Crop",
+    "nearest": "Nearest Mandis",
+    "bestMandi": "Best Mandi to Sell",
+    "priceTrend": "Price Trend (30 Days)",
+    "price": "Price (₹/quintal)"
+  },
+  "weather": {
+    "title": "Weather Forecast",
+    "today": "Today",
+    "forecast": "7-Day Forecast",
+    "soilTemp": "Soil Temperature (6cm)",
+    "et": "Evapotranspiration",
+    "irrigation": "Irrigation Recommendation",
+    "temp": "Temperature",
+    "humidity": "Humidity",
+    "rainfall": "Rainfall",
+    "wind": "Wind Speed"
+  },
+  "history": {
+    "title": "Saved Farms",
+    "noFarms": "No saved farms yet",
+    "save": "Save This Location",
+    "farmName": "Farm Name",
+    "notes": "Notes (optional)"
+  },
+  "chat": {
+    "placeholder": "Ask about crops, diseases, weather..."
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Retry",
+    "back": "Back",
+    "save": "Save",
+    "delete": "Delete",
+    "quintal": "quintal"
+  }
+}

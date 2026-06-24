@@ -1,0 +1,44 @@
+[
+  {
+    "scheme": "PM-KISAN (Pradhan Mantri Kisan Samman Nidhi)",
+    "benefit": "Rs 6,000 per year in 3 installments of Rs 2,000 directly to bank account.",
+    "eligibility": "All landholding farmer families (small and marginal). Excludes institutional landholders, income tax payers, and government employees.",
+    "howToApply": "Register at pmkisan.gov.in or through Common Service Centre (CSC). Documents: Aadhaar, bank account, land records. Status check at PM-KISAN portal.",
+    "coverage": "Over 11 crore farmers enrolled. Amount credited to Aadhaar-linked bank account."
+  },
+  {
+    "scheme": "PMFBY (Pradhan Mantri Fasal Bima Yojana)",
+    "benefit": "Crop insurance covering losses from natural calamities, pests, and diseases. Claims paid based on crop cutting experiments.",
+    "eligibility": "All farmers growing notified crops. Premium: 2% for Kharif, 1.5% for Rabi, 5% for commercial/horticultural crops. Government pays remaining premium.",
+    "howToApply": "Through bank (if crop loan taken) or online at pmfby.gov.in. Enroll before cut-off date (July for Kharif, December for Rabi).",
+    "coverage": "Covers sowing failure, standing crop damage, post-harvest losses (14 days), and localized calamities."
+  },
+  {
+    "scheme": "Kisan Credit Card (KCC)",
+    "benefit": "Short-term crop loans up to Rs 3 lakh at 4% interest (with prompt repayment subvention). Also covers animal husbandry and fisheries.",
+    "eligibility": "All farmers, sharecroppers, tenant farmers, and SHGs. Based on land holding and crop pattern.",
+    "howToApply": "Apply at any commercial bank, cooperative bank, or Regional Rural Bank. Documents: land records, identity proof, passport photo.",
+    "coverage": "Includes crop production needs, post-harvest expenses, farm asset maintenance, and consumption needs."
+  },
+  {
+    "scheme": "Soil Health Card Scheme",
+    "benefit": "Free soil testing and printed Soil Health Card with crop-specific fertilizer recommendations. Tests 12 parameters.",
+    "eligibility": "All farmers. Testing done every 2 years through designated soil testing labs.",
+    "howToApply": "Contact local agriculture office or submit soil samples at nearest Soil Testing Laboratory. Card available at soilhealth.dac.gov.in.",
+    "coverage": "Tests: pH, EC, organic carbon, N, P, K, S, Zn, Fe, Cu, Mn, B. Includes fertilizer dose recommendations."
+  },
+  {
+    "scheme": "PMKSY (Pradhan Mantri Krishi Sinchayee Yojana) - Per Drop More Crop",
+    "benefit": "55% subsidy for small/marginal farmers and 45% for others on micro-irrigation systems (drip and sprinkler).",
+    "eligibility": "All farmers with own/leased land. Priority to water-scarce areas and drought-prone blocks.",
+    "howToApply": "Apply through state agriculture department portal or district horticulture office. Submit: land documents, Aadhaar, bank details.",
+    "coverage": "Covers drip irrigation, sprinkler irrigation, raingun, and micro-sprinklers. Subsidy directly to farmer account after installation verification."
+  },
+  {
+    "scheme": "e-NAM (National Agriculture Market)",
+    "benefit": "Online trading platform connecting APMC mandis across India. Farmers can sell produce to highest bidder nationwide.",
+    "eligibility": "All farmers can sell through registered APMC mandis. Traders/buyers register on enam.gov.in.",
+    "howToApply": "Register at nearest e-NAM enabled mandi with Aadhaar and bank account. Use mobile app for price discovery.",
+    "coverage": "1000+ mandis connected. Transparent bidding. Direct payment to farmer bank account. Quality assaying at mandi."
+  }
+]

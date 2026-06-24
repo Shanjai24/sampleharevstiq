@@ -1,0 +1,42 @@
+[
+  {
+    "topic": "Integrated Pest Management (IPM)",
+    "content": "IPM combines biological control, cultural practices, and minimal chemical use. Steps: 1) Monitor pest levels with traps 2) Use biological agents like Trichogramma, Beauveria bassiana 3) Cultural methods - crop rotation, trap crops, timely sowing 4) Chemical control only when pest exceeds Economic Threshold Level (ETL). IPM reduces pesticide costs by 30-50% and improves produce quality."
+  },
+  {
+    "topic": "Organic Farming Practices",
+    "content": "Key organic inputs: Jeevamrutha (cow dung + urine + jaggery + pulse flour fermented 7 days) @ 200L/acre. Panchagavya spray 3% for growth promotion. Neem cake @ 200kg/acre for pest repellent and nutrition. Vermicompost @ 2 tons/acre. Green manuring with Dhaincha (Sesbania) fixes 60-80kg N/ha. Mulching with crop residues reduces water need by 30%."
+  },
+  {
+    "topic": "Drip Irrigation Management",
+    "content": "Drip irrigation saves 40-60% water compared to flood irrigation. Suitable for: vegetables, fruits, sugarcane, cotton. Spacing: 30cm for vegetables, 60cm for row crops. Operation: 2-4 hours daily in summer, alternate days in winter. Fertigation through drip saves 30% fertilizer. Clean filters weekly. Replace laterals every 3-5 seasons. Cost: Rs 30,000-50,000/acre with 50% subsidy available under PMKSY."
+  },
+  {
+    "topic": "Soil Health Management",
+    "content": "Soil testing every 2-3 years is essential. Ideal ranges: pH 6.0-7.5, EC <1 dS/m, organic carbon >0.5%, available N >280 kg/ha, P >25 kg/ha, K >135 kg/ha. To improve: add FYM/compost 5-10 tons/acre, green manuring, crop residue incorporation. For acidic soils: apply lime @ 2-4 quintals/acre. For alkaline soils: apply gypsum @ 4-5 quintals/acre. Soil Health Card scheme provides free testing."
+  },
+  {
+    "topic": "Seed Treatment Practices",
+    "content": "Seed treatment protects against soil-borne diseases and improves germination. Chemical: Carbendazim + Thiram (1:1) @ 3g/kg seed for fungal diseases. Biological: Trichoderma viride @ 4g/kg for biocontrol. Rhizobium for pulses (fixes nitrogen). Azotobacter for cereals. PSB for phosphorus. Method: mix treatment in shade, let dry 30 min before sowing. Treat biological agents last, separately from chemicals."
+  },
+  {
+    "topic": "Weed Management",
+    "content": "Critical weed-free period: first 30-45 days. Methods: 1) Manual weeding at 20 and 40 DAS 2) Pre-emergence herbicide within 3 days of sowing (Pendimethalin 30EC @ 3.3ml/L) 3) Mulching suppresses 60-80% weeds 4) Intercropping reduces weed space. For rice: Bispyribac sodium 10SC @ 25g/acre at 15-20 DAT. Herbicide rotation prevents resistance buildup."
+  },
+  {
+    "topic": "Harvest and Post-Harvest Management",
+    "content": "Harvest at physiological maturity for maximum quality. Grain crops: harvest at 14-18% moisture, dry to 12% for storage. Vegetables: harvest early morning for longer shelf life. Storage: clean, dry godowns with fumigation. For grains use hermetic (triple) bags or metal bins. Neem leaves in storage bags repel insects. Cold storage for vegetables (7-10C). Avoid bruising during handling. Grade and sort before sale for 10-15% higher price."
+  },
+  {
+    "topic": "Climate-Smart Agriculture",
+    "content": "Adaptation strategies: 1) Short-duration varieties escape drought 2) Conservation tillage reduces evaporation 3) Rainwater harvesting in farm ponds (10x10x3m stores 300,000L) 4) Crop diversification reduces risk 5) Agroforestry provides shade and extra income. Weather-based crop insurance (PMFBY) costs only 1.5-5% of premium. Use Meghdoot/Mausam apps for weather advisories."
+  },
+  {
+    "topic": "Nutrient Management for Major Crops",
+    "content": "Recommended NPK doses (kg/acre): Rice: 48-24-24, Wheat: 48-24-16, Cotton: 48-24-24, Sugarcane: 120-32-48, Groundnut: 10-20-20, Maize: 48-24-16. Apply N in 3 splits: basal (50%), tillering (25%), panicle initiation (25%). Apply full P and K as basal. Use neem-coated urea for 10-15% higher nitrogen efficiency. Micronutrients: ZnSO4 @ 10kg/acre for zinc-deficient soils."
+  },
+  {
+    "topic": "Water Management for Paddy",
+    "content": "Alternate Wetting and Drying (AWD) saves 20-30% water with same yield. Method: maintain 2-5cm standing water during critical stages (transplanting, tillering, flowering), drain between irrigations. SRI (System of Rice Intensification): single seedling, wider spacing (25x25cm), intermittent irrigation, mechanical weeding. SRI increases yield by 20-30% with 40% less water. Avoid continuous flooding."
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "topic": "Flood Irrigation vs Drip Irrigation",
+    "content": "Flood irrigation wastes 40-60% water through evaporation and deep percolation. Drip irrigation delivers water directly to root zone at 90% efficiency. For 1 acre of sugarcane: flood uses 8-10 lakh litres/season vs drip uses 4-5 lakh litres. Drip increases yield by 20-30% while saving water. Best crops for drip: sugarcane, cotton, banana, vegetables, fruit orchards. Not suitable for paddy. Cost Rs 30,000-50,000/acre with 55% subsidy under PMKSY."
+  },
+  {
+    "topic": "Sprinkler Irrigation",
+    "content": "Sprinkler irrigation suits wheat, pulses, oilseeds, fodder crops. Efficiency 60-75%. Types: portable (move between fields), semi-permanent (fixed mainline), and center pivot. Operating pressure 2-3 kg/cm2. Avoid running in windy conditions (>15 km/h). Best time: early morning or late evening to minimize evaporation. Cost Rs 15,000-25,000/acre with subsidy available."
+  },
+  {
+    "topic": "Rainwater Harvesting for Agriculture",
+    "content": "Farm pond (10m x 10m x 3m) stores 300,000 litres, enough for 1 acre supplemental irrigation. Line with HDPE plastic sheet to prevent seepage. Collect runoff from 3-5 times the pond area. Percolation pits (2m x 2m x 2m) recharge groundwater. Contour bunding on sloped land reduces runoff by 40%. Check dams on seasonal streams create water reserves. MGNREGA provides funds for farm pond construction."
+  },
+  {
+    "topic": "Deficit Irrigation Strategy",
+    "content": "Apply 60-80% of crop water requirement during non-critical stages. Critical stages (must irrigate fully): Rice - tillering, flowering; Wheat - crown root, flowering, grain filling; Cotton - square formation, boll development; Groundnut - pegging, pod filling. Skip irrigation during vegetative growth to save 20-30% water with only 5-10% yield reduction."
+  },
+  {
+    "topic": "Mulching for Water Conservation",
+    "content": "Organic mulch (straw, leaves, coconut coir) 5-10cm thick reduces evaporation by 30-50%, suppresses weeds, and adds organic matter. Plastic mulch (25-30 micron black polyethylene) used for vegetables and strawberry - reduces water need by 50-60%, suppresses 100% weeds. Silver/black plastic also repels aphids and whiteflies. Sugarcane trash mulching (10-12 tons/acre) saves 2-3 irrigations."
+  }
+]
