@@ -8,9 +8,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def generate_crop_training_data(n_samples=8000):
     """Generate synthetic training data for crop recommendation model."""
-    with open(os.path.join(BASE_DIR, 'data', 'crop_database.json'), 'r') as f:
+    with open(os.path.join(BASE_DIR, 'data', 'crop_database.json'), 'r', encoding='utf-8') as f:
         crops = json.load(f)
-    with open(os.path.join(BASE_DIR, 'data', 'soil_crop_matrix.json'), 'r') as f:
+    with open(os.path.join(BASE_DIR, 'data', 'soil_crop_matrix.json'), 'r', encoding='utf-8') as f:
         soil_matrix = json.load(f)
 
     soil_types = ['sandy', 'loam', 'clay', 'silt']
@@ -187,9 +187,109 @@ def generate_borewell_training_data(n_samples=6000):
     print(f"[OK] Generated {len(df)} borewell training samples -> {output_path}")
     return df
 
+def generate_yield_training_data(n_samples=8000):
+    """Generate synthetic training data for yield prediction model."""
+    with open(os.path.join(BASE_DIR, 'data', 'crop_database.json'), 'r', encoding='utf-8') as f:
+        crops = json.load(f)
+    with open(os.path.join(BASE_DIR, 'data', 'soil_crop_matrix.json'), 'r', encoding='utf-8') as f:
+        soil_matrix = json.load(f)
+
+    soil_types = ['sandy', 'loam', 'clay', 'silt']
+    soil_encoding = {s: i for i, s in enumerate(soil_types)}
+    crop_names = list(crops.keys())
+    states = ['Tamil Nadu', 'Maharashtra', 'Madhya Pradesh', 'Gujarat', 'Uttar Pradesh',
+              'Karnataka', 'Andhra Pradesh', 'Rajasthan', 'Punjab', 'Telangana']
+    state_encoding = {s: i for i, s in enumerate(states)}
+
+    data = []
+    for _ in range(n_samples):
+        crop = random.choice(crop_names)
+        soil_type = random.choice(soil_types)
+        soil_ph = round(random.uniform(4.5, 8.5), 1)
+        avg_temp = round(random.uniform(10, 42), 1)
+        rainfall = round(random.uniform(0, 200), 1)
+        humidity = round(random.uniform(20, 95), 1)
+        area_acres = round(random.uniform(0.5, 20.0), 1)
+        elevation = round(random.uniform(0, 1500), 0)
+        state = random.choice(states)
+        month = random.randint(1, 12)
+
+        crop_info = crops[crop]
+        base_yield = crop_info.get('baseYield', 1.5)
+
+        # 1. Soil compatibility factor
+        soil_score = soil_matrix.get(soil_type, {}).get(crop, 0.5)
+        soil_factor = 0.6 + (soil_score * 0.5)
+
+        # 2. pH compatibility
+        ph_min, ph_max = crop_info['phRange']
+        if ph_min <= soil_ph <= ph_max:
+            ph_factor = 1.0
+        elif abs(soil_ph - ph_min) < 1.0 or abs(soil_ph - ph_max) < 1.0:
+            ph_factor = 0.8
+        else:
+            ph_factor = 0.5
+
+        # 3. Temperature compatibility
+        t_min, t_max = crop_info['minTemp'], crop_info['maxTemp']
+        if t_min <= avg_temp <= t_max:
+            temp_factor = 1.0
+        elif abs(avg_temp - t_min) < 5.0 or abs(avg_temp - t_max) < 5.0:
+            temp_factor = 0.8
+        else:
+            temp_factor = 0.5
+
+        # 4. Rainfall compatibility (weekly)
+        water_need_7d = crop_info['waterPerDay'] * 7
+        if 0.7 * water_need_7d <= rainfall <= 1.5 * water_need_7d:
+            rain_factor = 1.0
+        elif 0.4 * water_need_7d <= rainfall <= 2.0 * water_need_7d:
+            rain_factor = 0.75
+        else:
+            rain_factor = 0.5
+
+        # 5. Month/Season compatibility
+        plant_months = crop_info.get('plantMonths', [])
+        if month in plant_months:
+            season_factor = 1.0
+        elif any(abs(month - m) == 1 or abs(month - m) == 11 for m in plant_months):
+            season_factor = 0.8
+        else:
+            season_factor = 0.5
+
+        # Calculate final yield per acre
+        multiplier = soil_factor * ph_factor * temp_factor * rain_factor * season_factor
+        yield_per_acre = base_yield * multiplier
+        
+        # Add random noise (+/-10%)
+        noise = random.uniform(-0.10, 0.10)
+        yield_per_acre = yield_per_acre * (1.0 + noise)
+        yield_per_acre = max(0.1, round(yield_per_acre, 2))
+
+        data.append({
+            'crop': crop_names.index(crop),
+            'soil_type': soil_encoding[soil_type],
+            'soil_ph': soil_ph,
+            'avg_temperature': avg_temp,
+            'rainfall_7day': rainfall,
+            'humidity': humidity,
+            'area_acres': area_acres,
+            'elevation': elevation,
+            'state': state_encoding[state],
+            'month': month,
+            'yield_per_acre': yield_per_acre
+        })
+
+    df = pd.DataFrame(data)
+    output_path = os.path.join(BASE_DIR, 'data', 'yield_training_data.csv')
+    df.to_csv(output_path, index=False)
+    print(f"[OK] Generated {len(df)} yield training samples -> {output_path}")
+    return df
+
 
 if __name__ == '__main__':
     print("Generating training data for FarmSense ML models...")
     generate_crop_training_data()
     generate_borewell_training_data()
+    generate_yield_training_data()
     print("All training data generated!")

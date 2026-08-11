@@ -1,0 +1,28 @@
+# Node dependencies
+node_modules/
+
+# Python dependencies
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Environment files
+.env
+*.env
+environment.env
+
+# Vite / React build outputs
+dist/
+dist-ssr/
+*.local
+
+# Editor files
+.vscode/
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

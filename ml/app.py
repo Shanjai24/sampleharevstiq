@@ -1,5 +1,16 @@
-import sys
 import os
+import sys
+
+# Configure environment variables to prevent Keras 3 / TensorFlow incompatibility issues in Transformers
+os.environ["USE_TF"] = "0"
+os.environ["USE_TORCH"] = "1"
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+
+from dotenv import load_dotenv
+
+# Load environment variables from environment.env
+env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'environment.env')
+load_dotenv(env_path)
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -9,18 +20,20 @@ from flask_cors import CORS
 from models.crop_recommender import CropRecommender
 from models.borewell_risk import BorewellRiskScorer
 from models.price_predictor import PricePredictor
+from models.yield_predictor import YieldPredictor
 from rag.farm_chat import FarmChat
 
 app = Flask(__name__)
 CORS(app)
 
 # Initialize models
-print("Loading ML models...")
+print("Loading AgroPredict ML models...")
 crop_model = CropRecommender()
 borewell_model = BorewellRiskScorer()
 price_model = PricePredictor()
+yield_model = YieldPredictor()
 farm_chat = FarmChat()
-print("Models loaded!")
+print("AgroPredict ML models loaded successfully!")
 
 # Initialize chat/RAG in background (lazy load on first request)
 import threading
@@ -36,11 +49,13 @@ threading.Thread(target=init_chat_bg, daemon=True).start()
 def health():
     return jsonify({
         'status': 'ok',
-        'service': 'farmsense-ml',
+        'service': 'agropredict-ml',
+        'brand': 'AgroPredict AI',
         'models': {
             'crop_recommender': crop_model.model is not None,
             'borewell_risk': borewell_model.model is not None,
-            'price_predictor': True
+            'price_predictor': True,
+            'yield_predictor': yield_model.model is not None
         }
     })
 
@@ -62,6 +77,28 @@ def recommend_crops():
         return jsonify({'crops': crops})
     except Exception as e:
         print(f"Error in recommend-crops: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/ml/predict-yield', methods=['POST'])
+def predict_yield():
+    try:
+        data = request.json
+        result = yield_model.predict(
+            crop=data.get('crop', 'rice'),
+            soil_type=data.get('soil_type', 'loam'),
+            soil_ph=float(data.get('soil_ph', 6.5)),
+            avg_temperature=float(data.get('avg_temperature', 30.0)),
+            rainfall_7day=float(data.get('rainfall_7day', 50.0)),
+            humidity=float(data.get('humidity', 60.0)),
+            area_acres=float(data.get('area_acres', 1.0)),
+            elevation=float(data.get('elevation', 200.0)),
+            state=data.get('state', 'Tamil Nadu'),
+            month=int(data.get('month', 6))
+        )
+        return jsonify(result)
+    except Exception as e:
+        print(f"Error in predict-yield: {e}")
         return jsonify({'error': str(e)}), 500
 
 
@@ -116,8 +153,14 @@ def chat():
 @app.route('/ml/chat/init', methods=['POST'])
 def chat_init():
     try:
+        import importlib
+        import rag.farm_chat
+        importlib.reload(rag.farm_chat)
+        from rag.farm_chat import FarmChat
+        global farm_chat
+        farm_chat = FarmChat()
         farm_chat.initialize()
-        return jsonify({'status': 'ok', 'message': 'Knowledge base initialized'})
+        return jsonify({'status': 'ok', 'message': 'Knowledge base and chat engine reloaded'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -125,6 +168,25 @@ def chat_init():
 @app.route('/ml/chat/health', methods=['GET'])
 def chat_health():
     return jsonify(farm_chat.get_status())
+
+
+@app.route('/ml/vision', methods=['POST'])
+def vision_analyze():
+    try:
+        from rag.vision_analyzer import VisionAnalyzer
+        analyzer = VisionAnalyzer()
+        data = request.json or {}
+        image_b64 = data.get('image', data.get('image_b64', ''))
+        crop_hint = data.get('crop_hint', '')
+
+        if not image_b64:
+            return jsonify({'error': 'image data is required'}), 400
+
+        result = analyzer.analyze_image(image_b64, crop_hint)
+        return jsonify(result)
+    except Exception as e:
+        print(f"Error in vision analysis: {e}")
+        return jsonify({'error': str(e)}), 500
 
 
 if __name__ == '__main__':

@@ -19,11 +19,11 @@ class CropRecommender:
                        'Karnataka', 'Andhra Pradesh', 'Rajasthan', 'Punjab', 'Telangana']
         self.state_encoding = {s: i for i, s in enumerate(self.states)}
 
-        with open(os.path.join(BASE_DIR, 'data', 'crop_database.json'), 'r') as f:
+        with open(os.path.join(BASE_DIR, 'data', 'crop_database.json'), 'r', encoding='utf-8') as f:
             self.crop_db = json.load(f)
         self.crop_names = list(self.crop_db.keys())
 
-        with open(os.path.join(BASE_DIR, 'data', 'soil_crop_matrix.json'), 'r') as f:
+        with open(os.path.join(BASE_DIR, 'data', 'soil_crop_matrix.json'), 'r', encoding='utf-8') as f:
             self.soil_matrix = json.load(f)
 
         # Try to load pre-trained model
@@ -66,27 +66,57 @@ class CropRecommender:
         top_indices = np.argsort(probabilities)[-5:][::-1]
 
         results = []
-        for idx in top_indices:
+        for rank_pos, idx in enumerate(top_indices):
             if idx < len(self.crop_names):
                 crop_name = self.crop_names[idx]
                 crop_info = self.crop_db.get(crop_name, {})
-                soil_score = self.soil_matrix.get(soil_type, {}).get(crop_name, 0.5)
+                soil_score = float(self.soil_matrix.get(soil_type, {}).get(crop_name, 0.8))
 
                 # Calculate weather match
-                temp_match = 1.0 if crop_info.get('minTemp', 0) <= avg_temperature <= crop_info.get('maxTemp', 40) else 0.5
-                season_match = 1.0 if month in crop_info.get('plantMonths', []) else 0.6
+                temp_match = 1.0 if crop_info.get('minTemp', 0) <= avg_temperature <= crop_info.get('maxTemp', 40) else 0.6
+                season_match = 1.0 if month in crop_info.get('plantMonths', []) else 0.7
+                weather_score = temp_match * season_match
+
+                # True raw model probability across ~15-25 crop classes
+                raw_prob = float(probabilities[idx])
+
+                # Honest composite suitability index: 40% Soil Match + 40% Weather Match + 20% Model Prob
+                soil_pct = round(soil_score * 100)
+                weather_pct = round(weather_score * 100)
+                prob_pct = round(raw_prob * 100)
+
+                composite_pct = round(0.40 * soil_pct + 0.40 * weather_pct + 0.20 * prob_pct)
+                suitability_score = round(composite_pct / 100.0, 2)
+
+                # Honest qualitative fit tier based on model certainty and overall suitability
+                if raw_prob >= 0.20 and composite_pct >= 78:
+                    fit_tier = "Strong Fit"
+                    confidence = "high"
+                elif raw_prob >= 0.12 and composite_pct >= 70:
+                    fit_tier = "Good Fit"
+                    confidence = "medium"
+                elif raw_prob >= 0.08:
+                    fit_tier = "Moderate Fit"
+                    confidence = "medium"
+                else:
+                    fit_tier = "Low Confidence"
+                    confidence = "low"
 
                 results.append({
                     'crop': crop_name,
                     'name': crop_info.get('name', crop_name),
-                    'score': round(float(probabilities[idx]), 2),
-                    'soilMatch': round(soil_score * 100),
-                    'weatherMatch': round(temp_match * season_match * 100),
+                    'score': suitability_score,
+                    'rawProb': round(raw_prob, 3),
+                    'rawProbPct': prob_pct,
+                    'fitTier': fit_tier,
+                    'rank': rank_pos + 1,
+                    'soilMatch': soil_pct,
+                    'weatherMatch': weather_pct,
                     'harvestDays': crop_info.get('harvestDays', 100),
                     'waterPerDay': crop_info.get('waterPerDay', 5),
                     'plantMonths': crop_info.get('plantMonths', []),
                     'tips': crop_info.get('tips', []),
-                    'confidence': 'high' if probabilities[idx] > 0.2 else 'medium' if probabilities[idx] > 0.1 else 'low'
+                    'confidence': confidence
                 })
 
         return results[:5]

@@ -1,0 +1,8 @@
+{
+  "status": "success",
+  "model": "RandomForestRegressor",
+  "training_samples": 8,
+  "validation_rmse": 16.4045,
+  "retrained_at": "2026-08-01T13:42:07.358656",
+  "data_source": "Farmer Post-Harvest Verified Feedback Loop"
+}

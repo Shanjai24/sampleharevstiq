@@ -1,6 +1,6 @@
 {
   "app": { "name": "FarmSense", "tagline": "AI-Powered Smart Farming" },
-  "nav": { "map": "Map", "crops": "Crops", "chat": "AI Chat", "market": "Market", "weather": "Weather", "history": "History" },
+  "nav": { "map": "Map Analysis", "crops": "Dashboard", "dashboard": "Dashboard", "borewell": "Groundwater", "chat": "AI Advisory", "market": "Mandi Market", "weather": "Weather", "history": "Saved Plots" },
   "home": {
     "title": "Analyse My Farm",
     "subtitle": "Tap to get AI-powered recommendations for your location",

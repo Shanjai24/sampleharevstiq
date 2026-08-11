@@ -53,4 +53,22 @@ async function getPriceTrend(data) {
   }
 }
 
-module.exports = { recommendCrops, getBorewellRisk, getPriceTrend };
+async function predictYield(data) {
+  try {
+    const response = await axios.post(`${ML_URL}/ml/predict-yield`, data, { timeout: 15000 });
+    return response.data;
+  } catch (error) {
+    console.error('ML Yield Prediction error:', error.message);
+    return {
+      predictedYieldPerAcre: 2.0,
+      totalYield: data.area_acres ? 2.0 * data.area_acres : 2.0,
+      confidence: 'MEDIUM',
+      explanation: {
+        helps: ['Fallback model active: general location suitability assumed.'],
+        hurts: ['Unable to connect to ML service. Showing estimated yield.']
+      }
+    };
+  }
+}
+
+module.exports = { recommendCrops, getBorewellRisk, getPriceTrend, predictYield };

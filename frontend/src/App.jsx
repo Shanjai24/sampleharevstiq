@@ -2,8 +2,8 @@ import { useState, createContext } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import Navbar from './components/Navbar';
 import BottomNav from './components/BottomNav';
-import LanguageToggle from './components/LanguageToggle';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import CropDetail from './pages/CropDetail';
@@ -18,28 +18,39 @@ export const FarmContext = createContext(null);
 const darkTheme = createTheme({
   palette: {
     mode: 'dark',
-    primary: { main: '#16a34a', light: '#22c55e', dark: '#15803d' },
-    secondary: { main: '#0ea5e9' },
-    background: { default: '#0a0f0d', paper: 'rgba(20, 30, 24, 0.85)' }
+    primary: { main: '#10b981', light: '#34d399', dark: '#059669' },
+    secondary: { main: '#0284c7' },
+    background: { default: '#070d0a', paper: '#0e1713' },
+    text: { primary: '#f8fafc', secondary: '#cbd5e1' }
   },
   typography: {
-    fontFamily: "'Inter', system-ui, -apple-system, sans-serif"
+    fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif"
   },
-  shape: { borderRadius: 12 }
+  shape: { borderRadius: 14 }
 });
 
 function App() {
-  const [farmData, setFarmData] = useState(null);
+  const [farmData, setFarmDataState] = useState(null);
   const [location, setLocation] = useState(null);
+  const [sessionAnalyzed, setSessionAnalyzed] = useState(false);
+  const [lastAnalyzedAt, setLastAnalyzedAt] = useState(null);
+
+  const setFarmData = (data, isNewAnalysis = true) => {
+    setFarmDataState(data);
+    if (data && isNewAnalysis) {
+      setSessionAnalyzed(true);
+      setLastAnalyzedAt(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    }
+  };
 
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
-      <FarmContext.Provider value={{ farmData, setFarmData, location, setLocation }}>
+      <FarmContext.Provider value={{ farmData, setFarmData, location, setLocation, sessionAnalyzed, setSessionAnalyzed, lastAnalyzedAt }}>
         <BrowserRouter>
-          <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-            <LanguageToggle />
-            <div style={{ flex: 1, overflow: 'auto', paddingBottom: '64px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: 'var(--color-bg)' }}>
+            <Navbar />
+            <main className="app-main-content" style={{ flex: 1, overflowY: 'auto' }}>
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/dashboard" element={<Dashboard />} />
@@ -50,7 +61,7 @@ function App() {
                 <Route path="/history" element={<History />} />
                 <Route path="/chat" element={<Chat />} />
               </Routes>
-            </div>
+            </main>
             <BottomNav />
           </div>
         </BrowserRouter>

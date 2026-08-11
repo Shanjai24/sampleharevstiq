@@ -17,6 +17,7 @@ const farmAnalysisSchema = new mongoose.Schema({
   elevation: Number,
   groundwaterRisk: { type: String, enum: ['LOW', 'MODERATE', 'HIGH'] },
   riskScore: Number,
+  borewellDetail: mongoose.Schema.Types.Mixed,
   recommendedCrops: [{
     crop: String,
     score: Number,

@@ -1,6 +1,7 @@
 """
-FarmSense RAG Knowledge Base
+AgroPredict RAG Knowledge Base
 Uses ChromaDB for vector storage and HuggingFace embeddings for semantic search.
+Includes robust fallback for keyword-based search.
 """
 import json
 import os
@@ -8,7 +9,6 @@ import hashlib
 
 try:
     import chromadb
-    from chromadb.config import Settings
     CHROMADB_AVAILABLE = True
 except ImportError:
     CHROMADB_AVAILABLE = False
@@ -34,15 +34,17 @@ class KnowledgeBase:
         self.initialized = False
 
     def initialize(self):
-        """Load knowledge documents and build ChromaDB vector store."""
+        """Load knowledge documents and build vector store."""
         print("[RAG] Initializing knowledge base...")
-
-        # Load all knowledge documents
         self._load_documents()
         print(f"[RAG] Loaded {len(self.documents)} knowledge chunks")
 
         if CHROMADB_AVAILABLE and EMBEDDINGS_AVAILABLE:
-            self._build_vector_store()
+            try:
+                self._build_vector_store()
+            except Exception as e:
+                print(f"[WARN] ChromaDB initialization failed ({e}), using keyword fallback")
+                self.collection = None
         else:
             print("[RAG] Running in fallback mode (keyword search)")
 
@@ -60,15 +62,15 @@ class KnowledgeBase:
                 diseases = json.load(f)
             for d in diseases:
                 text = (
-                    f"Crop: {d['crop']}. Disease: {d['disease']}. "
-                    f"Symptoms: {d['symptoms']} "
-                    f"Cause: {d['cause']} "
-                    f"Treatment: {d['treatment']} "
-                    f"Prevention: {d['prevention']}"
+                    f"Crop: {d.get('crop', '')}. Disease: {d.get('disease', '')}. "
+                    f"Symptoms: {d.get('symptoms', '')} "
+                    f"Cause: {d.get('cause', '')} "
+                    f"Treatment: {d.get('treatment', '')} "
+                    f"Prevention: {d.get('prevention', '')}"
                 )
                 self.documents.append({
                     'text': text,
-                    'metadata': {'source': 'crop_diseases', 'crop': d['crop'], 'disease': d['disease']},
+                    'metadata': {'source': 'crop_diseases', 'crop': d.get('crop', ''), 'disease': d.get('disease', '')},
                     'id': hashlib.md5(text[:100].encode()).hexdigest()
                 })
 
@@ -78,10 +80,10 @@ class KnowledgeBase:
             with open(practices_path, 'r', encoding='utf-8') as f:
                 practices = json.load(f)
             for p in practices:
-                text = f"Topic: {p['topic']}. {p['content']}"
+                text = f"Topic: {p.get('topic', '')}. {p.get('content', '')}"
                 self.documents.append({
                     'text': text,
-                    'metadata': {'source': 'farming_practices', 'topic': p['topic']},
+                    'metadata': {'source': 'farming_practices', 'topic': p.get('topic', '')},
                     'id': hashlib.md5(text[:100].encode()).hexdigest()
                 })
 
@@ -92,15 +94,15 @@ class KnowledgeBase:
                 schemes = json.load(f)
             for s in schemes:
                 text = (
-                    f"Government Scheme: {s['scheme']}. "
-                    f"Benefit: {s['benefit']} "
-                    f"Eligibility: {s['eligibility']} "
-                    f"How to apply: {s['howToApply']} "
-                    f"Coverage: {s['coverage']}"
+                    f"Government Scheme: {s.get('scheme', '')}. "
+                    f"Benefit: {s.get('benefit', '')} "
+                    f"Eligibility: {s.get('eligibility', '')} "
+                    f"How to apply: {s.get('howToApply', '')} "
+                    f"Coverage: {s.get('coverage', '')}"
                 )
                 self.documents.append({
                     'text': text,
-                    'metadata': {'source': 'government_schemes', 'scheme': s['scheme']},
+                    'metadata': {'source': 'government_schemes', 'scheme': s.get('scheme', '')},
                     'id': hashlib.md5(text[:100].encode()).hexdigest()
                 })
 
@@ -110,43 +112,38 @@ class KnowledgeBase:
             with open(irrigation_path, 'r', encoding='utf-8') as f:
                 guides = json.load(f)
             for g in guides:
-                text = f"Topic: {g['topic']}. {g['content']}"
+                text = f"Topic: {g.get('topic', '')}. {g.get('content', '')}"
                 self.documents.append({
                     'text': text,
-                    'metadata': {'source': 'irrigation_guide', 'topic': g['topic']},
+                    'metadata': {'source': 'irrigation_guide', 'topic': g.get('topic', '')},
                     'id': hashlib.md5(text[:100].encode()).hexdigest()
                 })
 
     def _build_vector_store(self):
         """Build ChromaDB collection with HuggingFace embeddings."""
-        print("[RAG] Loading embedding model (this may take a minute first time)...")
+        print("[RAG] Loading embedding model...")
         self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
 
-        # Create/open ChromaDB
         os.makedirs(CHROMA_DIR, exist_ok=True)
-        client = chromadb.Client(Settings(
-            persist_directory=CHROMA_DIR,
-            anonymized_telemetry=False
-        ))
+        try:
+            client = chromadb.PersistentClient(path=CHROMA_DIR)
+        except Exception:
+            client = chromadb.Client()
 
-        # Create or get collection
         self.collection = client.get_or_create_collection(
             name="farm_knowledge",
-            metadata={"description": "FarmSense agricultural knowledge base"}
+            metadata={"description": "AgroPredict agricultural knowledge base"}
         )
 
-        # Check if we need to add documents
         existing = self.collection.count()
         if existing >= len(self.documents):
-            print(f"[RAG] ChromaDB already has {existing} documents, skipping ingestion")
+            print(f"[RAG] ChromaDB has {existing} documents, ready.")
             return
 
-        # Embed and add all documents
         print(f"[RAG] Embedding {len(self.documents)} documents...")
         texts = [doc['text'] for doc in self.documents]
-        embeddings = self.embedding_model.encode(texts, show_progress_bar=True).tolist()
+        embeddings = self.embedding_model.encode(texts, show_progress_bar=False).tolist()
 
-        # Add in batches
         batch_size = 50
         for i in range(0, len(self.documents), batch_size):
             batch = self.documents[i:i + batch_size]
@@ -161,42 +158,54 @@ class KnowledgeBase:
         print(f"[RAG] ChromaDB populated with {self.collection.count()} documents")
 
     def search(self, query, n_results=5, crop_filter=None):
-        """Search knowledge base for relevant documents."""
+        """Search knowledge base for relevant documents with soft filtering and distance thresholding."""
         if not self.initialized:
             self.initialize()
 
-        # ChromaDB semantic search
         if self.collection is not None and self.embedding_model is not None:
-            query_embedding = self.embedding_model.encode([query]).tolist()
-
-            where_filter = None
-            if crop_filter:
-                where_filter = {"crop": crop_filter.lower()}
-
             try:
+                query_embedding = self.embedding_model.encode([query]).tolist()
+                
+                # Only apply hard where filter if crop_filter is explicitly mentioned in the query
+                query_lower = query.lower()
+                where_filter = None
+                if crop_filter and crop_filter.lower() in query_lower:
+                    where_filter = {"crop": crop_filter.lower()}
+
                 results = self.collection.query(
                     query_embeddings=query_embedding,
-                    n_results=min(n_results, self.collection.count()),
-                    where=where_filter if where_filter else None
+                    n_results=min(n_results, max(1, self.collection.count())),
+                    where=where_filter
                 )
 
                 documents = []
-                for i, doc in enumerate(results['documents'][0]):
-                    documents.append({
-                        'text': doc,
-                        'metadata': results['metadatas'][0][i] if results['metadatas'] else {},
-                        'distance': results['distances'][0][i] if results['distances'] else 0
-                    })
-                return documents
+                if results and results.get('documents') and len(results['documents']) > 0:
+                    for i, doc in enumerate(results['documents'][0]):
+                        distance = results['distances'][0][i] if results.get('distances') and len(results['distances'][0]) > i else 0
+                        # Distance threshold for relevance (filter out low-relevance matches > 1.25)
+                        if distance > 1.25:
+                            continue
+                        documents.append({
+                            'text': doc,
+                            'metadata': results['metadatas'][0][i] if results['metadatas'] else {},
+                            'distance': distance
+                        })
+                    if documents:
+                        return documents
             except Exception as e:
-                print(f"[RAG] ChromaDB search error: {e}, falling back to keyword search")
+                print(f"[RAG] ChromaDB search exception ({e}), using keyword fallback")
 
-        # Fallback: keyword search
         return self._keyword_search(query, n_results, crop_filter)
 
     def _keyword_search(self, query, n_results=5, crop_filter=None):
-        """Simple keyword-based search fallback."""
-        query_words = set(query.lower().split())
+        """Enhanced keyword-based search with stopword filtering and intent boosting."""
+        stopwords = {'what', 'should', 'i', 'need', 'to', 'do', 'before', 'my', 'a', 'the', 'for', 'in', 'on', 'of', 'is', 'are', 'can', 'how', 'which', 'will', 'about', 'get', 'give'}
+        raw_words = [w.strip('?,.!') for w in query.lower().split()]
+        meaningful_words = [w for w in raw_words if w and w not in stopwords and len(w) > 2]
+        if not meaningful_words:
+            meaningful_words = raw_words
+
+        query_lower = query.lower()
         scored = []
 
         for doc in self.documents:
@@ -204,16 +213,36 @@ class KnowledgeBase:
                 continue
 
             text_lower = doc['text'].lower()
-            score = sum(1 for word in query_words if word in text_lower)
+            score = 0.0
+
+            # Base keyword occurrences
+            for word in meaningful_words:
+                if word in text_lower:
+                    score += 1.5
+
+            # Intent phrase boosting
+            if 'before planting' in query_lower or 'land prep' in query_lower or 'field prep' in query_lower or 'sowing prep' in query_lower:
+                if 'pre-planting' in text_lower or 'land preparation' in text_lower or 'seed treatment' in text_lower:
+                    score += 5.0
+            if 'crops suit' in query_lower or 'which crop' in query_lower or 'best crops' in query_lower:
+                if 'crop:' in text_lower or 'soil health' in text_lower or 'nutrient management' in text_lower:
+                    score += 4.0
 
             if score > 0:
                 scored.append({
                     'text': doc['text'],
                     'metadata': doc['metadata'],
-                    'distance': 1.0 / (score + 1)
+                    'distance': 1.0 / (score + 1.0)
                 })
 
         scored.sort(key=lambda x: x['distance'])
+        if not scored and self.documents:
+            # Smart default fallback selection based on topic
+            pre_plant = [d for d in self.documents if 'pre-planting' in d['text'].lower()]
+            if pre_plant:
+                return [{'text': d['text'], 'metadata': d['metadata'], 'distance': 0.5} for d in pre_plant[:n_results]]
+            return [{'text': d['text'], 'metadata': d['metadata'], 'distance': 1.0} for d in self.documents[:n_results]]
+
         return scored[:n_results]
 
     def get_status(self):

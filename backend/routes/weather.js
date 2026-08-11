@@ -11,7 +11,7 @@ router.get('/:lat/:lng', async (req, res) => {
     // Calculate irrigation recommendation
     const et = weather.evapotranspiration;
     const rainfall = weather.current.precipitation;
-    const waterNeeded = Math.max(0, (et * 10) - rainfall); // mm needed
+    const waterNeeded = Math.max(0, et - rainfall); // mm needed
     const litresPerAcre = Math.round(waterNeeded * 4047); // 1 acre = 4047 sq meters, 1mm = 1L/sqm
 
     const tomorrowRain = weather.forecast[1]?.precipitation || 0;

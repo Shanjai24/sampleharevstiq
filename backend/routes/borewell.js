@@ -4,6 +4,7 @@ const { getElevation } = require('../services/elevationService');
 const { getSoilData } = require('../services/soilService');
 const { getWeather } = require('../services/weatherService');
 const { getBorewellRisk } = require('../services/mlService');
+const { getDistanceToRiver, estimateNdviScore } = require('../services/geospatialService');
 
 // GET /api/borewell/:lat/:lng
 router.get('/:lat/:lng', async (req, res) => {
@@ -17,14 +18,18 @@ router.get('/:lat/:lng', async (req, res) => {
       getWeather(lat, lng)
     ]);
 
+    const annualRainfall = (weather.rainfall7day || 20) * 52;
+    const distanceToRiver = await getDistanceToRiver(lat, lng);
+    const ndviScore = estimateNdviScore(lat, lng, annualRainfall, soil.clay);
+
     const month = new Date().getMonth() + 1;
     const riskResult = await getBorewellRisk({
       elevation: elevation.elevation,
       soil_depth: soil.depth,
       clay_content: soil.clay,
-      annual_rainfall: weather.rainfall7day * 52,
-      distance_to_river: 5,
-      ndvi_score: 0.4,
+      annual_rainfall: annualRainfall,
+      distance_to_river: distanceToRiver,
+      ndvi_score: ndviScore,
       month
     });
 
@@ -55,8 +60,8 @@ router.get('/:lat/:lng', async (req, res) => {
       breakdown: {
         soilDepth: { score: breakdown.soilDepth || 50, value: `${soil.depth}cm`, label: 'Soil Depth' },
         elevation: { score: breakdown.elevation || 50, value: `${elevation.elevation}m`, label: 'Elevation' },
-        rainfall: { score: breakdown.rainfall || 50, value: `${Math.round(weather.rainfall7day * 52)}mm/year`, label: 'Annual Rainfall' },
-        waterDistance: { score: breakdown.waterDistance || 50, value: '~5km', label: 'Distance to Water Body' }
+        rainfall: { score: breakdown.rainfall || 50, value: `${Math.round(annualRainfall)}mm/year`, label: 'Annual Rainfall' },
+        waterDistance: { score: breakdown.waterDistance || 50, value: `${distanceToRiver} km`, label: 'Distance to Water Body' }
       },
       recommendation,
       explanation,
