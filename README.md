@@ -55,7 +55,7 @@ cp backend/.env.example backend/.env
 Configure your credentials:
 ```env
 PORT=5000
-MONGODB_URI=mongodb://your_username:your_password@your_cluster.mongodb.net/farmsense?ssl=true&authSource=admin
+MONGODB_URI=mongodb://localhost:27017/farmsense
 ML_SERVICE_URL=http://127.0.0.1:5001
 DATA_GOV_API_KEY=your_api_key_here
 ```
