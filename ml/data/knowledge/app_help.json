@@ -1,0 +1,38 @@
+[
+  {
+    "topic": "How to Get Crop Recommendations",
+    "content": "To get crop recommendations, go to the Home/Map page and either drop a pin on your farm location or tap 'Analyse My Farm Plot' to use your device GPS. AgroPredict AI will fetch your soil type, weather, and elevation automatically, then show your top 5 recommended crops on the Dashboard page, each with a suitability score, soil match percentage, weather match percentage, expected yield, and estimated profit per acre."
+  },
+  {
+    "topic": "How to Check Groundwater and Borewell Risk",
+    "content": "After analysing your farm plot, open the Borewell page from the navigation menu. It shows a risk score from 0-100 (Low, Moderate, or High), a plain-language recommendation on whether drilling is advisable, and a breakdown of the contributing factors: soil depth, elevation, annual rainfall, and distance to the nearest water body."
+  },
+  {
+    "topic": "How to Diagnose a Plant Disease from a Photo",
+    "content": "To check a plant for disease using a photo: open the AI Advisory / Chat page, switch to the 'Vision' or 'Photo Scan' tab, then upload or capture a clear, well-lit photo of the affected leaf or plant close-up. Optionally type the crop name as a hint for more accurate results. Tap 'Analyze Photo'. Within a few seconds you will get the identified disease or pest, likely cause, an organic treatment option, a chemical treatment option with dosage, and prevention tips for future seasons. For best results, photograph a single affected leaf against a plain background in daylight, avoiding blur and shadows."
+  },
+  {
+    "topic": "How to Check Mandi Market Prices",
+    "content": "Open the Market page and select your crop from the dropdown. You will see the nearest mandi (market) prices, the best mandi to sell at for the highest price, and a 30-day price trend chart to help decide whether to sell now or wait."
+  },
+  {
+    "topic": "How to Check the Weather Forecast",
+    "content": "Open the Weather page after selecting your farm location. It shows today's temperature, humidity, rainfall, and wind, plus a 7-day forecast and a smart irrigation recommendation - how many litres per acre to water today based on evapotranspiration and expected rainfall."
+  },
+  {
+    "topic": "How to Improve Recommendation Accuracy with Soil Test Data",
+    "content": "By default, AgroPredict estimates your soil using regional government averages (about 60-75% confidence). For much more accurate recommendations, use the Soil Data Source selector to either upload a photo of your lab soil test report (auto-extracted via OCR, 100% confidence) or manually enter your Nitrogen, Phosphorus, Potassium, and pH values (90% confidence)."
+  },
+  {
+    "topic": "How to Switch App Language",
+    "content": "Tap the language toggle in the top navigation bar to switch the app between English, Hindi, and Tamil at any time. Your choice is remembered for future visits."
+  },
+  {
+    "topic": "How to Save and Revisit a Farm Plot",
+    "content": "After analysing a plot, go to the History page and tap 'Save This Location' to name and store it. Saved plots can be reopened later from the History page to view their last analysis without re-entering location details."
+  },
+  {
+    "topic": "What AgroPredict Does - App Overview",
+    "content": "AgroPredict (HarvestIQ) is an AI-powered farming assistant. From one map pin-drop it provides: crop recommendations suited to your soil and climate, expected yield and profit per crop, groundwater/borewell drilling risk assessment, live weather and irrigation guidance, mandi market price trends, and a 24/7 AI chat advisor that can also diagnose plant diseases from photos. It is built for smallholder Indian farmers and works in English, Hindi, and Tamil."
+  }
+]

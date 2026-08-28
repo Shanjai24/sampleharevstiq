@@ -6,6 +6,13 @@ import { getBorewellRisk } from '../services/api';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import IconButton from '@mui/material/IconButton';
 import WaterDropIcon from '@mui/icons-material/WaterDrop';
+import TerrainIcon from '@mui/icons-material/Terrain';
+import LayersIcon from '@mui/icons-material/Layers';
+import OpacityIcon from '@mui/icons-material/Opacity';
+import WavesIcon from '@mui/icons-material/Waves';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import LightbulbOutlinedIcon from '@mui/icons-material/LightbulbOutlined';
 
 export default function Borewell() {
   const { farmData, location, sessionAnalyzed, lastAnalyzedAt } = useContext(FarmContext);
@@ -26,7 +33,7 @@ export default function Borewell() {
       })
       .catch((err) => {
         console.error(err);
-        setError('Failed to fetch groundwater risk analysis. Please verify that backend services are active.');
+        setError('Failed to fetch groundwater risk analysis. Please verify backend service connectivity.');
         setLoading(false);
       });
   };
@@ -45,11 +52,12 @@ export default function Borewell() {
   if (loading) {
     return (
       <div className="page-container">
-        <div className="skeleton" style={{ height: 40, width: '40%', marginBottom: 20 }} />
-        <div className="glass-card" style={{ padding: 40, textAlign: 'center', marginBottom: 20 }}>
-          <div className="skeleton" style={{ width: 140, height: 140, borderRadius: '50%', margin: '0 auto 20px' }} />
-          <div className="skeleton" style={{ height: 24, width: '30%', margin: '0 auto' }} />
+        <div className="skeleton" style={{ height: 48, width: '45%', marginBottom: 24 }} />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20, marginBottom: 24 }}>
+          <div className="skeleton" style={{ height: 240 }} />
+          <div className="skeleton" style={{ height: 240 }} />
         </div>
+        <div className="skeleton" style={{ height: 200 }} />
       </div>
     );
   }
@@ -59,11 +67,12 @@ export default function Borewell() {
       <div className="page-container" style={{ textAlign: 'center', paddingTop: 60 }}>
         <div className="glass-card" style={{ maxWidth: 500, margin: '0 auto', padding: 40 }}>
           <div style={{ fontSize: '3.5rem', marginBottom: 16 }}>⚠️</div>
-          <p style={{ color: '#ef4444', fontSize: '1rem', fontWeight: 600, marginBottom: 20, lineHeight: 1.5 }}>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#182420', marginBottom: 8 }}>Analysis Unavailable</h3>
+          <p style={{ color: '#C85A32', fontSize: '0.9rem', fontWeight: 600, marginBottom: 20, lineHeight: 1.5 }}>
             {error}
           </p>
           <button onClick={location ? fetchBorewellRisk : () => navigate('/')} className="btn-accent">
-            {location ? 'Retry Analysis' : 'Go to Map'}
+            {location ? 'Retry Risk Assessment' : 'Select Farm on Map'}
           </button>
         </div>
       </div>
@@ -72,14 +81,16 @@ export default function Borewell() {
 
   if (!riskData) {
     return (
-      <div className="page-container" style={{ textAlign: 'center', paddingTop: 60 }}>
-        <div className="glass-card" style={{ maxWidth: 500, margin: '0 auto', padding: 40 }}>
-          <WaterDropIcon sx={{ fontSize: 50, color: '#0284c7', marginBottom: 2 }} />
-          <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: 8 }}>{t('borewell.title', 'Groundwater Risk Assessment')}</h2>
-          <p style={{ color: '#cbd5e1', fontSize: '0.9rem', marginBottom: 24 }}>
-            Please select your farm location on the map to calculate hydrogeological borewell failure risk.
+      <div className="page-container" style={{ textAlign: 'center', paddingTop: 80, paddingBottom: 80 }}>
+        <div className="glass-card" style={{ maxWidth: 520, margin: '0 auto', padding: '44px 28px', border: '1px solid #E5E2D8' }}>
+          <div style={{ fontSize: '3.6rem', marginBottom: 16 }}>💧</div>
+          <h2 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: 10, color: '#182420' }}>
+            {t('borewell.title', 'Groundwater Risk Assessment')}
+          </h2>
+          <p style={{ color: '#485954', fontSize: '0.92rem', marginBottom: 28, lineHeight: 1.6 }}>
+            Select your farm plot on the map to evaluate hydrogeological aquifer depth, clay layer resistance, and drilling failure probability.
           </p>
-          <button onClick={() => navigate('/')} className="btn-accent pulse-glow" style={{ width: '100%' }}>
+          <button onClick={() => navigate('/')} className="btn-accent" style={{ width: '100%', padding: '12px 24px', fontSize: '0.95rem' }}>
             📍 {t('home.title', 'Select Farm on Map')}
           </button>
         </div>
@@ -87,43 +98,48 @@ export default function Borewell() {
     );
   }
 
-  const { riskScore = 55, riskLevel = 'MODERATE', breakdown = {}, recommendation, explanation, estimatedCost } = riskData;
-  const riskColors = { HIGH: '#C85A32', MODERATE: '#D97706', LOW: '#2E6F40' };
-  const riskBg = { HIGH: '#FDF3F0', MODERATE: '#FFF8E7', LOW: '#EBF4ED' };
-  const color = riskColors[riskLevel] || '#D97706';
-  const humanRiskLabel = riskLevel === 'HIGH' ? 'Requires Attention' : riskLevel === 'MODERATE' ? 'Moderate Watch' : 'Good Condition';
+  const { riskScore = 55, riskLevel = 'MODERATE', breakdown = {}, recommendation, estimatedCost } = riskData;
+  const isHigh = riskLevel === 'HIGH';
+  const isMod = riskLevel === 'MODERATE';
+  const color = isHigh ? '#C85A32' : isMod ? '#D97706' : '#1E5E3A';
+  const bgSoft = isHigh ? '#FDF3F0' : isMod ? '#FFF8E7' : '#EBF5ED';
+  const borderSoft = isHigh ? '#F7D0C4' : isMod ? '#FCE4B6' : '#C6E4CF';
+  const riskTitle = isHigh ? 'High Drilling Risk' : isMod ? 'Moderate Drilling Watch' : 'Low Drilling Risk (Favorable)';
+  const locDistrict = farmData?.location?.district || 'Selected Plot';
+  const locState = farmData?.location?.state || '';
 
   const breakdownItems = [
-    { key: 'soilDepth', icon: '🧱', label: 'Soil Depth' },
-    { key: 'elevation', icon: '⛰️', label: 'Elevation Profile' },
-    { key: 'rainfall', icon: '🌧️', label: 'Annual Rainfall' },
-    { key: 'waterDistance', icon: '🏞️', label: 'Distance to Water Body' }
+    { key: 'soilDepth', icon: <LayersIcon sx={{ fontSize: 20, color: '#1E5E3A' }} />, label: 'Soil Clay Depth' },
+    { key: 'elevation', icon: <TerrainIcon sx={{ fontSize: 20, color: '#D97706' }} />, label: 'Elevation Profile' },
+    { key: 'rainfall', icon: <OpacityIcon sx={{ fontSize: 20, color: '#0284c7' }} />, label: 'Annual Rainfall' },
+    { key: 'waterDistance', icon: <WavesIcon sx={{ fontSize: 20, color: '#C85A32' }} />, label: 'Proximity to Water Bodies' }
   ];
 
   return (
     <div className="page-container">
-      {/* Location Alert */}
+      {/* Session Plot Notification */}
       {!sessionAnalyzed && farmData && (
         <div style={{
-          background: '#FFF8E7', border: '1px solid #FCE4B6', borderRadius: 10,
-          padding: '10px 16px', marginBottom: 20, display: 'flex', alignItems: 'center',
-          justifyContent: 'space-between', flexWrap: 'wrap', gap: 12
+          background: '#FFF8E7', border: '1px solid #FCE4B6', borderRadius: 12,
+          padding: '12px 18px', marginBottom: 20, display: 'flex', alignItems: 'center',
+          justifyContent: 'space-between', flexWrap: 'wrap', gap: 12,
+          boxShadow: 'var(--shadow-subtle)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontSize: '1.1rem' }}>📌</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ fontSize: '1.25rem' }}>📌</span>
             <div>
-              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#D97706' }}>
-                Groundwater Risk for Selected Plot
+              <span style={{ fontSize: '0.88rem', fontWeight: 700, color: '#B45309' }}>
+                Groundwater Assessment for Saved Plot
               </span>
-              <p style={{ margin: 0, fontSize: '0.75rem', color: '#4A5D58' }}>
-                {farmData?.location?.district ? `${farmData.location.district}, ${farmData.location.state}` : 'Current plot'} {lastAnalyzedAt ? `(Analyzed ${lastAnalyzedAt})` : ''}
+              <p style={{ margin: 0, fontSize: '0.78rem', color: '#485954' }}>
+                {locDistrict ? `${locDistrict}, ${locState}` : 'Farm plot'} {lastAnalyzedAt ? `• Analyzed ${lastAnalyzedAt}` : ''}
               </p>
             </div>
           </div>
           <button
             onClick={() => navigate('/')}
             className="btn-accent"
-            style={{ padding: '6px 14px', fontSize: '0.8rem' }}
+            style={{ padding: '7px 16px', fontSize: '0.82rem' }}
           >
             📍 {t('dashboard.runFresh', 'Run Fresh Analysis')}
           </button>
@@ -131,101 +147,205 @@ export default function Borewell() {
       )}
 
       {/* Header */}
-      <div className="fade-in" style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24 }}>
-        <IconButton onClick={() => navigate(-1)} sx={{ color: '#2E6F40', background: '#EBF4ED' }}>
-          <ArrowBackIcon />
+      <div className="fade-in" style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 22 }}>
+        <IconButton
+          onClick={() => navigate(-1)}
+          sx={{
+            color: '#1E5E3A', background: '#FFFFFF', border: '1px solid #E5E2D8',
+            '&:hover': { background: '#F8F7F2' }
+          }}
+        >
+          <ArrowBackIcon fontSize="small" />
         </IconButton>
+
         <div>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0, color: '#1C2826' }}>
-            💧 Groundwater & Aquifer Analytics
-          </h1>
-          <p style={{ color: '#788A85', fontSize: '0.85rem', marginTop: 2 }}>
-            Hydro-geological assessment based on terrain elevation, soil depth, & seasonal rainfall
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <h1 style={{ fontSize: '1.85rem', fontWeight: 800, margin: 0, color: '#182420', letterSpacing: '-0.02em' }}>
+              Groundwater & Borewell Risk
+            </h1>
+            <span className="badge-live">
+              <span className="badge-live-dot" />
+              LIVE GEOSPATIAL ANALYSIS
+            </span>
+          </div>
+          <p style={{ color: '#485954', fontSize: '0.88rem', margin: '2px 0 0' }}>
+            Hydro-geological failure risk calculated for {locDistrict}{locState ? `, ${locState}` : ''}
           </p>
         </div>
       </div>
 
-      {/* Hero Section: Gauge & Score */}
+      {/* Hero Section: Risk Dial & Agronomist Recommendation */}
       <div style={{
         display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
         gap: 20, marginBottom: 24
       }}>
-        {/* Risk Badge Dial Card */}
-        <div className="glass-card fade-in" style={{
-          padding: 32, textAlign: 'center',
-          background: riskBg[riskLevel], borderColor: '#E6E4DC',
+        {/* Risk Dial Card */}
+        <div className="hero-card-top-crop fade-in" style={{
+          padding: '30px 24px', textAlign: 'center',
+          background: bgSoft, borderColor: borderSoft,
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
         }}>
+          {/* Radial Ring Gauge */}
           <div style={{
-            width: 130, height: 130, borderRadius: '50%', margin: '0 auto 16px',
-            border: `4px solid ${color}`,
+            width: 140, height: 140, borderRadius: '50%', margin: '0 auto 16px',
+            border: `6px solid ${color}`,
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            background: '#FFFFFF'
+            background: '#FFFFFF',
+            boxShadow: '0 8px 24px rgba(24, 36, 32, 0.08)'
           }}>
-            <span style={{ fontSize: '1.8rem', fontWeight: 800, color }}>{riskScore}</span>
-            <span style={{ fontSize: '0.68rem', color: '#788A85', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Score</span>
+            <span style={{ fontSize: '2.4rem', fontWeight: 800, color, lineHeight: 1 }}>
+              {riskScore}
+            </span>
+            <span style={{ fontSize: '0.7rem', color: '#748782', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 700, marginTop: 2 }}>
+              / 100 Risk
+            </span>
           </div>
 
-          <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color, marginBottom: 4 }}>
-            {humanRiskLabel}
+          <h2 style={{ fontSize: '1.45rem', fontWeight: 800, color, margin: '0 0 6px' }}>
+            {riskTitle}
           </h2>
-          <p style={{ fontSize: '0.85rem', color: '#4A5D58' }}>
-            Borewell Drilling Failure Risk Index: <strong>{riskScore}/100</strong>
+
+          <p style={{ fontSize: '0.86rem', color: '#485954', margin: 0, maxWidth: 280 }}>
+            {isHigh
+              ? 'High probability of dry-bore drilling. Artificial recharge or survey advised.'
+              : isMod
+                ? 'Moderate groundwater table. Drilling requires localized geo-resistivity test.'
+                : 'Favorable geological conditions for sustainable aquifer yield.'}
           </p>
         </div>
 
         {/* Financial & Hydro Recommendation Card */}
-        <div className="glass-card fade-in fade-in-delay-1" style={{ padding: 28, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        <div className="glass-card fade-in fade-in-delay-1" style={{
+          padding: 26, display: 'flex', flexDirection: 'column', justifyContent: 'space-between'
+        }}>
           <div>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#2E6F40', marginBottom: 12 }}>
-              💡 Agronomist Recommendation
-            </h3>
-            <p style={{ fontSize: '0.9rem', lineHeight: 1.6, color: '#1C2826', margin: 0 }}>
-              {recommendation || 'Borewell drilling may succeed, but consider conducting a hydro-geological survey before heavy investment.'}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <LightbulbOutlinedIcon sx={{ color: '#1E5E3A', fontSize: 22 }} />
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#182420', margin: 0 }}>
+                Agronomist Hydrogeology Advice
+              </h3>
+            </div>
+
+            <p style={{ fontSize: '0.9rem', lineHeight: 1.6, color: '#182420', margin: '0 0 16px' }}>
+              {recommendation || 'Borewell drilling in this geological zone may yield seasonal water. Ensure you conduct a 2D resistivity survey before commissioning heavy drilling rigs.'}
             </p>
           </div>
 
           {estimatedCost && (
             <div style={{
-              marginTop: 20, padding: '14px 18px', borderRadius: 10,
-              background: '#FFF8E7', border: '1px solid #FCE4B6'
+              padding: '14px 18px', borderRadius: 12,
+              background: '#FFF8E7', border: '1px solid #FCE4B6',
+              display: 'flex', alignItems: 'center', gap: 12
             }}>
-              <span style={{ fontSize: '0.75rem', color: '#788A85', display: 'block', marginBottom: 2 }}>Estimated Dry-Bore Loss Exposure</span>
-              <span style={{ fontSize: '1.05rem', fontWeight: 800, color: '#D97706' }}>
-                💰 Estimated Cost of Dry Bore: {estimatedCost}
-              </span>
+              <WarningAmberIcon sx={{ color: '#D97706', fontSize: 24, flexShrink: 0 }} />
+              <div>
+                <span style={{ fontSize: '0.72rem', color: '#748782', display: 'block', fontWeight: 600 }}>
+                  Potential Dry-Bore Financial Loss Exposure
+                </span>
+                <span style={{ fontSize: '1.05rem', fontWeight: 800, color: '#B45309' }}>
+                  {estimatedCost}
+                </span>
+              </div>
             </div>
           )}
         </div>
       </div>
 
-      {/* Breakdown Grid */}
-      <div className="glass-card fade-in fade-in-delay-2" style={{ padding: 28, marginBottom: 24 }}>
-        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: 20, color: '#1C2826' }}>
-          📊 Geological Risk Factors Breakdown
-        </h3>
+      {/* Geological Factor Breakdown Grid */}
+      <div className="glass-card fade-in fade-in-delay-2" style={{ padding: 26, marginBottom: 24 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
+          <h3 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, color: '#182420' }}>
+            📊 Hydrogeological Factor Analysis
+          </h3>
+          <span style={{ fontSize: '0.75rem', color: '#748782' }}>
+            Weighted factors contributing to failure risk
+          </span>
+        </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16 }}>
           {breakdownItems.map(item => {
             const val = breakdown[item.key];
             const score = val?.score ?? val ?? 50;
             const value = val?.value || '';
-            const barColor = score > 65 ? '#C85A32' : score > 35 ? '#D97706' : '#2E6F40';
+            const isHighFactor = score > 65;
+            const isModFactor = score > 35;
+            const barColor = isHighFactor ? '#C85A32' : isModFactor ? '#D97706' : '#1E5E3A';
+            const meterClass = isHighFactor ? 'meter-fill-low' : isModFactor ? 'meter-fill-moderate' : 'meter-fill-strong';
+
             return (
-              <div key={item.key} style={{ background: '#FAF9F5', padding: 16, borderRadius: 10, border: '1px solid #E6E4DC' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                  <span style={{ fontSize: '0.88rem', fontWeight: 600, color: '#1C2826' }}>{item.icon} {val?.label || item.label}</span>
-                  <span style={{ fontSize: '0.8rem', color: '#788A85', fontWeight: 700 }}>{value} ({score}/100)</span>
+              <div key={item.key} style={{
+                background: '#F8F7F2', padding: '16px 18px', borderRadius: 12,
+                border: '1px solid #E5E2D8'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{
+                      width: 32, height: 32, borderRadius: 8, background: '#FFFFFF',
+                      border: '1px solid #E5E2D8', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}>
+                      {item.icon}
+                    </div>
+                    <span style={{ fontSize: '0.86rem', fontWeight: 700, color: '#182420' }}>
+                      {val?.label || item.label}
+                    </span>
+                  </div>
+                  <span style={{ fontSize: '0.8rem', color: barColor, fontWeight: 800 }}>
+                    {score}/100
+                  </span>
                 </div>
-                <div style={{ height: 8, background: '#E6E4DC', borderRadius: 4, overflow: 'hidden' }}>
-                  <div style={{
-                    height: '100%', borderRadius: 4, width: `${score}%`,
-                    background: barColor, transition: 'width 1s ease'
-                  }} />
+
+                <div className="suitability-meter-track" style={{ height: 7, marginBottom: 8 }}>
+                  <div
+                    className={`suitability-meter-fill ${meterClass}`}
+                    style={{ width: `${score}%` }}
+                  />
                 </div>
+
+                <span style={{ fontSize: '0.74rem', color: '#485954', fontWeight: 600 }}>
+                  Telemetry Metric: <strong>{value || `${score}% index`}</strong>
+                </span>
               </div>
             );
           })}
+        </div>
+      </div>
+
+      {/* Artificial Aquifer Recharge Guidance */}
+      <div className="glass-card fade-in" style={{ padding: 26, background: '#FFFFFF' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+          <CheckCircleOutlineIcon sx={{ color: '#1E5E3A', fontSize: 22 }} />
+          <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#182420' }}>
+            Aquifer Recharge & Groundwater Sustainability Techniques
+          </h3>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
+          <div style={{ padding: '16px', borderRadius: 10, background: '#F8F7F2', border: '1px solid #E5E2D8' }}>
+            <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#1E5E3A', display: 'block', marginBottom: 4 }}>
+              🌧️ Farm Pond & Bund Catchment
+            </span>
+            <p style={{ fontSize: '0.78rem', color: '#485954', margin: 0, lineHeight: 1.5 }}>
+              Excavate a 10x10m farm pond in the lowest slope corner to harvest monsoon runoff and recharge unconfined shallow aquifers.
+            </p>
+          </div>
+
+          <div style={{ padding: '16px', borderRadius: 10, background: '#F8F7F2', border: '1px solid #E5E2D8' }}>
+            <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#D97706', display: 'block', marginBottom: 4 }}>
+              ⚙️ Direct Casing Recharge Filter
+            </span>
+            <p style={{ fontSize: '0.78rem', color: '#485954', margin: 0, lineHeight: 1.5 }}>
+              Fit dry or low-yield borewells with a coarse sand-gravel filter pit around the casing to channel rooftop or silt-free canal runoff.
+            </p>
+          </div>
+
+          <div style={{ padding: '16px', borderRadius: 10, background: '#F8F7F2', border: '1px solid #E5E2D8' }}>
+            <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#C85A32', display: 'block', marginBottom: 4 }}>
+              🌾 Low-Water Crop Transition
+            </span>
+            <p style={{ fontSize: '0.78rem', color: '#485954', margin: 0, lineHeight: 1.5 }}>
+              If groundwater risk is High (&gt;65), consider shifting 40% of acreage from flood-irrigated paddy to drip-fed pulses, millets, or groundnut.
+            </p>
+          </div>
         </div>
       </div>
     </div>

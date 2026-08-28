@@ -8,14 +8,32 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import IconButton from '@mui/material/IconButton';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import ScienceIcon from '@mui/icons-material/Science';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import WaterDropIcon from '@mui/icons-material/WaterDrop';
+import StoreIcon from '@mui/icons-material/Store';
+import TimerIcon from '@mui/icons-material/Timer';
+import ScaleIcon from '@mui/icons-material/Scale';
 
 const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-const getMatchBadgeClass = (score) => {
-  const pct = Math.round((score || 0) * 100);
-  if (pct >= 80) return 'badge-match-high';
-  if (pct >= 60) return 'badge-match-medium';
-  return 'badge-match-low';
+const getCropEmoji = (cropName = '') => {
+  const c = cropName.toLowerCase();
+  if (c.includes('rice') || c.includes('paddy')) return '🌾';
+  if (c.includes('wheat')) return '🌾';
+  if (c.includes('cotton')) return '🌱';
+  if (c.includes('sugarcane')) return '🎋';
+  if (c.includes('maize') || c.includes('corn')) return '🌽';
+  if (c.includes('groundnut') || c.includes('peanut')) return '🥜';
+  if (c.includes('chili') || c.includes('chilli')) return '🌶️';
+  if (c.includes('tomato')) return '🍅';
+  if (c.includes('potato')) return '🥔';
+  if (c.includes('onion')) return '🧅';
+  if (c.includes('banana')) return '🍌';
+  if (c.includes('turmeric')) return '🌿';
+  if (c.includes('mustard')) return '🌼';
+  if (c.includes('gram') || c.includes('pulse')) return '🌱';
+  return '🌿';
 };
 
 export default function CropDetail() {
@@ -39,7 +57,6 @@ export default function CropDetail() {
   const [predictedData, setPredictedData] = useState(null);
   const [predLoading, setPredLoading] = useState(false);
   const [predError, setPredError] = useState('');
-  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const crop = farmData?.crops?.find(c => c.crop === name) || { crop: name, name: name };
   const state = farmData?.location?.state || 'Tamil Nadu';
@@ -90,41 +107,42 @@ export default function CropDetail() {
   const priceHistory = marketData?.history || [];
   const trend = marketData?.trend || 'STABLE';
   const trendEmoji = trend === 'UP' ? '📈' : trend === 'DOWN' ? '📉' : '➡️';
-  const trendColor = trend === 'UP' ? '#10b981' : trend === 'DOWN' ? '#ef4444' : '#f59e0b';
+  const trendColor = trend === 'UP' ? '#1E5E3A' : trend === 'DOWN' ? '#C85A32' : '#D97706';
 
-  const harvestDaysText = crop.harvestDays ? `${crop.harvestDays} days` : '90-120 days';
+  const harvestDaysText = crop.harvestDays ? `${crop.harvestDays} days` : '90 - 120 days';
   const waterText = crop.waterPerDay && !isNaN(parseFloat(crop.waterPerDay))
     ? `${Math.round(parseFloat(crop.waterPerDay) * 4047)} L/acre`
     : '1,200 L/acre';
 
-  const badgeClass = getMatchBadgeClass(crop.score);
+  const matchPct = Math.round((crop.score || 0.85) * 100);
+  const soilMatch = Math.round((crop.soilMatch || 0.88) * 100);
+  const weatherMatch = Math.round((crop.weatherMatch || 0.82) * 100);
 
   return (
     <div className="page-container">
       {/* Header */}
-      <div className="fade-in" style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24 }}>
-        <IconButton onClick={() => navigate(-1)} sx={{ color: '#2dd4bf', background: 'rgba(20, 184, 166, 0.1)' }}>
-          <ArrowBackIcon />
+      <div className="fade-in" style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 22 }}>
+        <IconButton
+          onClick={() => navigate(-1)}
+          sx={{
+            color: '#1E5E3A', background: '#FFFFFF', border: '1px solid #E5E2D8',
+            '&:hover': { background: '#F8F7F2' }
+          }}
+        >
+          <ArrowBackIcon fontSize="small" />
         </IconButton>
+
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <h1 style={{ fontSize: '1.8rem', fontWeight: 800, textTransform: 'capitalize', margin: 0 }}>
-              🌾 {crop.name || name} AgroPredict Insights
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <h1 style={{ fontSize: '1.85rem', fontWeight: 800, textTransform: 'capitalize', margin: 0, color: '#182420', letterSpacing: '-0.02em' }}>
+              {getCropEmoji(crop.name || name)} {crop.name || name} Agronomy Guide
             </h1>
-            <span
-              className={badgeClass}
-              title="Match Score: Combines AI neural model confidence, soil composition match, and 7-day weather alignment."
-              style={{
-                fontSize: '0.8rem', fontWeight: 800, padding: '4px 12px', borderRadius: 20,
-                cursor: 'help', display: 'inline-flex', alignItems: 'center', gap: 4
-              }}
-            >
-              <span>{Math.round((crop.score || 0.85) * 100)}% Match Score</span>
-              <span style={{ fontSize: '0.68rem', opacity: 0.85 }}>ℹ️</span>
+            <span className="badge-fit-strong">
+              {matchPct}% Suitability Match
             </span>
           </div>
-          <p style={{ color: '#94a3b8', fontSize: '0.82rem', marginTop: 2 }}>
-            Agronomic insights, fertilizer dosage schedule, mandi economics, & yield predictions
+          <p style={{ color: '#485954', fontSize: '0.88rem', margin: '2px 0 0' }}>
+            Fertilizer schedules, expected net revenue, mandi pricing, & field management
           </p>
         </div>
       </div>
@@ -134,160 +152,210 @@ export default function CropDetail() {
         display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
         gap: 14, marginBottom: 24
       }}>
-        <div className="glass-card fade-in fade-in-delay-1" style={{ padding: 18 }}>
-          <span style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 600, display: 'block' }}>Best Planting Window</span>
-          <p style={{ fontWeight: 800, marginTop: 6, fontSize: '1rem', color: '#f8fafc' }}>🗓 {plantWindow}</p>
+        <div className="glass-card fade-in fade-in-delay-1" style={{ padding: '18px 20px', borderLeft: '4px solid #1E5E3A' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+            <CalendarMonthIcon sx={{ fontSize: 18, color: '#1E5E3A' }} />
+            <span style={{ fontSize: '0.74rem', color: '#748782', fontWeight: 700 }}>Sowing Window</span>
+          </div>
+          <p style={{ fontWeight: 800, margin: 0, fontSize: '1.15rem', color: '#182420' }}>
+            {plantWindow}
+          </p>
         </div>
-        <div className="glass-card fade-in fade-in-delay-2" style={{ padding: 18 }}>
-          <span style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 600, display: 'block' }}>Harvest Duration</span>
-          <p style={{ fontWeight: 800, marginTop: 6, fontSize: '1rem', color: '#f8fafc' }}>⏱ {harvestDaysText}</p>
+
+        <div className="glass-card fade-in fade-in-delay-2" style={{ padding: '18px 20px', borderLeft: '4px solid #D97706' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+            <TimerIcon sx={{ fontSize: 18, color: '#D97706' }} />
+            <span style={{ fontSize: '0.74rem', color: '#748782', fontWeight: 700 }}>Harvest Cycle</span>
+          </div>
+          <p style={{ fontWeight: 800, margin: 0, fontSize: '1.15rem', color: '#182420' }}>
+            {harvestDaysText}
+          </p>
         </div>
-        <div className="glass-card fade-in fade-in-delay-3" style={{ padding: 18 }}>
-          <span style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 600, display: 'block' }}>Daily Water Requirement</span>
-          <p style={{ fontWeight: 800, marginTop: 6, fontSize: '1rem', color: '#0284c7' }}>💧 {waterText}</p>
+
+        <div className="glass-card fade-in fade-in-delay-3" style={{ padding: '18px 20px', borderLeft: '4px solid #0284c7' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+            <WaterDropIcon sx={{ fontSize: 18, color: '#0284c7' }} />
+            <span style={{ fontSize: '0.74rem', color: '#748782', fontWeight: 700 }}>Daily Water Req.</span>
+          </div>
+          <p style={{ fontWeight: 800, margin: 0, fontSize: '1.15rem', color: '#0284c7' }}>
+            {waterText}
+          </p>
         </div>
-        <div className="glass-card fade-in fade-in-delay-4" style={{ padding: 18 }}>
-          <span style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 600, display: 'block' }}>Current Mandi Price</span>
-          <p style={{ fontWeight: 800, marginTop: 6, fontSize: '1rem', color: '#f59e0b' }}>
-            ₹{crop.currentPrice?.toLocaleString() || '2,400'} / q
+
+        <div className="glass-card fade-in fade-in-delay-4" style={{ padding: '18px 20px', borderLeft: '4px solid #C85A32' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+            <StoreIcon sx={{ fontSize: 18, color: '#C85A32' }} />
+            <span style={{ fontSize: '0.74rem', color: '#748782', fontWeight: 700 }}>Current Mandi Rate</span>
+          </div>
+          <p style={{ fontWeight: 800, margin: 0, fontSize: '1.15rem', color: '#C85A32' }}>
+            ₹{crop.currentPrice?.toLocaleString() || '2,400'} <span style={{ fontSize: '0.74rem', fontWeight: 600, color: '#748782' }}>/ q</span>
           </p>
         </div>
       </div>
 
-      {/* Step 3: Profit Analysis Card */}
-      <div className="glass-card fade-in" style={{ padding: 24, marginBottom: 24, background: 'rgba(217, 119, 6, 0.08)', borderColor: 'rgba(217, 119, 6, 0.3)' }}>
+      {/* Profit & Economics Highlight Banner */}
+      <div className="hero-card-top-crop fade-in" style={{ padding: '24px 28px', marginBottom: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-          <AttachMoneyIcon sx={{ color: '#f59e0b', fontSize: 28 }} />
+          <AttachMoneyIcon sx={{ color: '#C85A32', fontSize: 26 }} />
           <div>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0, color: '#f59e0b' }}>
-              💰 Crop Economics & Net Profit Analysis
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0, color: '#182420' }}>
+              Crop Economics & Projected Net Revenue
             </h3>
-            <span style={{ fontSize: '0.72rem', color: '#cbd5e1' }}>Calculated from predicted yield × modal mandi rate − cultivation cost</span>
+            <span style={{ fontSize: '0.74rem', color: '#748782' }}>
+              Calculated from ML predicted yield × regional modal price − estimated cultivation cost
+            </span>
           </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
-          <div style={{ background: 'rgba(11, 18, 16, 0.6)', padding: 14, borderRadius: 12, border: '1px solid rgba(217, 119, 6, 0.2)' }}>
-            <span style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block' }}>Est. Yield / Acre</span>
-            <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#2dd4bf' }}>{crop.estimatedYieldPerAcre || '2.5'} tons/ac</span>
+          <div style={{ background: '#FFFFFF', padding: '16px', borderRadius: 12, border: '1px solid #E5E2D8', boxShadow: 'var(--shadow-subtle)' }}>
+            <span style={{ fontSize: '0.72rem', color: '#748782', display: 'block', fontWeight: 600 }}>Predicted Yield / Acre</span>
+            <span style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1E5E3A' }}>
+              {crop.estimatedYieldPerAcre || '2.5'} <span style={{ fontSize: '0.8rem', color: '#748782', fontWeight: 500 }}>tons/ac</span>
+            </span>
           </div>
-          <div style={{ background: 'rgba(11, 18, 16, 0.6)', padding: 14, borderRadius: 12, border: '1px solid rgba(217, 119, 6, 0.2)' }}>
-            <span style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block' }}>Gross Revenue</span>
-            <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#f8fafc' }}>₹{(crop.estimatedRevenue || 60000).toLocaleString()}</span>
+
+          <div style={{ background: '#FFFFFF', padding: '16px', borderRadius: 12, border: '1px solid #E5E2D8', boxShadow: 'var(--shadow-subtle)' }}>
+            <span style={{ fontSize: '0.72rem', color: '#748782', display: 'block', fontWeight: 600 }}>Gross Realization</span>
+            <span style={{ fontSize: '1.35rem', fontWeight: 800, color: '#182420' }}>
+              ₹{(crop.estimatedRevenue || 60000).toLocaleString()}
+            </span>
           </div>
-          <div style={{ background: 'rgba(11, 18, 16, 0.6)', padding: 14, borderRadius: 12, border: '1px solid rgba(217, 119, 6, 0.2)' }}>
-            <span style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block' }}>Est. Cultivation Cost</span>
-            <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ef4444' }}>₹{(crop.estimatedCost || 18000).toLocaleString()}</span>
+
+          <div style={{ background: '#FFFFFF', padding: '16px', borderRadius: 12, border: '1px solid #E5E2D8', boxShadow: 'var(--shadow-subtle)' }}>
+            <span style={{ fontSize: '0.72rem', color: '#748782', display: 'block', fontWeight: 600 }}>Est. Input & Labour Cost</span>
+            <span style={{ fontSize: '1.35rem', fontWeight: 800, color: '#C85A32' }}>
+              ₹{(crop.estimatedCost || 18000).toLocaleString()}
+            </span>
           </div>
-          <div style={{ background: 'rgba(11, 18, 16, 0.6)', padding: 14, borderRadius: 12, border: '1px solid rgba(217, 119, 6, 0.3)' }}>
-            <span style={{ fontSize: '0.7rem', color: '#cbd5e1', display: 'block', fontWeight: 700 }}>Expected Net Profit</span>
-            <span style={{ fontSize: '1.3rem', fontWeight: 800, color: '#10b981' }}>₹{(crop.estimatedProfit || 42000).toLocaleString()}/ac</span>
+
+          <div style={{ background: '#EBF5ED', padding: '16px', borderRadius: 12, border: '1px solid #C6E4CF', boxShadow: 'var(--shadow-subtle)' }}>
+            <span style={{ fontSize: '0.72rem', color: '#1E5E3A', display: 'block', fontWeight: 800 }}>EXPECTED NET PROFIT</span>
+            <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#1E5E3A' }}>
+              ₹{(crop.estimatedProfit || 42000).toLocaleString()} <span style={{ fontSize: '0.8rem', color: '#748782', fontWeight: 500 }}>/ acre</span>
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Step 2: Fertilizer Schedule Card */}
+      {/* Fertilizer Schedule Card */}
       {crop.fertilizerPlan && (
-        <div className="glass-card fade-in" style={{ padding: 24, marginBottom: 24, background: 'rgba(20, 184, 166, 0.08)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-            <LocalHospitalIcon sx={{ color: '#2dd4bf', fontSize: 26 }} />
+        <div className="glass-card fade-in" style={{ padding: 24, marginBottom: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
+            <LocalHospitalIcon sx={{ color: '#1E5E3A', fontSize: 24 }} />
             <div>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0, color: '#2dd4bf' }}>
-                🧪 Recommended Fertilizer Dosage & Application Schedule
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, color: '#182420' }}>
+                Recommended Fertilizer Dosage & Basal Schedule
               </h3>
-              <span style={{ fontSize: '0.72rem', color: '#cbd5e1' }}>Rule-based NPK deficit correction plan for {crop.name || name}</span>
+              <span style={{ fontSize: '0.74rem', color: '#748782' }}>
+                Rule-based NPK replenishment calibrated for {crop.name || name}
+              </span>
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 14, marginBottom: 16 }}>
             {(crop.fertilizerPlan.schedule || []).map((item, idx) => (
-              <div key={idx} style={{ background: 'rgba(11, 18, 16, 0.6)', padding: 16, borderRadius: 12, border: '1px solid rgba(20, 184, 166, 0.2)' }}>
+              <div key={idx} style={{
+                background: '#F8F7F2', padding: '16px 18px', borderRadius: 12,
+                border: '1px solid #E5E2D8'
+              }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                  <strong style={{ fontSize: '0.9rem', color: '#f8fafc' }}>{item.fertilizer}</strong>
-                  <span style={{ background: 'rgba(20, 184, 166, 0.2)', color: '#2dd4bf', padding: '2px 8px', borderRadius: 8, fontSize: '0.78rem', fontWeight: 800 }}>
-                    {item.quantityKgPerAcre} kg/acre
+                  <strong style={{ fontSize: '0.94rem', color: '#182420' }}>{item.fertilizer}</strong>
+                  <span style={{ background: '#EBF5ED', color: '#1E5E3A', padding: '3px 10px', borderRadius: 20, fontSize: '0.8rem', fontWeight: 800, border: '1px solid #C6E4CF' }}>
+                    {item.quantityKgPerAcre} kg/ac
                   </span>
                 </div>
-                <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: 0 }}>⏱ {item.timing}</p>
+                <p style={{ fontSize: '0.8rem', color: '#485954', margin: 0 }}>⏱ Application: <strong>{item.timing}</strong></p>
               </div>
             ))}
           </div>
 
           {crop.fertilizerPlan.phCorrection && (
-            <div style={{ padding: '10px 14px', borderRadius: 10, background: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.3)', fontSize: '0.8rem', color: '#f59e0b' }}>
-              💡 <strong>pH Correction Advice:</strong> {crop.fertilizerPlan.phCorrection}
+            <div style={{
+              padding: '12px 16px', borderRadius: 10, background: '#FFF8E7',
+              border: '1px solid #FCE4B6', fontSize: '0.84rem', color: '#B45309',
+              display: 'flex', alignItems: 'center', gap: 8
+            }}>
+              <span>💡</span>
+              <span><strong>pH Conditioning Note:</strong> {crop.fertilizerPlan.phCorrection}</span>
             </div>
           )}
         </div>
       )}
 
-      {/* 2-Column Section: Soil/Weather Match & Price Trend */}
+      {/* 2-Column Section: Environmental Compatibility & Price Trend */}
       <div style={{
-        display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+        display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
         gap: 20, marginBottom: 24
       }}>
-        {/* Soil & Weather Match Card */}
+        {/* Environmental Compatibility Visual Meters */}
         <div className="glass-card fade-in" style={{ padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-          <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: 16, color: '#2dd4bf' }}>
-            🧪 Environmental Compatibility
-          </h3>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                <span style={{ fontSize: '0.8rem', color: '#cbd5e1', fontWeight: 600 }}>Soil Compatibility</span>
-                <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#2dd4bf' }}>{crop.soilMatch || 85}%</span>
-              </div>
-              <div style={{ height: 8, background: 'rgba(11, 18, 16, 0.6)', borderRadius: 4, overflow: 'hidden' }}>
-                <div style={{
-                  height: '100%', borderRadius: 4, width: `${crop.soilMatch || 85}%`,
-                  background: 'linear-gradient(90deg, #0f766e, #2dd4bf)'
-                }} />
-              </div>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 18 }}>
+              <ScienceIcon sx={{ color: '#1E5E3A', fontSize: 22 }} />
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0, color: '#182420' }}>
+                Field & Climate Compatibility
+              </h3>
             </div>
 
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                <span style={{ fontSize: '0.8rem', color: '#cbd5e1', fontWeight: 600 }}>Climate & Weather Match</span>
-                <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0284c7' }}>{crop.weatherMatch || 80}%</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <span style={{ fontSize: '0.84rem', color: '#182420', fontWeight: 600 }}>Soil Matrix Match</span>
+                  <span style={{ fontSize: '0.86rem', fontWeight: 800, color: '#1E5E3A' }}>{soilMatch}%</span>
+                </div>
+                <div className="suitability-meter-track">
+                  <div className="suitability-meter-fill meter-fill-strong" style={{ width: `${soilMatch}%` }} />
+                </div>
               </div>
-              <div style={{ height: 8, background: 'rgba(11, 18, 16, 0.6)', borderRadius: 4, overflow: 'hidden' }}>
-                <div style={{
-                  height: '100%', borderRadius: 4, width: `${crop.weatherMatch || 80}%`,
-                  background: 'linear-gradient(90deg, #0284c7, #38bdf8)'
-                }} />
+
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <span style={{ fontSize: '0.84rem', color: '#182420', fontWeight: 600 }}>Rainfall & Weather Alignment</span>
+                  <span style={{ fontSize: '0.86rem', fontWeight: 800, color: '#2E7D4E' }}>{weatherMatch}%</span>
+                </div>
+                <div className="suitability-meter-track">
+                  <div className="suitability-meter-fill meter-fill-good" style={{ width: `${weatherMatch}%` }} />
+                </div>
               </div>
             </div>
           </div>
+
+          <div style={{ marginTop: 20, padding: '12px 14px', borderRadius: 10, background: '#F8F7F2', border: '1px solid #E5E2D8', fontSize: '0.8rem', color: '#485954' }}>
+            🌱 <strong>Root Zone Recommendation:</strong> Maintain soil organic matter with farmyard manure or vermicompost for improved aeration and moisture retention.
+          </div>
         </div>
 
-        {/* Price Trend Chart */}
+        {/* 30-Day Mandi Price Chart */}
         <div className="glass-card fade-in" style={{ padding: 24 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: '#2dd4bf' }}>
-              📈 30-Day Mandi Price Trend
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0, color: '#182420' }}>
+              30-Day Mandi Price Trend
             </h3>
-            <span style={{ color: trendColor, fontWeight: 800, fontSize: '0.85rem', background: 'rgba(11, 18, 16, 0.5)', padding: '4px 10px', borderRadius: 8, border: `1px solid ${trendColor}40` }}>
+            <span style={{ color: trendColor, fontWeight: 800, fontSize: '0.82rem', background: '#F8F7F2', padding: '3px 8px', borderRadius: 6, border: '1px solid #E5E2D8' }}>
               {trendEmoji} {trend}
             </span>
           </div>
 
           {priceHistory.length > 0 ? (
-            <ResponsiveContainer width="100%" height={180}>
+            <ResponsiveContainer width="100%" height={200}>
               <LineChart data={priceHistory}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(20, 184, 166, 0.1)" />
-                <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#94a3b8' }} interval={6} />
-                <YAxis domain={['dataMin - 50', 'dataMax + 50']} tick={{ fontSize: 10, fill: '#94a3b8' }} width={55} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#EAE7DC" />
+                <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#748782' }} interval={6} />
+                <YAxis domain={['dataMin - 50', 'dataMax + 50']} tick={{ fontSize: 10, fill: '#748782' }} width={50} />
                 <Tooltip
-                  contentStyle={{ background: '#12201c', border: '1px solid rgba(20, 184, 166, 0.3)', borderRadius: 10, fontSize: '0.8rem' }}
-                  labelStyle={{ color: '#2dd4bf', fontWeight: 700 }}
+                  contentStyle={{
+                    background: '#FFFFFF', border: '1px solid #E5E2D8',
+                    borderRadius: 10, fontSize: '0.82rem', boxShadow: 'var(--shadow-card)'
+                  }}
+                  labelStyle={{ color: '#1E5E3A', fontWeight: 700 }}
                 />
-                <Line type="monotone" dataKey="price" stroke="#14b8a6" strokeWidth={2.5} dot={false} />
+                <Line type="monotone" dataKey="price" stroke="#C85A32" strokeWidth={2.6} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           ) : (
-            <div style={{ height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '0.85rem' }}>
-              Price trend chart available when backend Mandi service is connected.
+            <div style={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#748782', fontSize: '0.86rem' }}>
+              Mandi price trend chart active when connected to APMC market data.
             </div>
           )}
         </div>

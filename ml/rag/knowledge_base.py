@@ -10,14 +10,14 @@ import hashlib
 try:
     import chromadb
     CHROMADB_AVAILABLE = True
-except ImportError:
+except Exception:
     CHROMADB_AVAILABLE = False
     print("[WARN] chromadb not available, using fallback search")
 
 try:
     from sentence_transformers import SentenceTransformer
     EMBEDDINGS_AVAILABLE = True
-except ImportError:
+except Exception:
     EMBEDDINGS_AVAILABLE = False
     print("[WARN] sentence-transformers not available, using fallback search")
 
@@ -119,6 +119,19 @@ class KnowledgeBase:
                     'id': hashlib.md5(text[:100].encode()).hexdigest()
                 })
 
+        # App help / how-to-use content
+        app_help_path = os.path.join(KNOWLEDGE_DIR, 'app_help.json')
+        if os.path.exists(app_help_path):
+            with open(app_help_path, 'r', encoding='utf-8') as f:
+                help_items = json.load(f)
+            for h in help_items:
+                text = f"Topic: {h.get('topic', '')}. {h.get('content', '')}"
+                self.documents.append({
+                    'text': text,
+                    'metadata': {'source': 'app_help', 'topic': h.get('topic', '')},
+                    'id': hashlib.md5(text[:100].encode()).hexdigest()
+                })
+
     def _build_vector_store(self):
         """Build ChromaDB collection with HuggingFace embeddings."""
         print("[RAG] Loading embedding model...")
@@ -199,6 +212,7 @@ class KnowledgeBase:
 
     def _keyword_search(self, query, n_results=5, crop_filter=None):
         """Enhanced keyword-based search with stopword filtering and intent boosting."""
+        import re
         stopwords = {'what', 'should', 'i', 'need', 'to', 'do', 'before', 'my', 'a', 'the', 'for', 'in', 'on', 'of', 'is', 'are', 'can', 'how', 'which', 'will', 'about', 'get', 'give'}
         raw_words = [w.strip('?,.!') for w in query.lower().split()]
         meaningful_words = [w for w in raw_words if w and w not in stopwords and len(w) > 2]
@@ -215,9 +229,10 @@ class KnowledgeBase:
             text_lower = doc['text'].lower()
             score = 0.0
 
-            # Base keyword occurrences
+            # Base keyword occurrences - whole-word match only (avoids false positives like
+            # "use" matching inside "cause", or "app" matching inside "happy")
             for word in meaningful_words:
-                if word in text_lower:
+                if re.search(r'\b' + re.escape(word) + r'\b', text_lower):
                     score += 1.5
 
             # Intent phrase boosting
@@ -227,6 +242,11 @@ class KnowledgeBase:
             if 'crops suit' in query_lower or 'which crop' in query_lower or 'best crops' in query_lower:
                 if 'crop:' in text_lower or 'soil health' in text_lower or 'nutrient management' in text_lower:
                     score += 4.0
+            if any(p in query_lower for p in ['use this app', 'how does this app', 'what can you do', 'what is this app', 'about this app', 'help me use', 'how to use', 'how do i use']):
+                if doc['metadata'].get('source') == 'app_help':
+                    score += 6.0
+            if any(p in query_lower for p in ['disease', 'photo', 'picture', 'image', 'camera', 'scan', 'diagnos']) and 'diagnose a plant disease from a photo' in text_lower:
+                score += 3.0
 
             if score > 0:
                 scored.append({
@@ -237,11 +257,12 @@ class KnowledgeBase:
 
         scored.sort(key=lambda x: x['distance'])
         if not scored and self.documents:
-            # Smart default fallback selection based on topic
-            pre_plant = [d for d in self.documents if 'pre-planting' in d['text'].lower()]
-            if pre_plant:
-                return [{'text': d['text'], 'metadata': d['metadata'], 'distance': 0.5} for d in pre_plant[:n_results]]
-            return [{'text': d['text'], 'metadata': d['metadata'], 'distance': 1.0} for d in self.documents[:n_results]]
+            # No keyword match at all - fall back to general app-overview content
+            # (NEVER fall back to disease/crop-specific docs here, since that falsely implies relevance)
+            overview = [d for d in self.documents if d['metadata'].get('source') == 'app_help']
+            if overview:
+                return [{'text': d['text'], 'metadata': d['metadata'], 'distance': 0.9} for d in overview[:n_results]]
+            return []
 
         return scored[:n_results]
 

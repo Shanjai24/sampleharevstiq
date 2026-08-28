@@ -27,7 +27,7 @@ export default function LanguageToggle() {
       backdropFilter: 'blur(12px)',
       borderRadius: 20,
       padding: '3px',
-      border: '1px solid rgba(16, 185, 129, 0.2)'
+      border: '1px solid rgba(46, 111, 64, 0.2)'
     }}>
       {langs.map(lang => {
         const isActive = currentLang === lang.code;
@@ -44,9 +44,9 @@ export default function LanguageToggle() {
               fontSize: '0.72rem',
               fontWeight: 700,
               transition: 'all 0.2s ease',
-              background: isActive ? 'linear-gradient(135deg, #10b981, #059669)' : 'transparent',
-              color: isActive ? '#ffffff' : '#94a3b8',
-              boxShadow: isActive ? '0 2px 8px rgba(16, 185, 129, 0.3)' : 'none'
+              background: isActive ? 'linear-gradient(135deg, #2E6F40, #1E4A2A)' : 'transparent',
+              color: isActive ? '#ffffff' : '#788A85',
+              boxShadow: isActive ? '0 2px 8px rgba(46, 111, 64, 0.3)' : 'none'
             }}
           >
             {lang.short}

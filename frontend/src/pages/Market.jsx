@@ -8,6 +8,9 @@ import Select from '@mui/material/Select';
 import FormControl from '@mui/material/FormControl';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import StoreIcon from '@mui/icons-material/Store';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import ShowChartIcon from '@mui/icons-material/ShowChart';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 const cropOptions = [
   'rice', 'wheat', 'groundnut', 'cotton', 'sugarcane', 'maize',
@@ -24,6 +27,7 @@ export default function Market() {
   const [error, setError] = useState('');
 
   const state = farmData?.location?.state || 'Tamil Nadu';
+  const district = farmData?.location?.district || '';
 
   const fetchPrices = () => {
     setLoading(true);
@@ -44,126 +48,210 @@ export default function Market() {
     fetchPrices();
   }, [crop, state]);
 
+  const isLive = data?.prices && data.prices.length > 0;
+
   return (
     <div className="page-container">
       {/* Header */}
-      <div className="fade-in" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16, marginBottom: 24 }}>
+      <div className="fade-in" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16, marginBottom: 22 }}>
         <div>
-          <h1 className="gradient-text" style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0 }}>
-            📈 Mandi Market Intelligence
-          </h1>
-          <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: 4 }}>
-            Real-time APMC Mandi rates & 30-day commodity price trends for {state}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6, flexWrap: 'wrap' }}>
+            <h1 style={{ fontSize: '1.85rem', fontWeight: 800, color: '#182420', margin: 0, letterSpacing: '-0.02em' }}>
+              Mandi Market Intelligence
+            </h1>
+            {isLive ? (
+              <span className="badge-live">
+                <span className="badge-live-dot" />
+                LIVE APMC MANDI RATES
+              </span>
+            ) : (
+              <span className="badge-estimated">
+                ⚡ ESTIMATED APMC BENCHMARK
+              </span>
+            )}
+          </div>
+          <p style={{ color: '#485954', fontSize: '0.88rem', margin: 0 }}>
+            Daily arrival prices & 30-day commodity trends across {district ? `${district}, ` : ''}{state} mandis
           </p>
         </div>
 
         {/* Crop Select Menu */}
-        <div style={{ width: 220 }}>
-          <FormControl fullWidth size="small">
-            <Select
-              value={crop}
-              onChange={(e) => setCrop(e.target.value)}
-              sx={{
-                background: '#12201c', color: '#f8fafc',
-                borderRadius: 2.5, fontWeight: 700,
-                '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(20,184,166,0.3)' }
-              }}
-            >
-              {cropOptions.map(c => (
-                <MenuItem key={c} value={c} sx={{ textTransform: 'capitalize', fontWeight: 600 }}>
-                  🌾 {c.charAt(0).toUpperCase() + c.slice(1)}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 220 }}>
+            <FormControl fullWidth size="small">
+              <Select
+                value={crop}
+                onChange={(e) => setCrop(e.target.value)}
+                sx={{
+                  background: '#FFFFFF', color: '#182420',
+                  borderRadius: '10px', fontWeight: 700,
+                  fontSize: '0.88rem',
+                  '& .MuiOutlinedInput-notchedOutline': { borderColor: '#E5E2D8' },
+                  '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#CECBC0' }
+                }}
+              >
+                {cropOptions.map(c => (
+                  <MenuItem key={c} value={c} sx={{ textTransform: 'capitalize', fontWeight: 600, fontSize: '0.86rem' }}>
+                    🌾 {c.charAt(0).toUpperCase() + c.slice(1)}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </div>
+
+          <button
+            onClick={fetchPrices}
+            className="btn-secondary"
+            style={{ padding: '8px 12px', minHeight: 38 }}
+            title="Refresh prices"
+          >
+            <RefreshIcon sx={{ fontSize: 18 }} />
+          </button>
         </div>
       </div>
 
       {error && (
         <div style={{
           padding: '14px 20px', borderRadius: 12,
-          background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.3)',
-          color: '#f87171', fontSize: '0.85rem', marginBottom: 24
+          background: '#FDF3F0', border: '1px solid #F7D0C4',
+          color: '#C85A32', fontSize: '0.86rem', marginBottom: 24
         }}>
           ⚠️ {error}
         </div>
       )}
 
       {loading ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {[1, 2, 3].map(i => <div key={i} className="skeleton" style={{ height: 60, borderRadius: 12 }} />)}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 18 }}>
+            <div className="skeleton" style={{ height: 140 }} />
+            <div className="skeleton" style={{ height: 140 }} />
+          </div>
+          <div className="skeleton" style={{ height: 260 }} />
         </div>
       ) : data ? (
         <>
           {/* Top Banner Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20, marginBottom: 24 }}>
-            {/* Best Mandi Highlight */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: 18,
+            marginBottom: 24
+          }}>
+            {/* Recommended Best Mandi Highlight */}
             {data.bestMandi && (
-              <div className="glass-card fade-in" style={{
-                padding: 24, background: 'rgba(20, 184, 166, 0.08)', borderColor: 'rgba(20, 184, 166, 0.3)'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                  <StoreIcon sx={{ color: '#2dd4bf' }} />
-                  <span style={{ fontSize: '0.78rem', color: '#cbd5e1', fontWeight: 700 }}>Recommended Mandi</span>
+              <div className="hero-card-top-crop fade-in" style={{ padding: '22px 24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{
+                      width: 32, height: 32, borderRadius: 8, background: '#EBF5ED',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}>
+                      <StoreIcon sx={{ color: '#1E5E3A', fontSize: 18 }} />
+                    </div>
+                    <span style={{ fontSize: '0.78rem', color: '#1E5E3A', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+                      Highest Price Mandi
+                    </span>
+                  </div>
+                  <span style={{
+                    fontSize: '0.7rem', fontWeight: 800, background: '#EBF5ED',
+                    color: '#1E5E3A', padding: '3px 8px', borderRadius: 20
+                  }}>
+                    TOP REALIZATION
+                  </span>
                 </div>
-                <h3 style={{ fontWeight: 800, fontSize: '1.25rem', margin: '4px 0 8px' }}>
-                  🏪 {data.bestMandi.market}
+
+                <h3 style={{ fontWeight: 800, fontSize: '1.35rem', margin: '4px 0 8px', color: '#182420' }}>
+                  🏪 {data.bestMandi.market} APMC
                 </h3>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                  <span style={{ fontWeight: 800, color: '#2dd4bf', fontSize: '1.6rem' }}>
+
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                  <span style={{ fontWeight: 800, color: '#1E5E3A', fontSize: '1.85rem', lineHeight: 1 }}>
                     ₹{data.bestMandi.modalPrice?.toLocaleString()}
                   </span>
-                  <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>/ quintal</span>
+                  <span style={{ fontSize: '0.82rem', color: '#748782', fontWeight: 600 }}>/ quintal (Modal)</span>
                 </div>
               </div>
             )}
 
             {/* Price Trend Summary */}
-            <div className="glass-card fade-in fade-in-delay-1" style={{ padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                <TrendingUpIcon sx={{ color: '#f59e0b' }} />
-                <span style={{ fontSize: '0.78rem', color: '#cbd5e1', fontWeight: 700 }}>Market Momentum</span>
+            <div className="glass-card fade-in fade-in-delay-1" style={{
+              padding: '22px 24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{
+                    width: 32, height: 32, borderRadius: 8, background: '#FFF8E7',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  }}>
+                    <TrendingUpIcon sx={{ color: '#D97706', fontSize: 18 }} />
+                  </div>
+                  <span style={{ fontSize: '0.78rem', color: '#485954', fontWeight: 700 }}>
+                    Market Momentum & Strategy
+                  </span>
+                </div>
+                <span className={data.trend === 'UP' ? 'badge-fit-strong' : 'badge-fit-moderate'} style={{ fontSize: '0.7rem', padding: '3px 8px' }}>
+                  {data.trend === 'UP' ? 'Bullish Trend' : 'Stable Rate'}
+                </span>
               </div>
+
               <div>
-                <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: data.trend === 'UP' ? '#10b981' : '#f59e0b', margin: 0 }}>
-                  {data.trend === 'UP' ? '📈 Rising Demand Trend' : '➡️ Stable Market Conditions'}
+                <h4 style={{ fontSize: '1.15rem', fontWeight: 800, color: data.trend === 'UP' ? '#1E5E3A' : '#D97706', margin: '2px 0 4px' }}>
+                  {data.trend === 'UP' ? '📈 Rising Demand Momentum' : '➡️ Steady Market Price Range'}
                 </h4>
-                <p style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: 4 }}>
-                  Calculated based on 30-day rolling price variance in nearest APMC mandis.
+                <p style={{ fontSize: '0.82rem', color: '#485954', margin: 0, lineHeight: 1.5 }}>
+                  {data.trend === 'UP'
+                    ? 'Arrivals are tightening while wholesale demand remains strong. Favorable window to sell high-grade lots.'
+                    : 'Prices are holding steady across regional mandis. Safe to sell regularly or hold dry produce.'}
                 </p>
               </div>
             </div>
           </div>
 
           {/* Main Grid: Price Table & Trend Chart */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: 20 }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
+            gap: 20,
+            marginBottom: 24
+          }}>
             {/* Price Table Card */}
             <div className="glass-card fade-in fade-in-delay-2" style={{ padding: 24 }}>
-              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: 16, color: '#2dd4bf' }}>
-                🏢 Nearest Mandi Rates ({crop.toUpperCase()})
-              </h3>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <AccountBalanceIcon sx={{ color: '#1E5E3A', fontSize: 20 }} />
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#182420' }}>
+                    Nearest Mandi Price Spread
+                  </h3>
+                </div>
+                <span style={{ fontSize: '0.74rem', color: '#748782' }}>
+                  {crop.toUpperCase()} Rates
+                </span>
+              </div>
+
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
-                    <tr style={{ borderBottom: '1px solid rgba(20,184,166,0.2)' }}>
-                      <th style={{ textAlign: 'left', padding: '10px 6px', fontSize: '0.75rem', color: '#94a3b8', fontWeight: 700 }}>Mandi Market</th>
-                      <th style={{ textAlign: 'right', padding: '10px 6px', fontSize: '0.75rem', color: '#94a3b8', fontWeight: 700 }}>Min ₹</th>
-                      <th style={{ textAlign: 'right', padding: '10px 6px', fontSize: '0.75rem', color: '#94a3b8', fontWeight: 700 }}>Max ₹</th>
-                      <th style={{ textAlign: 'right', padding: '10px 6px', fontSize: '0.75rem', color: '#94a3b8', fontWeight: 700 }}>Modal ₹</th>
+                    <tr style={{ borderBottom: '2px solid #E5E2D8' }}>
+                      <th style={{ textAlign: 'left', padding: '10px 8px', fontSize: '0.75rem', color: '#748782', fontWeight: 700 }}>Mandi Market</th>
+                      <th style={{ textAlign: 'right', padding: '10px 8px', fontSize: '0.75rem', color: '#748782', fontWeight: 700 }}>Min ₹</th>
+                      <th style={{ textAlign: 'right', padding: '10px 8px', fontSize: '0.75rem', color: '#748782', fontWeight: 700 }}>Max ₹</th>
+                      <th style={{ textAlign: 'right', padding: '10px 8px', fontSize: '0.75rem', color: '#748782', fontWeight: 700 }}>Modal Rate</th>
                     </tr>
                   </thead>
                   <tbody>
                     {(data.prices || []).map((p, i) => (
-                      <tr key={i} style={{ borderBottom: '1px solid rgba(20,184,166,0.08)' }}>
-                        <td style={{ padding: '12px 6px', fontSize: '0.85rem', fontWeight: 600 }}>{p.market}</td>
-                        <td style={{ textAlign: 'right', padding: '12px 6px', fontSize: '0.85rem', color: '#cbd5e1' }}>
+                      <tr key={i} style={{ borderBottom: '1px solid #F0EEE6' }}>
+                        <td style={{ padding: '12px 8px', fontSize: '0.86rem', fontWeight: 700, color: '#182420' }}>
+                          {p.market}
+                        </td>
+                        <td style={{ textAlign: 'right', padding: '12px 8px', fontSize: '0.84rem', color: '#485954' }}>
                           ₹{p.minPrice?.toLocaleString()}
                         </td>
-                        <td style={{ textAlign: 'right', padding: '12px 6px', fontSize: '0.85rem', color: '#cbd5e1' }}>
+                        <td style={{ textAlign: 'right', padding: '12px 8px', fontSize: '0.84rem', color: '#485954' }}>
                           ₹{p.maxPrice?.toLocaleString()}
                         </td>
-                        <td style={{ textAlign: 'right', padding: '12px 6px', fontSize: '0.9rem', fontWeight: 800, color: '#f59e0b' }}>
-                          ₹{p.modalPrice?.toLocaleString()}
+                        <td style={{ textAlign: 'right', padding: '12px 8px', fontSize: '0.92rem', fontWeight: 800, color: '#C85A32' }}>
+                          ₹{p.modalPrice?.toLocaleString()}<span style={{ fontSize: '0.7rem', color: '#748782', fontWeight: 500 }}>/q</span>
                         </td>
                       </tr>
                     ))}
@@ -175,19 +263,29 @@ export default function Market() {
             {/* Price Trend Chart Card */}
             {data.history && data.history.length > 0 && (
               <div className="glass-card fade-in fade-in-delay-3" style={{ padding: 24 }}>
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: 16, color: '#2dd4bf' }}>
-                  📊 30-Day Mandi Price Chart
-                </h3>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <ShowChartIcon sx={{ color: '#C85A32', fontSize: 20 }} />
+                    <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#182420' }}>
+                      30-Day Mandi Price Trend
+                    </h3>
+                  </div>
+                  <span style={{ fontSize: '0.74rem', color: '#748782' }}>₹ / Quintal</span>
+                </div>
+
                 <ResponsiveContainer width="100%" height={240}>
                   <LineChart data={data.history}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(20,184,166,0.1)" />
-                    <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#94a3b8' }} interval={5} />
-                    <YAxis domain={['dataMin - 50', 'dataMax + 50']} tick={{ fontSize: 10, fill: '#94a3b8' }} width={55} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#EAE7DC" />
+                    <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#748782' }} interval={5} />
+                    <YAxis domain={['dataMin - 50', 'dataMax + 50']} tick={{ fontSize: 10, fill: '#748782' }} width={50} />
                     <Tooltip
-                      contentStyle={{ background: '#12201c', border: '1px solid rgba(20,184,166,0.3)', borderRadius: 10, fontSize: '0.8rem' }}
-                      labelStyle={{ color: '#2dd4bf', fontWeight: 700 }}
+                      contentStyle={{
+                        background: '#FFFFFF', border: '1px solid #E5E2D8',
+                        borderRadius: 10, fontSize: '0.82rem', boxShadow: 'var(--shadow-card)'
+                      }}
+                      labelStyle={{ color: '#1E5E3A', fontWeight: 700 }}
                     />
-                    <Line type="monotone" dataKey="price" stroke="#f59e0b" strokeWidth={2.5} dot={false} />
+                    <Line type="monotone" dataKey="price" stroke="#C85A32" strokeWidth={2.8} dot={false} activeDot={{ r: 5, fill: '#C85A32' }} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -195,7 +293,7 @@ export default function Market() {
           </div>
         </>
       ) : (
-        <p style={{ color: '#94a3b8', textAlign: 'center', marginTop: 60 }}>No mandi price data available</p>
+        <p style={{ color: '#748782', textAlign: 'center', marginTop: 60 }}>No mandi price data available</p>
       )}
     </div>
   );

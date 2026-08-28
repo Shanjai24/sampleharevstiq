@@ -41,7 +41,7 @@ export default function Navbar() {
   const locString = district 
     ? `${district}, ${stateCode}`
     : location 
-      ? `${location.lat.toFixed(2)}, ${location.lng.toFixed(2)}`
+      ? `${location.lat?.toFixed(2)}, ${location.lng?.toFixed(2)}`
       : null;
 
   const fullLocString = district ? `${district}, ${stateName}` : locString;
@@ -50,7 +50,7 @@ export default function Navbar() {
     <header style={{
       height: 64,
       background: '#FFFFFF',
-      borderBottom: '1px solid #E6E4DC',
+      borderBottom: '1px solid #E5E2D8',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
@@ -58,7 +58,7 @@ export default function Navbar() {
       position: 'sticky',
       top: 0,
       zIndex: 1100,
-      boxShadow: '0 1px 4px rgba(28, 40, 38, 0.04)'
+      boxShadow: 'var(--shadow-subtle)'
     }}>
       {/* Brand logo & location badge */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
@@ -67,20 +67,20 @@ export default function Navbar() {
           style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}
         >
           <div style={{
-            width: 36, height: 36, borderRadius: 10,
-            background: 'linear-gradient(135deg, #2E6F40, #3D8C52)',
+            width: 38, height: 38, borderRadius: 11,
+            background: 'linear-gradient(135deg, #1E5E3A, #2E7D4E)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '1.2rem',
-            boxShadow: '0 2px 8px rgba(46, 111, 64, 0.25)'
+            fontSize: '1.25rem',
+            boxShadow: '0 2px 8px rgba(30, 94, 58, 0.25)'
           }}>
             🌱
           </div>
           <div>
-            <h1 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, lineHeight: 1.1, whiteSpace: 'nowrap', color: '#1C2826' }}>
+            <h1 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0, lineHeight: 1.1, whiteSpace: 'nowrap', color: '#182420' }}>
               AgroPredict
             </h1>
-            <span style={{ fontSize: '0.62rem', color: '#4A5D58', letterSpacing: '0.02em', fontWeight: 600, whiteSpace: 'nowrap' }}>
-              Your Farm's AI Assistant
+            <span style={{ fontSize: '0.64rem', color: '#748782', letterSpacing: '0.02em', fontWeight: 700, whiteSpace: 'nowrap' }}>
+              Agricultural Intelligence Platform
             </span>
           </div>
         </div>
@@ -90,11 +90,11 @@ export default function Navbar() {
           <div
             title={fullLocString}
             style={{
-              display: 'flex', alignItems: 'center', gap: 5,
-              background: '#EBF4ED',
-              border: '1px solid #C8E6C9',
-              padding: '4px 10px', borderRadius: 20,
-              fontSize: '0.72rem', color: '#2E6F40', fontWeight: 700,
+              display: 'flex', alignItems: 'center', gap: 6,
+              background: '#EBF5ED',
+              border: '1px solid #C6E4CF',
+              padding: '4px 12px', borderRadius: 20,
+              fontSize: '0.74rem', color: '#1E5E3A', fontWeight: 800,
               whiteSpace: 'nowrap', maxWidth: 220, cursor: 'default'
             }}
           >
@@ -123,18 +123,18 @@ export default function Navbar() {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: 5,
-                padding: '6px 12px',
-                borderRadius: 8,
+                gap: 6,
+                padding: '7px 13px',
+                borderRadius: 9,
                 textDecoration: 'none',
-                fontSize: '0.82rem',
-                fontWeight: isActive ? 700 : 600,
+                fontSize: '0.84rem',
+                fontWeight: isActive ? 800 : 600,
                 whiteSpace: 'nowrap',
                 flexShrink: 0,
                 transition: 'all 0.15s ease',
-                background: isActive ? '#EBF4ED' : 'transparent',
-                color: isActive ? '#2E6F40' : '#4A5D58',
-                border: isActive ? '1px solid #C8E6C9' : '1px solid transparent'
+                background: isActive ? '#EBF5ED' : 'transparent',
+                color: isActive ? '#1E5E3A' : '#485954',
+                border: isActive ? '1px solid #C6E4CF' : '1px solid transparent'
               }}
             >
               {item.icon}
@@ -148,13 +148,13 @@ export default function Navbar() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <div className="hidden-mobile" style={{
           display: 'flex', alignItems: 'center', gap: 6,
-          background: '#F4F8EC',
-          border: '1px solid #D5E6BC',
-          padding: '3px 10px', borderRadius: 12,
-          fontSize: '0.68rem', color: '#4D7C1B', fontWeight: 700
+          background: '#EBF5ED',
+          border: '1px solid #C6E4CF',
+          padding: '4px 11px', borderRadius: 20,
+          fontSize: '0.7rem', color: '#1E5E3A', fontWeight: 800
         }}>
-          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#2E6F40' }} />
-          <span>{t('common.engineActive', 'System Active')}</span>
+          <span className="badge-live-dot" style={{ width: 6, height: 6 }} />
+          <span>{t('common.engineActive', 'Telemetry Live')}</span>
         </div>
         <LanguageToggle />
       </div>

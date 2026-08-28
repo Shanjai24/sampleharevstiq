@@ -15,13 +15,13 @@ import Chat from './pages/Chat';
 
 export const FarmContext = createContext(null);
 
-const darkTheme = createTheme({
+const appTheme = createTheme({
   palette: {
-    mode: 'dark',
-    primary: { main: '#10b981', light: '#34d399', dark: '#059669' },
+    mode: 'light',
+    primary: { main: '#2E6F40', light: '#3D8C52', dark: '#1E4A2A' },
     secondary: { main: '#0284c7' },
-    background: { default: '#070d0a', paper: '#0e1713' },
-    text: { primary: '#f8fafc', secondary: '#cbd5e1' }
+    background: { default: '#FAF9F5', paper: '#FFFFFF' },
+    text: { primary: '#1C2826', secondary: '#4A5D58' }
   },
   typography: {
     fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif"
@@ -30,21 +30,65 @@ const darkTheme = createTheme({
 });
 
 function App() {
-  const [farmData, setFarmDataState] = useState(null);
-  const [location, setLocation] = useState(null);
+  const [farmData, setFarmDataState] = useState(() => {
+    try {
+      const saved = localStorage.getItem('agropredict_cached_farm');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [location, setLocationState] = useState(() => {
+    try {
+      const saved = localStorage.getItem('agropredict_cached_location');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
   const [sessionAnalyzed, setSessionAnalyzed] = useState(false);
-  const [lastAnalyzedAt, setLastAnalyzedAt] = useState(null);
+  const [lastAnalyzedAt, setLastAnalyzedAt] = useState(() => {
+    return localStorage.getItem('agropredict_last_analyzed_at') || null;
+  });
+
+  const setLocation = (loc) => {
+    setLocationState(loc);
+    if (loc) {
+      try {
+        localStorage.setItem('agropredict_cached_location', JSON.stringify(loc));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  };
 
   const setFarmData = (data, isNewAnalysis = true) => {
     setFarmDataState(data);
+    if (data) {
+      try {
+        localStorage.setItem('agropredict_cached_farm', JSON.stringify(data));
+        if (data.location) {
+          setLocationState(data.location);
+          localStorage.setItem('agropredict_cached_location', JSON.stringify(data.location));
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
     if (data && isNewAnalysis) {
       setSessionAnalyzed(true);
-      setLastAnalyzedAt(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      setLastAnalyzedAt(timeStr);
+      try {
+        localStorage.setItem('agropredict_last_analyzed_at', timeStr);
+      } catch (e) {
+        console.error(e);
+      }
     }
   };
 
   return (
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={appTheme}>
       <CssBaseline />
       <FarmContext.Provider value={{ farmData, setFarmData, location, setLocation, sessionAnalyzed, setSessionAnalyzed, lastAnalyzedAt }}>
         <BrowserRouter>

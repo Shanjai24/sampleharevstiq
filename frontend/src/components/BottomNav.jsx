@@ -9,7 +9,7 @@ import WaterDropIcon from '@mui/icons-material/WaterDrop';
 
 const navItems = [
   { path: '/', icon: <MapIcon fontSize="small" />, key: 'map', label: 'Map' },
-  { path: '/dashboard', icon: <GrassIcon fontSize="small" />, key: 'crops', label: 'Crops' },
+  { path: '/dashboard', icon: <GrassIcon fontSize="small" />, key: 'crops', label: 'Dashboard' },
   { path: '/borewell', icon: <WaterDropIcon fontSize="small" />, key: 'borewell', label: 'Borewell' },
   { path: '/chat', icon: <SmartToyIcon fontSize="small" />, key: 'chat', label: 'AI Chat' },
   { path: '/market', icon: <StoreIcon fontSize="small" />, key: 'market', label: 'Market' },
@@ -28,14 +28,14 @@ export default function BottomNav() {
       left: 0,
       right: 0,
       zIndex: 1000,
-      height: 60,
+      height: 64,
       background: '#FFFFFF',
-      borderTop: '1px solid #E6E4DC',
+      borderTop: '1px solid #E5E2D8',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-around',
-      padding: '0 8px',
-      boxShadow: '0 -2px 10px rgba(28, 40, 38, 0.04)'
+      padding: '0 4px',
+      boxShadow: '0 -4px 16px rgba(24, 36, 32, 0.05)'
     }}>
       {navItems.map(item => {
         const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
@@ -51,23 +51,24 @@ export default function BottomNav() {
               background: 'transparent',
               border: 'none',
               cursor: 'pointer',
-              padding: '6px 0',
+              padding: '8px 0',
               flex: 1,
-              color: isActive ? '#2E6F40' : '#788A85',
+              minHeight: 48,
+              color: isActive ? '#1E5E3A' : '#748782',
               transition: 'all 0.15s ease',
               position: 'relative'
             }}
           >
             <div style={{
-              transform: isActive ? 'scale(1.1)' : 'scale(1)',
+              transform: isActive ? 'scale(1.15)' : 'scale(1)',
               transition: 'transform 0.15s ease'
             }}>
               {item.icon}
             </div>
             <span style={{
-              fontSize: '0.62rem',
-              fontWeight: isActive ? 700 : 500,
-              marginTop: 2
+              fontSize: '0.64rem',
+              fontWeight: isActive ? 800 : 600,
+              marginTop: 3
             }}>
               {t(`nav.${item.key}`) || item.label}
             </span>
@@ -75,10 +76,10 @@ export default function BottomNav() {
               <span style={{
                 position: 'absolute',
                 top: 0,
-                width: 24,
-                height: 2,
-                borderRadius: 1,
-                background: '#2E6F40'
+                width: 28,
+                height: 3,
+                borderRadius: '0 0 3px 3px',
+                background: '#1E5E3A'
               }} />
             )}
           </button>

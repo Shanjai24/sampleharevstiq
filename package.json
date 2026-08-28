@@ -1,0 +1,17 @@
+{
+  "name": "harvestiq-agropredict",
+  "version": "1.0.0",
+  "description": "HarvestIQ (AgroPredict) All-in-One Runner",
+  "private": true,
+  "scripts": {
+    "start": "npx -y concurrently -n \"ML,BACKEND,FRONTEND\" -c \"green,blue,magenta\" --kill-others-on-fail \"cd ml && python app.py\" \"cd backend && npm start\" \"cd frontend && npm run dev\"",
+    "dev": "npx -y concurrently -n \"ML,BACKEND,FRONTEND\" -c \"green,blue,magenta\" --kill-others-on-fail \"cd ml && python app.py\" \"cd backend && npm start\" \"cd frontend && npm run dev\"",
+    "start:ml": "cd ml && python app.py",
+    "start:backend": "cd backend && npm start",
+    "start:frontend": "cd frontend && npm run dev",
+    "install:all": "npx -y concurrently \"cd backend && npm install\" \"cd frontend && npm install\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

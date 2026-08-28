@@ -9,6 +9,10 @@ import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import IconButton from '@mui/material/IconButton';
 import CircularProgress from '@mui/material/CircularProgress';
+import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import CloseIcon from '@mui/icons-material/Close';
 
 const QUICK_QUESTIONS = [
   { emoji: '🌾', text: 'What crops suit my soil best?', key: 'crops_soil' },
@@ -30,7 +34,7 @@ export default function Chat() {
   const [messages, setMessages] = useState([
     {
       role: 'ai',
-      text: 'Namaste! 🙏 I\'m AgroPredict AI, your dedicated crop intelligence assistant.\n\nI can help you with:\n• Crop disease diagnosis & treatment steps\n• Soil NPK & seasonal rotation advice\n• Groundwater safety & irrigation planning\n• Mandi market prices & profit optimization\n\nHow can I help your farm today?',
+      text: 'Namaste! 🙏 I\'m AgroPredict AI, your dedicated crop intelligence advisor.\n\nI can help you with:\n• Leaf disease diagnosis & photo scanning\n• Soil NPK & organic conditioning\n• Groundwater safety & irrigation planning\n• Mandi market prices & MSP procurement\n\nHow can I help your farm today?',
       time: new Date()
     }
   ]);
@@ -77,7 +81,7 @@ export default function Chat() {
       console.error('[AgroPredict Chat Error]:', error);
       setMessages(prev => [...prev, {
         role: 'ai',
-        text: `⚠️ **Notice:** Unable to connect to the advisory server. Please check your internet connection or try again shortly.`,
+        text: `⚠️ **Notice:** Unable to connect to advisory server. Please check internet connection and retry.`,
         sources: [],
         mode: 'error-notice',
         time: new Date()
@@ -111,6 +115,7 @@ export default function Chat() {
     const reader = new FileReader();
     reader.onloadend = () => {
       setImagePreview(reader.result);
+      setActiveTab('vision');
     };
     reader.readAsDataURL(file);
   };
@@ -128,73 +133,88 @@ export default function Chat() {
       setVisionResult(res);
     } catch (err) {
       console.error('[Vision Analysis Error]:', err);
-      setVisionError('Unable to analyze photo. Please try a clearer photo or describe the issue in chat.');
+      setVisionError('Unable to analyze photo. Please try a clearer photo or describe the symptoms in chat.');
     }
     setVisionLoading(false);
   };
 
   return (
-    <div className="page-container" style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 120px)', maxHeight: '760px' }}>
+    <div className="page-container" style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 110px)', maxHeight: '820px' }}>
       
+      {/* Hidden File Input accessible anywhere */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        accept="image/*"
+        style={{ display: 'none' }}
+        onChange={handleImageSelect}
+      />
+
       {/* Top Header & Tab Switcher Bar */}
       <div className="glass-card fade-in" style={{
-        padding: '12px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        marginBottom: 14, flexWrap: 'wrap', gap: 12
+        padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        marginBottom: 12, flexWrap: 'wrap', gap: 12
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{
-            width: 36, height: 36, borderRadius: 10,
-            background: 'linear-gradient(135deg, #2E6F40, #3D8C52)',
+            width: 38, height: 38, borderRadius: 10,
+            background: 'linear-gradient(135deg, #1E5E3A, #2E7D4E)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 2px 8px rgba(46, 111, 64, 0.2)'
+            boxShadow: '0 2px 8px rgba(30, 94, 58, 0.25)'
           }}>
-            <SmartToyIcon sx={{ color: '#ffffff', fontSize: 20 }} />
+            <AutoAwesomeIcon sx={{ color: '#ffffff', fontSize: 20 }} />
           </div>
           <div>
-            <h2 style={{ fontSize: '1rem', fontWeight: 800, margin: 0, color: '#1C2826' }}>
-              AgroPredict AI Advisory & Photo Diagnosis
-            </h2>
-            <p style={{ fontSize: '0.72rem', color: '#788A85', margin: 0 }}>
-              Ask agronomist questions or upload plant photos for instant diagnosis
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <h2 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#182420' }}>
+                AI Crop Doctor & Farm Advisor
+              </h2>
+              <span className="badge-live" style={{ fontSize: '0.68rem', padding: '2px 7px' }}>
+                <span className="badge-live-dot" />
+                ONLINE
+              </span>
+            </div>
+            <p style={{ fontSize: '0.74rem', color: '#748782', margin: 0 }}>
+              24/7 agricultural advisory, disease photo diagnosis, & soil solutions
             </p>
           </div>
         </div>
 
         {/* Tab Toggle Switch */}
         <div style={{
-          display: 'flex', background: '#F4F3EE', padding: 3, borderRadius: 10,
-          border: '1px solid #E6E4DC'
+          display: 'flex', background: '#F8F7F2', padding: 4, borderRadius: 12,
+          border: '1px solid #E5E2D8'
         }}>
           <button
             onClick={() => setActiveTab('chat')}
             style={{
               display: 'flex', alignItems: 'center', gap: 6,
-              padding: '6px 14px', borderRadius: 8, border: 'none',
-              fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer',
+              padding: '7px 16px', borderRadius: 9, border: 'none',
+              fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer',
               background: activeTab === 'chat' ? '#FFFFFF' : 'transparent',
-              color: activeTab === 'chat' ? '#2E6F40' : '#4A5D58',
-              boxShadow: activeTab === 'chat' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none',
+              color: activeTab === 'chat' ? '#1E5E3A' : '#485954',
+              boxShadow: activeTab === 'chat' ? 'var(--shadow-card)' : 'none',
               transition: 'all 0.15s ease'
             }}
           >
             <ChatBubbleOutlineIcon sx={{ fontSize: 16 }} />
-            <span>Ask Advisory Chat</span>
+            <span>Advisory Chat</span>
           </button>
 
           <button
             onClick={() => setActiveTab('vision')}
             style={{
               display: 'flex', alignItems: 'center', gap: 6,
-              padding: '6px 14px', borderRadius: 8, border: 'none',
-              fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer',
+              padding: '7px 16px', borderRadius: 9, border: 'none',
+              fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer',
               background: activeTab === 'vision' ? '#FFFFFF' : 'transparent',
-              color: activeTab === 'vision' ? '#C85A32' : '#4A5D58',
-              boxShadow: activeTab === 'vision' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none',
+              color: activeTab === 'vision' ? '#C85A32' : '#485954',
+              boxShadow: activeTab === 'vision' ? 'var(--shadow-card)' : 'none',
               transition: 'all 0.15s ease'
             }}
           >
             <CameraAltIcon sx={{ fontSize: 16 }} />
-            <span>Scan Crop Photo</span>
+            <span>Photo Scan Diagnosis</span>
           </button>
         </div>
       </div>
@@ -202,12 +222,49 @@ export default function Chat() {
       {/* Main Tab Content */}
       {activeTab === 'chat' ? (
         /* TAB 1: Chat Advisory */
-        <div className="glass-card" style={{
+        <div className="glass-card fade-in" style={{
           flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden'
         }}>
+          {/* Prominent Discovery Banner for Photo Disease Scan */}
+          <div style={{
+            background: 'linear-gradient(90deg, #FDF3F0 0%, #FFF8E7 100%)',
+            borderBottom: '1px solid #F7D0C4',
+            padding: '10px 16px', display: 'flex', alignItems: 'center',
+            justifyContent: 'space-between', flexWrap: 'wrap', gap: 10
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{
+                width: 30, height: 30, borderRadius: 8, background: '#C85A32',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff'
+              }}>
+                <PhotoCameraIcon sx={{ fontSize: 18 }} />
+              </div>
+              <div>
+                <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#C85A32' }}>
+                  Have an infected crop or yellow leaf?
+                </span>
+                <span style={{ fontSize: '0.75rem', color: '#485954', marginLeft: 6 }}>
+                  Scan a photo for instant disease identification & remedies
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="btn-accent"
+              style={{
+                padding: '6px 14px', fontSize: '0.78rem', minHeight: 32,
+                display: 'inline-flex', alignItems: 'center', gap: 6
+              }}
+            >
+              <CameraAltIcon sx={{ fontSize: 15 }} />
+              <span>Upload Leaf Photo</span>
+            </button>
+          </div>
+
           {/* Messages Scroll Area */}
           <div style={{
-            flex: 1, overflowY: 'auto', padding: '16px', display: 'flex',
+            flex: 1, overflowY: 'auto', padding: '18px 20px', display: 'flex',
             flexDirection: 'column', gap: 14
           }}>
             {messages.map((msg, i) => (
@@ -217,35 +274,35 @@ export default function Chat() {
                 alignItems: 'flex-start'
               }} className="fade-in">
                 <div style={{
-                  width: 32, height: 32, borderRadius: 8, display: 'flex',
+                  width: 34, height: 34, borderRadius: 10, display: 'flex',
                   alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                  background: msg.role === 'user'
-                    ? '#C85A32'
-                    : '#2E6F40'
+                  background: msg.role === 'user' ? '#C85A32' : '#1E5E3A',
+                  boxShadow: 'var(--shadow-subtle)'
                 }}>
                   {msg.role === 'user'
-                    ? <PersonIcon sx={{ fontSize: 18, color: '#fff' }} />
-                    : <SmartToyIcon sx={{ fontSize: 18, color: '#fff' }} />
+                    ? <PersonIcon sx={{ fontSize: 20, color: '#fff' }} />
+                    : <SmartToyIcon sx={{ fontSize: 20, color: '#fff' }} />
                   }
                 </div>
 
                 <div style={{
-                  maxWidth: '80%', padding: '12px 16px', borderRadius: 12,
-                  fontSize: '0.86rem', lineHeight: 1.55, whiteSpace: 'pre-wrap',
-                  background: msg.role === 'user' ? '#FDF3F0' : '#FAF9F5',
-                  border: msg.role === 'user' ? '1px solid #F8D2C6' : '1px solid #E6E4DC',
-                  color: '#1C2826',
-                  borderTopLeftRadius: msg.role === 'ai' ? 2 : 12,
-                  borderTopRightRadius: msg.role === 'user' ? 2 : 12
+                  maxWidth: '82%', padding: '14px 18px', borderRadius: 14,
+                  fontSize: '0.88rem', lineHeight: 1.6, whiteSpace: 'pre-wrap',
+                  background: msg.role === 'user' ? '#FDF3F0' : '#F8F7F2',
+                  border: msg.role === 'user' ? '1px solid #F7D0C4' : '1px solid #E5E2D8',
+                  color: '#182420',
+                  boxShadow: 'var(--shadow-subtle)',
+                  borderTopLeftRadius: msg.role === 'ai' ? 2 : 14,
+                  borderTopRightRadius: msg.role === 'user' ? 2 : 14
                 }}>
                   {msg.text}
 
                   {msg.sources && msg.sources.length > 0 && (
                     <div style={{
-                      marginTop: 8, paddingTop: 6, borderTop: '1px solid #E6E4DC',
-                      fontSize: '0.7rem', color: '#788A85'
+                      marginTop: 10, paddingTop: 8, borderTop: '1px solid #E5E2D8',
+                      fontSize: '0.72rem', color: '#748782'
                     }}>
-                      📚 <strong>Sources:</strong> {msg.sources.map(s => s.source || s.topic || s.scheme || s.crop || 'Agronomist KB').filter(Boolean).join(', ')}
+                      📚 <strong>Verified Sources:</strong> {msg.sources.map(s => s.source || s.topic || s.scheme || s.crop || 'Agronomy KB').filter(Boolean).join(', ')}
                     </div>
                   )}
                 </div>
@@ -255,19 +312,21 @@ export default function Chat() {
             {loading && (
               <div style={{ display: 'flex', gap: 10, alignItems: 'center' }} className="fade-in">
                 <div style={{
-                  width: 32, height: 32, borderRadius: 8, display: 'flex',
+                  width: 34, height: 34, borderRadius: 10, display: 'flex',
                   alignItems: 'center', justifyContent: 'center',
-                  background: '#2E6F40'
+                  background: '#1E5E3A'
                 }}>
-                  <SmartToyIcon sx={{ fontSize: 18, color: '#fff' }} />
+                  <SmartToyIcon sx={{ fontSize: 20, color: '#fff' }} />
                 </div>
                 <div style={{
-                  padding: '10px 14px', borderRadius: 12, borderTopLeftRadius: 2,
-                  background: '#FAF9F5', border: '1px solid #E6E4DC',
-                  display: 'flex', alignItems: 'center', gap: 8
+                  padding: '12px 18px', borderRadius: 14, borderTopLeftRadius: 2,
+                  background: '#F8F7F2', border: '1px solid #E5E2D8',
+                  display: 'flex', alignItems: 'center', gap: 10
                 }}>
-                  <CircularProgress size={14} sx={{ color: '#2E6F40' }} />
-                  <span style={{ fontSize: '0.78rem', color: '#4A5D58' }}>Consulting AgroPredict knowledge base...</span>
+                  <CircularProgress size={16} sx={{ color: '#1E5E3A' }} />
+                  <span style={{ fontSize: '0.82rem', color: '#485954', fontWeight: 600 }}>
+                    Consulting AgroPredict agricultural knowledge base...
+                  </span>
                 </div>
               </div>
             )}
@@ -277,14 +336,14 @@ export default function Chat() {
           {/* Quick Suggestion Chips */}
           {messages.length <= 2 && (
             <div style={{
-              padding: '8px 12px', display: 'flex', flexWrap: 'wrap', gap: 6,
-              borderTop: '1px solid #E6E4DC', background: '#FAF9F5'
+              padding: '10px 16px', display: 'flex', flexWrap: 'wrap', gap: 8,
+              borderTop: '1px solid #E5E2D8', background: '#F8F7F2'
             }}>
               {QUICK_QUESTIONS.map(q => (
                 <button key={q.key} onClick={() => handleSend(q.text)} style={{
-                  padding: '5px 12px', borderRadius: 16, border: '1px solid #C8E6C9',
-                  background: '#EBF4ED', color: '#2E6F40', fontSize: '0.75rem',
-                  cursor: 'pointer', whiteSpace: 'nowrap', fontWeight: 600, transition: 'all 0.15s'
+                  padding: '6px 14px', borderRadius: 20, border: '1px solid #C6E4CF',
+                  background: '#EBF5ED', color: '#1E5E3A', fontSize: '0.78rem',
+                  cursor: 'pointer', whiteSpace: 'nowrap', fontWeight: 700, transition: 'all 0.15s ease'
                 }}>
                   {q.emoji} {q.text}
                 </button>
@@ -292,33 +351,51 @@ export default function Chat() {
             </div>
           )}
 
-          {/* Input Bar */}
+          {/* Input Bar with Direct Camera Upload Button */}
           <div style={{
-            padding: 12, display: 'flex', gap: 10, alignItems: 'center',
-            borderTop: '1px solid #E6E4DC', background: '#FFFFFF'
+            padding: '12px 16px', display: 'flex', gap: 10, alignItems: 'center',
+            borderTop: '1px solid #E5E2D8', background: '#FFFFFF'
           }}>
+            {/* Quick Camera Action in Input Bar */}
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              title="Upload crop photo for disease diagnosis"
+              style={{
+                width: 44, height: 44, borderRadius: 10,
+                border: '1px solid #F7D0C4', background: '#FDF3F0',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', color: '#C85A32', flexShrink: 0,
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <CameraAltIcon sx={{ fontSize: 22 }} />
+            </button>
+
             <textarea
               ref={inputRef}
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={t('chat.placeholder') || 'Ask about crops, soil NPK, diseases, schemes, market rates...'}
+              placeholder={t('chat.placeholder') || 'Ask about crop health, soil NPK, weather advisory, mandi rates...'}
               rows={1}
               style={{
-                flex: 1, resize: 'none', padding: '10px 14px', borderRadius: 8,
-                background: '#FAF9F5', border: '1px solid #E6E4DC',
-                color: '#1C2826', fontSize: '0.85rem', outline: 'none',
-                fontFamily: 'inherit', minHeight: 40, maxHeight: 100
+                flex: 1, resize: 'none', padding: '12px 16px', borderRadius: 10,
+                background: '#F8F7F2', border: '1px solid #E5E2D8',
+                color: '#182420', fontSize: '0.88rem', outline: 'none',
+                fontFamily: 'inherit', minHeight: 44, maxHeight: 110,
+                boxSizing: 'border-box'
               }}
             />
+
             <IconButton
               onClick={() => handleSend()}
               disabled={!input.trim() || loading}
               sx={{
-                background: '#C85A32',
-                color: '#fff', width: 40, height: 40, borderRadius: 2,
-                '&:hover': { background: '#A04222' },
-                '&.Mui-disabled': { background: '#E6E4DC', color: '#788A85' }
+                background: '#1E5E3A',
+                color: '#fff', width: 44, height: 44, borderRadius: 2.5,
+                boxShadow: 'var(--shadow-subtle)',
+                '&:hover': { background: '#2E7D4E' },
+                '&.Mui-disabled': { background: '#E5E2D8', color: '#748782' }
               }}
             >
               <SendIcon sx={{ fontSize: 18 }} />
@@ -327,52 +404,45 @@ export default function Chat() {
         </div>
       ) : (
         /* TAB 2: Photo Crop & Disease Vision Scan */
-        <div className="glass-card" style={{
-          flex: 1, overflowY: 'auto', padding: 20, display: 'flex',
-          flexDirection: 'column', gap: 16
+        <div className="glass-card fade-in" style={{
+          flex: 1, overflowY: 'auto', padding: 24, display: 'flex',
+          flexDirection: 'column', gap: 18
         }}>
           {/* Upload Zone */}
           <div style={{
-            border: '2px dashed #CECBC0', borderRadius: 12,
-            padding: 24, textAlign: 'center', background: '#FAF9F5',
-            cursor: 'pointer', transition: 'all 0.2s'
+            border: '2px dashed #CECBC0', borderRadius: 14,
+            padding: 28, textAlign: 'center', background: '#F8F7F2',
+            cursor: 'pointer', transition: 'all 0.2s ease'
           }} onClick={() => fileInputRef.current?.click()}>
-            <input
-              type="file"
-              ref={fileInputRef}
-              accept="image/*"
-              style={{ display: 'none' }}
-              onChange={handleImageSelect}
-            />
 
             {imagePreview ? (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
                 <img
                   src={imagePreview}
                   alt="Crop preview"
                   style={{
-                    maxHeight: 180, maxWidth: '100%', borderRadius: 8,
-                    objectFit: 'contain', boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                    maxHeight: 200, maxWidth: '100%', borderRadius: 12,
+                    objectFit: 'contain', boxShadow: 'var(--shadow-card)'
                   }}
                 />
-                <span style={{ fontSize: '0.78rem', color: '#2E6F40', fontWeight: 700 }}>
-                  📷 Photo selected ({selectedImage?.name}) — Click to change
+                <span style={{ fontSize: '0.82rem', color: '#1E5E3A', fontWeight: 800 }}>
+                  📷 Photo selected ({selectedImage?.name}) — Tap to choose another
                 </span>
               </div>
             ) : (
               <div>
                 <div style={{
-                  width: 50, height: 50, borderRadius: '50%', background: '#EBF4ED',
+                  width: 56, height: 56, borderRadius: '50%', background: '#EBF5ED',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  margin: '0 auto 12px'
+                  margin: '0 auto 14px'
                 }}>
-                  <CameraAltIcon sx={{ color: '#2E6F40', fontSize: 26 }} />
+                  <CameraAltIcon sx={{ color: '#1E5E3A', fontSize: 30 }} />
                 </div>
-                <h3 style={{ fontSize: '0.98rem', fontWeight: 800, margin: '0 0 4px', color: '#1C2826' }}>
-                  Upload Crop or Leaf Photo
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: '0 0 6px', color: '#182420' }}>
+                  Upload Affected Leaf or Plant Photo
                 </h3>
-                <p style={{ fontSize: '0.78rem', color: '#788A85', margin: 0 }}>
-                  Supports JPG, PNG, WEBP up to 10MB. Take a clear close-up photo of foliage symptoms.
+                <p style={{ fontSize: '0.82rem', color: '#748782', margin: 0 }}>
+                  Take a clear, well-lit photo of foliage symptoms for immediate diagnosis & treatment plan
                 </p>
               </div>
             )}
@@ -382,13 +452,13 @@ export default function Chat() {
           <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
             <input
               type="text"
-              placeholder="Optional crop hint (e.g. Tomato, Paddy, Maize)..."
+              placeholder="Optional crop hint (e.g. Tomato, Rice, Cotton, Chilli)..."
               value={cropHint}
               onChange={e => setCropHint(e.target.value)}
               style={{
-                flex: 1, minWidth: 200, padding: '9px 14px', borderRadius: 8,
-                border: '1px solid #E6E4DC', background: '#FFFFFF',
-                fontSize: '0.84rem', color: '#1C2826', outline: 'none'
+                flex: 1, minWidth: 220, padding: '11px 16px', borderRadius: 10,
+                border: '1px solid #E5E2D8', background: '#FFFFFF',
+                fontSize: '0.86rem', color: '#182420', outline: 'none'
               }}
             />
             <button
@@ -396,18 +466,18 @@ export default function Chat() {
               disabled={!imagePreview || visionLoading}
               className="btn-accent"
               style={{
-                display: 'inline-flex', alignItems: 'center', gap: 8,
+                padding: '11px 22px', fontSize: '0.88rem',
                 opacity: (!imagePreview || visionLoading) ? 0.6 : 1
               }}
             >
               {visionLoading ? (
                 <>
                   <CircularProgress size={16} sx={{ color: '#fff' }} />
-                  <span>Analyzing AI Vision...</span>
+                  <span>Analyzing Plant Health...</span>
                 </>
               ) : (
                 <>
-                  <span>🔍 Analyze Plant Health</span>
+                  <span>🔍 Run Disease Diagnosis</span>
                 </>
               )}
             </button>
@@ -415,8 +485,8 @@ export default function Chat() {
 
           {visionError && (
             <div style={{
-              padding: '12px 16px', borderRadius: 8, background: '#FDF3F0',
-              border: '1px solid #F8D2C6', color: '#C85A32', fontSize: '0.84rem'
+              padding: '14px 18px', borderRadius: 10, background: '#FDF3F0',
+              border: '1px solid #F7D0C4', color: '#C85A32', fontSize: '0.86rem'
             }}>
               ⚠️ {visionError}
             </div>
@@ -424,101 +494,97 @@ export default function Chat() {
 
           {/* Vision Diagnosis Results Step Cards */}
           {visionResult && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }} className="fade-in">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }} className="fade-in">
               
               {visionResult.type === 'unclear_photo' ? (
                 <div style={{
-                  padding: 18, borderRadius: 10, background: '#FFF8E7',
-                  border: '1px solid #FCE4B6', color: '#D97706'
+                  padding: 20, borderRadius: 12, background: '#FFF8E7',
+                  border: '1px solid #FCE4B6', color: '#B45309'
                 }}>
-                  <h4 style={{ fontWeight: 800, fontSize: '0.95rem', margin: '0 0 6px' }}>
+                  <h4 style={{ fontWeight: 800, fontSize: '1rem', margin: '0 0 6px' }}>
                     🔍 Unclear Photo Guidance
                   </h4>
-                  <p style={{ fontSize: '0.82rem', margin: 0, lineHeight: 1.5 }}>
-                    {visionResult.message || 'We could not confidently identify a crop or leaf disease from this photo. Please try uploading a sharp, well-lit photo of the leaf or plant, or describe your symptoms directly in the Advisory Chat.'}
+                  <p style={{ fontSize: '0.86rem', margin: 0, lineHeight: 1.55 }}>
+                    {visionResult.message || 'We could not confidently identify foliage symptoms from this angle. Please upload a clear close-up leaf photo against a neutral background.'}
                   </p>
                 </div>
               ) : (
                 <>
                   {/* Diagnosis Summary Header */}
-                  <div style={{
-                    padding: 16, borderRadius: 10, background: '#EBF4ED',
-                    border: '1px solid #C8E6C9', display: 'flex',
-                    justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10
+                  <div className="hero-card-top-crop" style={{
+                    padding: 20, display: 'flex',
+                    justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12
                   }}>
                     <div>
-                      <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#2E6F40', textTransform: 'uppercase' }}>
-                        {visionResult.type === 'crop_identification' ? '🌱 Crop Identified' : '🍂 Disease / Pest Diagnosis'}
+                      <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#1E5E3A', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+                        {visionResult.type === 'crop_identification' ? '🌱 Crop Identified' : '🍂 Disease & Pest Diagnosis'}
                       </span>
-                      <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: '2px 0', color: '#1C2826' }}>
-                        {visionResult.title || 'Plant Diagnosis Result'}
+                      <h3 style={{ fontSize: '1.35rem', fontWeight: 800, margin: '2px 0 4px', color: '#182420' }}>
+                        {visionResult.title || 'Identified Plant Condition'}
                       </h3>
                       {visionResult.crop && (
-                        <span style={{ fontSize: '0.78rem', color: '#4A5D58' }}>
-                          Crop Host: <strong>{visionResult.crop}</strong> {visionResult.growthStage ? `• ${visionResult.growthStage}` : ''}
+                        <span style={{ fontSize: '0.82rem', color: '#485954' }}>
+                          Host Crop: <strong>{visionResult.crop}</strong> {visionResult.growthStage ? `• Stage: ${visionResult.growthStage}` : ''}
                         </span>
                       )}
                     </div>
-                    <span style={{
-                      background: '#FFFFFF', border: '1px solid #C8E6C9',
-                      padding: '4px 12px', borderRadius: 20, fontSize: '0.78rem',
-                      fontWeight: 800, color: '#2E6F40'
-                    }}>
-                      {Math.round((visionResult.confidence || 0.85) * 100)}% Confidence
+
+                    <span className="badge-fit-strong" style={{ fontSize: '0.82rem', padding: '5px 14px' }}>
+                      {Math.round((visionResult.confidence || 0.88) * 100)}% Confidence
                     </span>
                   </div>
 
-                  {/* 4 Step Cards Reuse Pattern */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
+                  {/* 4 Step Remediation Cards */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
                     
-                    {/* Step 1: Explanation */}
+                    {/* Step 1: Symptoms */}
                     <div style={{
-                      padding: 14, borderRadius: 10, background: '#FFFFFF',
-                      border: '1px solid #E6E4DC'
+                      padding: 18, borderRadius: 12, background: '#F8F7F2',
+                      border: '1px solid #E5E2D8'
                     }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-                        <span style={{ width: 22, height: 22, borderRadius: '50%', background: '#2E6F40', color: '#fff', fontSize: '0.7rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>1</span>
-                        <h4 style={{ fontSize: '0.88rem', fontWeight: 800, margin: 0, color: '#1C2826' }}>Symptoms & Explanation</h4>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                        <span style={{ width: 24, height: 24, borderRadius: '50%', background: '#1E5E3A', color: '#fff', fontSize: '0.75rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>1</span>
+                        <h4 style={{ fontSize: '0.92rem', fontWeight: 800, margin: 0, color: '#182420' }}>Symptoms & Identification</h4>
                       </div>
-                      <p style={{ fontSize: '0.8rem', color: '#4A5D58', margin: 0, lineHeight: 1.5 }}>
+                      <p style={{ fontSize: '0.82rem', color: '#485954', margin: 0, lineHeight: 1.55 }}>
                         {visionResult.description}
                       </p>
                     </div>
 
-                    {/* Step 2: Cause & Environmental Triggers */}
+                    {/* Step 2: Mechanism & Environmental Triggers */}
                     <div style={{
-                      padding: 14, borderRadius: 10, background: '#FFFFFF',
-                      border: '1px solid #E6E4DC'
+                      padding: 18, borderRadius: 12, background: '#F8F7F2',
+                      border: '1px solid #E5E2D8'
                     }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-                        <span style={{ width: 22, height: 22, borderRadius: '50%', background: '#D97706', color: '#fff', fontSize: '0.7rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>2</span>
-                        <h4 style={{ fontSize: '0.88rem', fontWeight: 800, margin: 0, color: '#1C2826' }}>Cause & Spread Mechanism</h4>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                        <span style={{ width: 24, height: 24, borderRadius: '50%', background: '#D97706', color: '#fff', fontSize: '0.75rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>2</span>
+                        <h4 style={{ fontSize: '0.92rem', fontWeight: 800, margin: 0, color: '#182420' }}>Root Cause & Weather Triggers</h4>
                       </div>
-                      <p style={{ fontSize: '0.8rem', color: '#4A5D58', margin: 0, lineHeight: 1.5 }}>
-                        {visionResult.cause || visionResult.idealConditions || 'Triggered by environmental micro-climate conditions.'}
+                      <p style={{ fontSize: '0.82rem', color: '#485954', margin: 0, lineHeight: 1.55 }}>
+                        {visionResult.cause || visionResult.idealConditions || 'Triggered by high humidity and dense canopy moisture.'}
                       </p>
                     </div>
 
-                    {/* Step 3: Immediate Organic & Chemical Options */}
+                    {/* Step 3: Immediate Remedies */}
                     <div style={{
-                      padding: 14, borderRadius: 10, background: '#FFFFFF',
-                      border: '1px solid #E6E4DC'
+                      padding: 18, borderRadius: 12, background: '#F8F7F2',
+                      border: '1px solid #E5E2D8'
                     }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-                        <span style={{ width: 22, height: 22, borderRadius: '50%', background: '#C85A32', color: '#fff', fontSize: '0.7rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>3</span>
-                        <h4 style={{ fontSize: '0.88rem', fontWeight: 800, margin: 0, color: '#1C2826' }}>Immediate Treatment Steps</h4>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                        <span style={{ width: 24, height: 24, borderRadius: '50%', background: '#C85A32', color: '#fff', fontSize: '0.75rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>3</span>
+                        <h4 style={{ fontSize: '0.92rem', fontWeight: 800, margin: 0, color: '#182420' }}>Treatment Steps & Dosage</h4>
                       </div>
-                      <div style={{ fontSize: '0.78rem', color: '#4A5D58' }}>
-                        <strong style={{ color: '#2E6F40' }}>🌿 Organic Options:</strong>
-                        <ul style={{ paddingLeft: 16, margin: '2px 0 6px' }}>
-                          {(visionResult.steps?.immediate_organic || ['Apply Neem oil 5ml/L']).map((s, idx) => (
+                      <div style={{ fontSize: '0.8rem', color: '#485954' }}>
+                        <strong style={{ color: '#1E5E3A' }}>🌿 Organic Option:</strong>
+                        <ul style={{ paddingLeft: 18, margin: '3px 0 8px' }}>
+                          {(visionResult.steps?.immediate_organic || ['Spray Neem oil (Azadirachtin 1500ppm) @ 5ml/L water']).map((s, idx) => (
                             <li key={idx}>{s}</li>
                           ))}
                         </ul>
                         {visionResult.steps?.chemical_options && (
                           <>
-                            <strong style={{ color: '#C85A32' }}>🧪 Chemical Options:</strong>
-                            <ul style={{ paddingLeft: 16, margin: '2px 0 0' }}>
+                            <strong style={{ color: '#C85A32' }}>🧪 Chemical Option:</strong>
+                            <ul style={{ paddingLeft: 18, margin: '3px 0 0' }}>
                               {visionResult.steps.chemical_options.map((s, idx) => (
                                 <li key={idx}>{s}</li>
                               ))}
@@ -528,17 +594,17 @@ export default function Chat() {
                       </div>
                     </div>
 
-                    {/* Step 4: Future Season Prevention */}
+                    {/* Step 4: Prevention */}
                     <div style={{
-                      padding: 14, borderRadius: 10, background: '#FFFFFF',
-                      border: '1px solid #E6E4DC'
+                      padding: 18, borderRadius: 12, background: '#F8F7F2',
+                      border: '1px solid #E5E2D8'
                     }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-                        <span style={{ width: 22, height: 22, borderRadius: '50%', background: '#2E6F40', color: '#fff', fontSize: '0.7rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>4</span>
-                        <h4 style={{ fontSize: '0.88rem', fontWeight: 800, margin: 0, color: '#1C2826' }}>Future Season Prevention</h4>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                        <span style={{ width: 24, height: 24, borderRadius: '50%', background: '#1E5E3A', color: '#fff', fontSize: '0.75rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>4</span>
+                        <h4 style={{ fontSize: '0.92rem', fontWeight: 800, margin: 0, color: '#182420' }}>Future Season Prevention</h4>
                       </div>
-                      <ul style={{ paddingLeft: 16, margin: 0, fontSize: '0.78rem', color: '#4A5D58' }}>
-                        {(visionResult.steps?.future_prevention || ['Practice crop rotation and certified seed treatment']).map((s, idx) => (
+                      <ul style={{ paddingLeft: 18, margin: 0, fontSize: '0.8rem', color: '#485954', lineHeight: 1.55 }}>
+                        {(visionResult.steps?.future_prevention || ['Treat seeds with Trichoderma viride @ 4g/kg before sowing', 'Ensure 45cm row spacing for air circulation']).map((s, idx) => (
                           <li key={idx}>{s}</li>
                         ))}
                       </ul>

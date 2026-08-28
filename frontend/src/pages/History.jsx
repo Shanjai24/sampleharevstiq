@@ -10,6 +10,9 @@ import CircularProgress from '@mui/material/CircularProgress';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import RateReviewIcon from '@mui/icons-material/RateReview';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import PlaceIcon from '@mui/icons-material/Place';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import CloseIcon from '@mui/icons-material/Close';
 
 export default function History() {
   const { farmData, location, setFarmData, setLocation } = useContext(FarmContext);
@@ -42,7 +45,7 @@ export default function History() {
     loadData();
     if (!farmName && (farmData || location)) {
       const defaultName = farmData?.location?.district 
-        ? `${farmData.location.district} Plot`
+        ? `${farmData.location.district} Farm Plot`
         : 'My Farm Plot';
       setFarmName(defaultName);
     }
@@ -126,30 +129,40 @@ export default function History() {
   return (
     <div className="page-container">
       {/* Header */}
-      <div className="fade-in" style={{ marginBottom: 24 }}>
-        <h1 className="gradient-text" style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0 }}>
-          📋 Saved Plots & Harvest Feedback Records
+      <div className="fade-in" style={{ marginBottom: 22 }}>
+        <h1 style={{ fontSize: '1.85rem', fontWeight: 800, margin: 0, color: '#182420', letterSpacing: '-0.02em' }}>
+          Saved Plots & Harvest Feedback Records
         </h1>
-        <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: 4 }}>
-          Bookmark your agricultural plots and record post-harvest actual yields to fuel AgroPredict's continuous retraining model
+        <p style={{ color: '#748782', fontSize: '0.88rem', marginTop: 4 }}>
+          Bookmark your agricultural plots and log post-harvest yield feedback for ML self-learning
         </p>
       </div>
 
       {/* Save Current Location Form Card */}
       {(location || farmData) && (
         <div className="glass-card fade-in" style={{ padding: 24, marginBottom: 24 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-            <BookmarkIcon sx={{ color: '#2dd4bf' }} />
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: '#2dd4bf' }}>
-              Save Active Plot Location
-            </h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+            <div style={{
+              width: 34, height: 34, borderRadius: 8, background: '#EBF5ED',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              <BookmarkIcon sx={{ color: '#1E5E3A', fontSize: 20 }} />
+            </div>
+            <div>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#182420' }}>
+                Bookmark Active Farm Plot
+              </h3>
+              <span style={{ fontSize: '0.74rem', color: '#748782' }}>
+                Save this plot's coordinates for quick re-analysis
+              </span>
+            </div>
           </div>
 
           {error && (
             <div style={{
-              padding: '10px 14px', borderRadius: 8,
-              background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.3)',
-              color: '#ef4444', fontSize: '0.82rem', marginBottom: 16
+              padding: '12px 16px', borderRadius: 10,
+              background: '#FDF3F0', border: '1px solid #F7D0C4',
+              color: '#C85A32', fontSize: '0.84rem', marginBottom: 16
             }}>
               ⚠️ {error}
             </div>
@@ -165,7 +178,10 @@ export default function History() {
               placeholder="e.g. North Acre Paddy Field"
               disabled={!!loadingFarmId}
               onChange={e => setFarmName(e.target.value)}
-              sx={{ '& .MuiInputBase-root': { color: '#f8fafc' }, '& .MuiInputLabel-root': { color: '#94a3b8' } }}
+              sx={{
+                '& .MuiInputBase-root': { background: '#F8F7F2', borderRadius: '10px', color: '#182420', fontWeight: 600 },
+                '& .MuiOutlinedInput-notchedOutline': { borderColor: '#E5E2D8' }
+              }}
             />
             <TextField
               fullWidth
@@ -175,7 +191,10 @@ export default function History() {
               placeholder="e.g. Clay loam soil, borewell drilled in 2024"
               disabled={!!loadingFarmId}
               onChange={e => setNotes(e.target.value)}
-              sx={{ '& .MuiInputBase-root': { color: '#f8fafc' }, '& .MuiInputLabel-root': { color: '#94a3b8' } }}
+              sx={{
+                '& .MuiInputBase-root': { background: '#F8F7F2', borderRadius: '10px', color: '#182420' },
+                '& .MuiOutlinedInput-notchedOutline': { borderColor: '#E5E2D8' }
+              }}
             />
           </div>
 
@@ -185,14 +204,14 @@ export default function History() {
               disabled={saving || !farmName.trim() || !!loadingFarmId}
               className="btn-accent"
               style={{
-                opacity: saving || !farmName.trim() ? 0.5 : 1,
+                opacity: saving || !farmName.trim() ? 0.6 : 1,
                 cursor: saving || !farmName.trim() ? 'not-allowed' : 'pointer'
               }}
             >
-              {saving ? 'Saving Plot...' : '💾 Save Plot to History'}
+              {saving ? 'Saving Plot...' : '💾 Save Plot Location'}
             </button>
             {!farmName.trim() && (
-              <span style={{ fontSize: '0.75rem', color: '#f59e0b', fontWeight: 600 }}>
+              <span style={{ fontSize: '0.76rem', color: '#B45309', fontWeight: 600 }}>
                 ⚠️ Enter a plot name above to save
               </span>
             )}
@@ -204,65 +223,102 @@ export default function History() {
       {activeFeedbackFarm && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(10px)',
+          background: 'rgba(24, 36, 32, 0.65)', backdropFilter: 'blur(6px)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1200, padding: 20
         }}>
-          <div className="glass-card" style={{ maxWidth: 500, width: '100%', padding: 28, background: '#12201c' }}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f59e0b', marginBottom: 6 }}>
-              📝 Record Harvest Feedback for "{activeFeedbackFarm.farmName}"
-            </h3>
-            <p style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: 20 }}>
-              Submit actual harvest numbers to train AgroPredict's continuous ML model.
+          <div className="glass-card fade-in" style={{ maxWidth: 520, width: '100%', padding: 28, background: '#FFFFFF' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+              <div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#182420', margin: 0 }}>
+                  📝 Post-Harvest Feedback
+                </h3>
+                <span style={{ fontSize: '0.8rem', color: '#1E5E3A', fontWeight: 700 }}>
+                  Plot: {activeFeedbackFarm.farmName}
+                </span>
+              </div>
+              <IconButton onClick={() => setActiveFeedbackFarm(null)} size="small">
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </div>
+
+            <p style={{ fontSize: '0.82rem', color: '#485954', marginBottom: 18, lineHeight: 1.5 }}>
+              Submit your actual harvest numbers to continuously improve AgroPredict's localized ML yield models.
             </p>
 
             <form onSubmit={handleSubmitFeedback} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
-                <label style={{ fontSize: '0.75rem', color: '#cbd5e1', display: 'block', marginBottom: 4 }}>Crop Harvested</label>
+                <label style={{ fontSize: '0.76rem', color: '#485954', display: 'block', marginBottom: 4, fontWeight: 700 }}>
+                  Crop Harvested
+                </label>
                 <input
                   type="text" value={feedbackCrop} onChange={e => setFeedbackCrop(e.target.value)}
-                  style={{ width: '100%', padding: 10, borderRadius: 8, background: '#0b1210', border: '1px solid rgba(20,184,166,0.3)', color: '#fff' }}
+                  style={{
+                    width: '100%', padding: '10px 14px', borderRadius: 10,
+                    background: '#F8F7F2', border: '1px solid #E5E2D8', color: '#182420',
+                    fontSize: '0.88rem', fontWeight: 600, outline: 'none'
+                  }}
                   required
                 />
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>
-                  <label style={{ fontSize: '0.75rem', color: '#cbd5e1', display: 'block', marginBottom: 4 }}>Actual Yield (Tons / Acre)</label>
+                  <label style={{ fontSize: '0.76rem', color: '#485954', display: 'block', marginBottom: 4, fontWeight: 700 }}>
+                    Actual Yield (Tons / Acre)
+                  </label>
                   <input
                     type="number" step="0.1" value={actualYield} onChange={e => setActualYield(e.target.value)}
-                    style={{ width: '100%', padding: 10, borderRadius: 8, background: '#0b1210', border: '1px solid rgba(20,184,166,0.3)', color: '#fff' }}
+                    style={{
+                      width: '100%', padding: '10px 14px', borderRadius: 10,
+                      background: '#F8F7F2', border: '1px solid #E5E2D8', color: '#182420',
+                      fontSize: '0.88rem', fontWeight: 700, outline: 'none'
+                    }}
                     required
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: '0.75rem', color: '#cbd5e1', display: 'block', marginBottom: 4 }}>Actual Net Profit (INR / Acre)</label>
+                  <label style={{ fontSize: '0.76rem', color: '#485954', display: 'block', marginBottom: 4, fontWeight: 700 }}>
+                    Actual Net Profit (INR / Acre)
+                  </label>
                   <input
                     type="number" value={actualProfit} onChange={e => setActualProfit(e.target.value)}
-                    style={{ width: '100%', padding: 10, borderRadius: 8, background: '#0b1210', border: '1px solid rgba(20,184,166,0.3)', color: '#fff' }}
+                    style={{
+                      width: '100%', padding: '10px 14px', borderRadius: 10,
+                      background: '#F8F7F2', border: '1px solid #E5E2D8', color: '#182420',
+                      fontSize: '0.88rem', fontWeight: 700, outline: 'none'
+                    }}
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label style={{ fontSize: '0.75rem', color: '#cbd5e1', display: 'block', marginBottom: 4 }}>Notes & Feedback</label>
+                <label style={{ fontSize: '0.76rem', color: '#485954', display: 'block', marginBottom: 4, fontWeight: 700 }}>
+                  Agronomic Notes & Comments
+                </label>
                 <textarea
                   rows={2} value={feedbackNotes} onChange={e => setFeedbackNotes(e.target.value)}
                   placeholder="e.g. Applied DAP at sowing. Weather was favorable."
-                  style={{ width: '100%', padding: 10, borderRadius: 8, background: '#0b1210', border: '1px solid rgba(20,184,166,0.3)', color: '#fff', fontSize: '0.82rem' }}
+                  style={{
+                    width: '100%', padding: '10px 14px', borderRadius: 10,
+                    background: '#F8F7F2', border: '1px solid #E5E2D8', color: '#182420',
+                    fontSize: '0.84rem', outline: 'none', resize: 'none'
+                  }}
                 />
               </div>
 
-              <div style={{ display: 'flex', gap: 12, marginTop: 10 }}>
+              <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
                 <button
                   type="button" onClick={() => setActiveFeedbackFarm(null)}
-                  style={{ flex: 1, padding: 12, borderRadius: 8, border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: '#cbd5e1', cursor: 'pointer', fontWeight: 600 }}
+                  className="btn-secondary"
+                  style={{ flex: 1 }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit" disabled={feedbackSubmitting}
-                  style={{ flex: 1, padding: 12, borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, #d97706, #b45309)', color: '#fff', cursor: 'pointer', fontWeight: 800 }}
+                  className="btn-accent"
+                  style={{ flex: 1 }}
                 >
                   {feedbackSubmitting ? 'Submitting...' : 'Submit Feedback'}
                 </button>
@@ -273,14 +329,19 @@ export default function History() {
       )}
 
       {/* Saved Plots Grid */}
-      <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: 16 }}>
+      <h3 style={{ fontSize: '1.15rem', fontWeight: 800, marginBottom: 16, color: '#182420' }}>
         🏡 Bookmarked Farm Plots ({farms.length})
       </h3>
 
       {farms.length === 0 ? (
-        <div className="glass-card" style={{ textAlign: 'center', padding: 48, color: '#94a3b8' }}>
+        <div className="glass-card" style={{ textAlign: 'center', padding: '48px 24px', color: '#748782' }}>
           <div style={{ fontSize: '3rem', marginBottom: 12 }}>🌱</div>
-          <p style={{ fontSize: '1rem', fontWeight: 600 }}>{t('history.noFarms') || 'No saved farm locations yet.'}</p>
+          <p style={{ fontSize: '1rem', fontWeight: 700, color: '#182420', margin: 0 }}>
+            {t('history.noFarms') || 'No saved farm locations yet.'}
+          </p>
+          <p style={{ fontSize: '0.84rem', color: '#748782', marginTop: 4 }}>
+            Analyze a farm plot on the map and tap "Save Plot Location" to access it anytime.
+          </p>
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 16, marginBottom: 32 }}>
@@ -299,49 +360,53 @@ export default function History() {
               >
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-                    <h4 style={{ fontWeight: 800, fontSize: '1.05rem', margin: 0, color: '#f8fafc' }}>
+                    <h4 style={{ fontWeight: 800, fontSize: '1.1rem', margin: 0, color: '#182420' }}>
                       🏡 {farm.farmName}
                     </h4>
-                    <span style={{ fontSize: '0.68rem', color: '#2dd4bf', background: 'rgba(20,184,166,0.12)', padding: '2px 8px', borderRadius: 6, fontWeight: 700 }}>
+                    <span style={{ fontSize: '0.68rem', color: '#1E5E3A', background: '#EBF5ED', border: '1px solid #C6E4CF', padding: '2px 8px', borderRadius: 6, fontWeight: 800 }}>
                       PLOT #{i + 1}
                     </span>
                   </div>
 
-                  <p style={{ fontSize: '0.8rem', color: '#cbd5e1', marginBottom: 6 }}>
-                    📍 {farm.district || ''}{farm.district && farm.state ? ', ' : ''}{farm.state || ''} • ({farm.lat?.toFixed(4)}, {farm.lng?.toFixed(4)})
+                  <p style={{ fontSize: '0.82rem', color: '#485954', margin: '0 0 8px', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <PlaceIcon sx={{ fontSize: 16, color: '#C85A32' }} />
+                    <span>{farm.district || ''}{farm.district && farm.state ? ', ' : ''}{farm.state || ''}</span>
+                    <span style={{ color: '#748782', fontSize: '0.75rem' }}>({farm.lat?.toFixed(4)}, {farm.lng?.toFixed(4)})</span>
                   </p>
 
                   {farm.notes && (
-                    <p style={{ fontSize: '0.78rem', color: '#94a3b8', background: 'rgba(11,18,16,0.4)', padding: 8, borderRadius: 8, marginTop: 8 }}>
+                    <p style={{ fontSize: '0.8rem', color: '#485954', background: '#F8F7F2', border: '1px solid #E5E2D8', padding: '8px 12px', borderRadius: 8, margin: '8px 0 0' }}>
                       📝 {farm.notes}
                     </p>
                   )}
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, paddingTop: 12, borderTop: '1px solid rgba(20,184,166,0.1)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, paddingTop: 12, borderTop: '1px solid #E5E2D8' }}>
                   <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); setActiveFeedbackFarm(farm); }}
                     style={{
-                      background: 'rgba(217,119,6,0.15)', border: '1px solid rgba(217,119,6,0.3)',
-                      color: '#f59e0b', padding: '4px 10px', borderRadius: 8, fontSize: '0.72rem',
-                      fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4
+                      background: '#FFF8E7', border: '1px solid #FCE4B6',
+                      color: '#B45309', padding: '5px 12px', borderRadius: 8, fontSize: '0.76rem',
+                      fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5
                     }}
                   >
-                    <RateReviewIcon fontSize="small" />
-                    <span>Harvest Feedback</span>
+                    <RateReviewIcon sx={{ fontSize: 16 }} />
+                    <span>Log Harvest</span>
                   </button>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     {isThisLoading ? (
-                      <CircularProgress size={20} sx={{ color: '#2dd4bf' }} />
+                      <CircularProgress size={20} sx={{ color: '#1E5E3A' }} />
                     ) : (
                       <>
-                        <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#2dd4bf' }}>Load →</span>
+                        <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#1E5E3A', display: 'flex', alignItems: 'center', gap: 4 }}>
+                          Load Analysis <ArrowForwardIcon sx={{ fontSize: 14 }} />
+                        </span>
                         <IconButton
                           disabled={!!loadingFarmId}
                           onClick={(e) => { e.stopPropagation(); handleDelete(farm._id || farm.id); }}
-                          sx={{ color: '#ef4444', padding: 0.5 }}
+                          sx={{ color: '#C85A32', padding: 0.5 }}
                         >
                           <DeleteIcon fontSize="small" />
                         </IconButton>
@@ -358,21 +423,27 @@ export default function History() {
       {/* Submitted Feedback History Section */}
       {feedbacks.length > 0 && (
         <div style={{ marginTop: 24 }}>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#10b981', marginBottom: 14 }}>
-            ✅ Verified Harvest Feedback Submissions ({feedbacks.length})
-          </h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+            <CheckCircleIcon sx={{ color: '#1E5E3A', fontSize: 22 }} />
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#182420', margin: 0 }}>
+              Verified Harvest Submissions ({feedbacks.length})
+            </h3>
+          </div>
+
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
             {feedbacks.map((fb, idx) => (
-              <div key={idx} className="glass-card" style={{ padding: 16, background: 'rgba(16,185,129,0.06)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <strong style={{ fontSize: '0.9rem', color: '#f8fafc' }}>🌾 {fb.crop} ({fb.farmName})</strong>
-                  <span style={{ fontSize: '0.7rem', color: '#10b981', fontWeight: 800 }}>VERIFIED</span>
+              <div key={idx} className="glass-card" style={{ padding: 18, background: '#F8F7F2' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                  <strong style={{ fontSize: '0.95rem', color: '#182420' }}>🌾 {fb.crop} ({fb.farmName})</strong>
+                  <span className="badge-live" style={{ fontSize: '0.68rem', padding: '2px 7px' }}>
+                    LOGGED
+                  </span>
                 </div>
-                <p style={{ fontSize: '0.78rem', color: '#cbd5e1', margin: '4px 0' }}>
-                  Actual Yield: <strong>{fb.actualYield} tons/ac</strong> (Δ {fb.yieldDelta >= 0 ? `+${fb.yieldDelta}` : fb.yieldDelta})
+                <p style={{ fontSize: '0.82rem', color: '#485954', margin: '4px 0' }}>
+                  Actual Harvest: <strong>{fb.actualYield} tons/ac</strong> {fb.yieldDelta != null ? `(Δ ${fb.yieldDelta >= 0 ? `+${fb.yieldDelta}` : fb.yieldDelta})` : ''}
                 </p>
-                <p style={{ fontSize: '0.78rem', color: '#cbd5e1', margin: '4px 0' }}>
-                  Actual Profit: <strong>₹{fb.actualProfit?.toLocaleString()}</strong>
+                <p style={{ fontSize: '0.82rem', color: '#485954', margin: '4px 0' }}>
+                  Realized Net Profit: <strong style={{ color: '#1E5E3A' }}>₹{fb.actualProfit?.toLocaleString()}</strong>
                 </p>
               </div>
             ))}

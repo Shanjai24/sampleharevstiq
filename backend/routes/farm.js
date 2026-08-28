@@ -74,7 +74,8 @@ router.post('/analyse', async (req, res) => {
           timeout: 4000
         });
         const addr = geoRes.data.address || {};
-        const district = addr.county || addr.state_district || addr.city || 'Unknown';
+        let district = addr.state_district || addr.district || addr.county || addr.city || addr.town || addr.municipality || addr.village || 'Unknown';
+        district = district.replace(/\s+District$/i, '').trim();
         const state = addr.state || 'Tamil Nadu';
         const res = { district, state };
         cache.set(cacheKey, res, 30 * 24 * 60 * 60 * 1000);
