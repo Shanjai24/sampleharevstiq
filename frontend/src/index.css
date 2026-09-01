@@ -1,8 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
-:root {
-  /* AgroPredict Unified Palette — Forest Green, Terracotta & Warm Cream */
+/* Design tokens live in @theme so Tailwind utilities (bg-primary, text-accent, border-border, shadow-card) stay in sync with existing CSS vars used by .btn-primary / .glass-card. */
+@theme {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+
   --color-primary: #1E5E3A;
   --color-primary-light: #2E7D4E;
   --color-primary-dark: #144026;
@@ -10,14 +13,12 @@
   --color-primary-border: #C6E4CF;
   --color-primary-glow: rgba(30, 94, 58, 0.12);
 
-  /* Earthy Accent & Net Revenue / Profit Terracotta */
   --color-accent: #C85A32;
   --color-accent-light: #DF6C44;
   --color-accent-dark: #9F3E1E;
   --color-accent-soft: #FDF3F0;
   --color-accent-border: #F7D0C4;
 
-  /* Neutral Paper, Surface Cards & Crisp Borders */
   --color-bg: #F8F7F2;
   --color-surface: #FFFFFF;
   --color-surface-hover: #F4F3EE;
@@ -25,13 +26,11 @@
   --color-border: #E5E2D8;
   --color-border-hover: #CECBC0;
 
-  /* High Readability Typography */
   --color-text-primary: #182420;
   --color-text-secondary: #485954;
   --color-text-muted: #748782;
   --color-text-emerald: #1E5E3A;
 
-  /* Risk & Suitability Semantic Status */
   --color-risk-low: #1E5E3A;
   --color-risk-moderate: #D97706;
   --color-risk-high: #C85A32;
@@ -41,13 +40,14 @@
   --color-fit-moderate: #B45309;
   --color-fit-low: #C85A32;
 
-  /* Soft Elevation & Depth */
   --shadow-subtle: 0 1px 3px rgba(24, 36, 32, 0.04);
   --shadow-card: 0 4px 16px -2px rgba(24, 36, 32, 0.05), 0 1px 3px rgba(24, 36, 32, 0.03);
   --shadow-hover: 0 8px 24px -4px rgba(24, 36, 32, 0.09), 0 2px 6px rgba(24, 36, 32, 0.04);
   --shadow-hero: 0 12px 32px -4px rgba(30, 94, 58, 0.10), 0 4px 12px rgba(24, 36, 32, 0.04);
+}
 
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+:root {
+  font-family: var(--font-sans);
 }
 
 * {
@@ -395,3 +395,25 @@ h1, h2, h3, h4, h5, h6 {
   background: #FAF9F5 !important;
   font-family: inherit !important;
 }
+
+/* Pulse animation for voice microphone listening state */
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(200, 90, 50, 0.35); }
+  50% { box-shadow: 0 0 0 8px rgba(200, 90, 50, 0); }
+}
+
+/* Data trust badge variant */
+.badge-estimated {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 10px;
+  background: #F8F7F2;
+  color: #748782;
+  border: 1px solid #E5E2D8;
+  letter-spacing: 0.01em;
+}
+

@@ -1,5 +1,4 @@
 import { useState, useContext, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { FarmContext } from '../App';
 import { getMarketPrices } from '../services/api';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
@@ -20,7 +19,6 @@ const cropOptions = [
 
 export default function Market() {
   const { farmData } = useContext(FarmContext);
-  const { t } = useTranslation();
   const [crop, setCrop] = useState('rice');
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -52,11 +50,10 @@ export default function Market() {
 
   return (
     <div className="page-container">
-      {/* Header */}
-      <div className="fade-in" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16, marginBottom: 22 }}>
+      <div className="fade-in mb-[22px] flex flex-wrap items-center justify-between gap-4">
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6, flexWrap: 'wrap' }}>
-            <h1 style={{ fontSize: '1.85rem', fontWeight: 800, color: '#182420', margin: 0, letterSpacing: '-0.02em' }}>
+          <div className="mb-1.5 flex flex-wrap items-center gap-2.5">
+            <h1 className="m-0 text-[1.85rem] font-extrabold tracking-tight text-text-primary">
               Mandi Market Intelligence
             </h1>
             {isLive ? (
@@ -70,14 +67,13 @@ export default function Market() {
               </span>
             )}
           </div>
-          <p style={{ color: '#485954', fontSize: '0.88rem', margin: 0 }}>
+          <p className="m-0 text-[0.88rem] text-text-secondary">
             Daily arrival prices & 30-day commodity trends across {district ? `${district}, ` : ''}{state} mandis
           </p>
         </div>
 
-        {/* Crop Select Menu */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 220 }}>
+        <div className="flex items-center gap-2.5">
+          <div className="w-[220px]">
             <FormControl fullWidth size="small">
               <Select
                 value={crop}
@@ -101,9 +97,9 @@ export default function Market() {
 
           <button
             onClick={fetchPrices}
-            className="btn-secondary"
-            style={{ padding: '8px 12px', minHeight: 38 }}
+            className="btn-secondary min-h-[38px] px-3 py-2"
             title="Refresh prices"
+            type="button"
           >
             <RefreshIcon sx={{ fontSize: 18 }} />
           </button>
@@ -111,94 +107,71 @@ export default function Market() {
       </div>
 
       {error && (
-        <div style={{
-          padding: '14px 20px', borderRadius: 12,
-          background: '#FDF3F0', border: '1px solid #F7D0C4',
-          color: '#C85A32', fontSize: '0.86rem', marginBottom: 24
-        }}>
+        <div className="mb-6 rounded-xl border border-accent-border bg-accent-soft px-5 py-3.5 text-[0.86rem] text-accent">
           ⚠️ {error}
         </div>
       )}
 
       {loading ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 18 }}>
-            <div className="skeleton" style={{ height: 140 }} />
-            <div className="skeleton" style={{ height: 140 }} />
+        <div className="flex flex-col gap-3.5">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-[18px]">
+            <div className="skeleton h-[140px]" />
+            <div className="skeleton h-[140px]" />
           </div>
-          <div className="skeleton" style={{ height: 260 }} />
+          <div className="skeleton h-[260px]" />
         </div>
       ) : data ? (
         <>
-          {/* Top Banner Grid */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            gap: 18,
-            marginBottom: 24
-          }}>
-            {/* Recommended Best Mandi Highlight */}
+          <div className="mb-6 grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-[18px]">
             {data.bestMandi && (
-              <div className="hero-card-top-crop fade-in" style={{ padding: '22px 24px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <div style={{
-                      width: 32, height: 32, borderRadius: 8, background: '#EBF5ED',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center'
-                    }}>
+              <div className="hero-card-top-crop fade-in px-6 py-[22px]">
+                <div className="mb-2 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-soft">
                       <StoreIcon sx={{ color: '#1E5E3A', fontSize: 18 }} />
                     </div>
-                    <span style={{ fontSize: '0.78rem', color: '#1E5E3A', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+                    <span className="text-xs font-extrabold tracking-wide text-primary uppercase">
                       Highest Price Mandi
                     </span>
                   </div>
-                  <span style={{
-                    fontSize: '0.7rem', fontWeight: 800, background: '#EBF5ED',
-                    color: '#1E5E3A', padding: '3px 8px', borderRadius: 20
-                  }}>
+                  <span className="rounded-full bg-primary-soft px-2 py-0.5 text-[0.7rem] font-extrabold text-primary">
                     TOP REALIZATION
                   </span>
                 </div>
 
-                <h3 style={{ fontWeight: 800, fontSize: '1.35rem', margin: '4px 0 8px', color: '#182420' }}>
+                <h3 className="my-1 text-[1.35rem] font-extrabold text-text-primary">
                   🏪 {data.bestMandi.market} APMC
                 </h3>
 
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-                  <span style={{ fontWeight: 800, color: '#1E5E3A', fontSize: '1.85rem', lineHeight: 1 }}>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-[1.85rem] leading-none font-extrabold text-primary">
                     ₹{data.bestMandi.modalPrice?.toLocaleString()}
                   </span>
-                  <span style={{ fontSize: '0.82rem', color: '#748782', fontWeight: 600 }}>/ quintal (Modal)</span>
+                  <span className="text-[0.82rem] font-semibold text-text-muted">/ quintal (Modal)</span>
                 </div>
               </div>
             )}
 
-            {/* Price Trend Summary */}
-            <div className="glass-card fade-in fade-in-delay-1" style={{
-              padding: '22px 24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <div style={{
-                    width: 32, height: 32, borderRadius: 8, background: '#FFF8E7',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center'
-                  }}>
+            <div className="glass-card fade-in fade-in-delay-1 flex flex-col justify-between px-6 py-[22px]">
+              <div className="mb-2 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#FFF8E7]">
                     <TrendingUpIcon sx={{ color: '#D97706', fontSize: 18 }} />
                   </div>
-                  <span style={{ fontSize: '0.78rem', color: '#485954', fontWeight: 700 }}>
+                  <span className="text-xs font-bold text-text-secondary">
                     Market Momentum & Strategy
                   </span>
                 </div>
-                <span className={data.trend === 'UP' ? 'badge-fit-strong' : 'badge-fit-moderate'} style={{ fontSize: '0.7rem', padding: '3px 8px' }}>
+                <span className={`${data.trend === 'UP' ? 'badge-fit-strong' : 'badge-fit-moderate'} px-2 py-0.5 text-[0.7rem]`}>
                   {data.trend === 'UP' ? 'Bullish Trend' : 'Stable Rate'}
                 </span>
               </div>
 
               <div>
-                <h4 style={{ fontSize: '1.15rem', fontWeight: 800, color: data.trend === 'UP' ? '#1E5E3A' : '#D97706', margin: '2px 0 4px' }}>
+                <h4 className={`my-0.5 text-[1.15rem] font-extrabold ${data.trend === 'UP' ? 'text-primary' : 'text-risk-moderate'}`}>
                   {data.trend === 'UP' ? '📈 Rising Demand Momentum' : '➡️ Steady Market Price Range'}
                 </h4>
-                <p style={{ fontSize: '0.82rem', color: '#485954', margin: 0, lineHeight: 1.5 }}>
+                <p className="m-0 text-[0.82rem] leading-normal text-text-secondary">
                   {data.trend === 'UP'
                     ? 'Arrivals are tightening while wholesale demand remains strong. Favorable window to sell high-grade lots.'
                     : 'Prices are holding steady across regional mandis. Safe to sell regularly or hold dry produce.'}
@@ -207,51 +180,44 @@ export default function Market() {
             </div>
           </div>
 
-          {/* Main Grid: Price Table & Trend Chart */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
-            gap: 20,
-            marginBottom: 24
-          }}>
-            {/* Price Table Card */}
-            <div className="glass-card fade-in fade-in-delay-2" style={{ padding: 24 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div className="mb-6 grid grid-cols-[repeat(auto-fit,minmax(360px,1fr))] gap-5">
+            <div className="glass-card fade-in fade-in-delay-2 p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
                   <AccountBalanceIcon sx={{ color: '#1E5E3A', fontSize: 20 }} />
-                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#182420' }}>
+                  <h3 className="m-0 text-[1.05rem] font-extrabold text-text-primary">
                     Nearest Mandi Price Spread
                   </h3>
                 </div>
-                <span style={{ fontSize: '0.74rem', color: '#748782' }}>
+                <span className="text-xs text-text-muted">
                   {crop.toUpperCase()} Rates
                 </span>
               </div>
 
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
                   <thead>
-                    <tr style={{ borderBottom: '2px solid #E5E2D8' }}>
-                      <th style={{ textAlign: 'left', padding: '10px 8px', fontSize: '0.75rem', color: '#748782', fontWeight: 700 }}>Mandi Market</th>
-                      <th style={{ textAlign: 'right', padding: '10px 8px', fontSize: '0.75rem', color: '#748782', fontWeight: 700 }}>Min ₹</th>
-                      <th style={{ textAlign: 'right', padding: '10px 8px', fontSize: '0.75rem', color: '#748782', fontWeight: 700 }}>Max ₹</th>
-                      <th style={{ textAlign: 'right', padding: '10px 8px', fontSize: '0.75rem', color: '#748782', fontWeight: 700 }}>Modal Rate</th>
+                    <tr className="border-b-2 border-border">
+                      <th className="px-2 py-2.5 text-left text-xs font-bold text-text-muted">Mandi Market</th>
+                      <th className="px-2 py-2.5 text-right text-xs font-bold text-text-muted">Min ₹</th>
+                      <th className="px-2 py-2.5 text-right text-xs font-bold text-text-muted">Max ₹</th>
+                      <th className="px-2 py-2.5 text-right text-xs font-bold text-text-muted">Modal Rate</th>
                     </tr>
                   </thead>
                   <tbody>
                     {(data.prices || []).map((p, i) => (
-                      <tr key={i} style={{ borderBottom: '1px solid #F0EEE6' }}>
-                        <td style={{ padding: '12px 8px', fontSize: '0.86rem', fontWeight: 700, color: '#182420' }}>
+                      <tr key={i} className="border-b border-[#F0EEE6]">
+                        <td className="px-2 py-3 text-[0.86rem] font-bold text-text-primary">
                           {p.market}
                         </td>
-                        <td style={{ textAlign: 'right', padding: '12px 8px', fontSize: '0.84rem', color: '#485954' }}>
+                        <td className="px-2 py-3 text-right text-sm text-text-secondary">
                           ₹{p.minPrice?.toLocaleString()}
                         </td>
-                        <td style={{ textAlign: 'right', padding: '12px 8px', fontSize: '0.84rem', color: '#485954' }}>
+                        <td className="px-2 py-3 text-right text-sm text-text-secondary">
                           ₹{p.maxPrice?.toLocaleString()}
                         </td>
-                        <td style={{ textAlign: 'right', padding: '12px 8px', fontSize: '0.92rem', fontWeight: 800, color: '#C85A32' }}>
-                          ₹{p.modalPrice?.toLocaleString()}<span style={{ fontSize: '0.7rem', color: '#748782', fontWeight: 500 }}>/q</span>
+                        <td className="px-2 py-3 text-right text-[0.92rem] font-extrabold text-accent">
+                          ₹{p.modalPrice?.toLocaleString()}<span className="text-[0.7rem] font-medium text-text-muted">/q</span>
                         </td>
                       </tr>
                     ))}
@@ -260,17 +226,16 @@ export default function Market() {
               </div>
             </div>
 
-            {/* Price Trend Chart Card */}
             {data.history && data.history.length > 0 && (
-              <div className="glass-card fade-in fade-in-delay-3" style={{ padding: 24 }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div className="glass-card fade-in fade-in-delay-3 p-6">
+                <div className="mb-4 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
                     <ShowChartIcon sx={{ color: '#C85A32', fontSize: 20 }} />
-                    <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#182420' }}>
+                    <h3 className="m-0 text-[1.05rem] font-extrabold text-text-primary">
                       30-Day Mandi Price Trend
                     </h3>
                   </div>
-                  <span style={{ fontSize: '0.74rem', color: '#748782' }}>₹ / Quintal</span>
+                  <span className="text-xs text-text-muted">₹ / Quintal</span>
                 </div>
 
                 <ResponsiveContainer width="100%" height={240}>
@@ -293,7 +258,7 @@ export default function Market() {
           </div>
         </>
       ) : (
-        <p style={{ color: '#748782', textAlign: 'center', marginTop: 60 }}>No mandi price data available</p>
+        <p className="mt-[60px] text-center text-text-muted">No mandi price data available</p>
       )}
     </div>
   );

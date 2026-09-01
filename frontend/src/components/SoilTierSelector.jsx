@@ -7,17 +7,19 @@ import PublicIcon from '@mui/icons-material/Public';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CircularProgress from '@mui/material/CircularProgress';
 
+const npkInputClass =
+  'w-full rounded-lg border border-border bg-surface px-2 py-2 text-sm text-text-primary';
+const npkLabelClass = 'text-[0.7rem] font-bold text-text-muted';
+
 export default function SoilTierSelector({ currentSoil, soilTierInfo, onApplyTier }) {
   const [selectedTier, setSelectedTier] = useState(soilTierInfo?.tier || 'regional_gov_db');
 
-  // Manual input state
   const [manualN, setManualN] = useState(soilTierInfo?.N || 190);
   const [manualP, setManualP] = useState(soilTierInfo?.P || 22);
   const [manualK, setManualK] = useState(soilTierInfo?.K || 190);
   const [manualPh, setManualPh] = useState(currentSoil?.ph || 6.5);
-  const [manualType, setManualType] = useState(currentSoil?.soilType || 'loam');
+  const [manualType] = useState(currentSoil?.soilType || 'loam');
 
-  // OCR Lab Report upload state
   const [ocrLoading, setOcrLoading] = useState(false);
   const [ocrSuccess, setOcrSuccess] = useState(false);
   const [labN, setLabN] = useState(210);
@@ -69,145 +71,133 @@ export default function SoilTierSelector({ currentSoil, soilTierInfo, onApplyTie
   };
 
   const currentConfidence = soilTierInfo?.confidence || 75;
+  const highConfidence = currentConfidence >= 90;
 
   return (
-    <div className="glass-card fade-in" style={{ padding: '20px 24px' }}>
-      {/* Title & Active Tier Badge */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{
-            width: 36, height: 36, borderRadius: 10,
-            background: '#EBF5ED', display: 'flex', alignItems: 'center', justifyContent: 'center'
-          }}>
+    <div className="glass-card fade-in px-6 py-5">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-primary-soft">
             <ScienceIcon sx={{ color: '#1E5E3A', fontSize: 20 }} />
           </div>
           <div>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#182420' }}>
+            <h3 className="m-0 text-[1.05rem] font-extrabold text-text-primary">
               Soil Data Source & Accuracy Tier
             </h3>
-            <span style={{ fontSize: '0.74rem', color: '#748782' }}>
+            <span className="text-xs text-text-muted">
               Select soil telemetry method for tailored fertilizer and yield accuracy
             </span>
           </div>
         </div>
 
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          padding: '4px 12px', borderRadius: 20,
-          background: currentConfidence >= 90 ? '#EBF5ED' : '#FFF8E7',
-          border: `1px solid ${currentConfidence >= 90 ? '#C6E4CF' : '#FCE4B6'}`
-        }}>
-          <span style={{ fontSize: '0.76rem', fontWeight: 800, color: currentConfidence >= 90 ? '#1E5E3A' : '#B45309' }}>
+        <div className={`flex items-center gap-1.5 rounded-full px-3 py-1 ${
+          highConfidence
+            ? 'border border-primary-border bg-primary-soft'
+            : 'border border-[#FCE4B6] bg-[#FFF8E7]'
+        }`}>
+          <span className={`text-xs font-extrabold ${highConfidence ? 'text-primary' : 'text-fit-moderate'}`}>
             {soilTierInfo?.confidenceLabel || `${currentConfidence}% Confidence`}
           </span>
         </div>
       </div>
 
-      {/* Tier Switcher Buttons */}
-      <div style={{
-        display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 16
-      }}>
-        {/* Option 1: Lab Test Upload */}
+      <div className="mb-4 grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3">
         <button
           type="button"
           onClick={() => handleApply('lab_report')}
-          style={{
-            padding: '16px', borderRadius: 12, cursor: 'pointer', textAlign: 'left',
-            background: selectedTier === 'lab_report' ? '#EBF5ED' : '#FFFFFF',
-            border: selectedTier === 'lab_report' ? '2px solid #1E5E3A' : '1px solid #E5E2D8',
-            color: '#182420', transition: 'all 0.15s ease'
-          }}
+          className={`cursor-pointer rounded-xl p-4 text-left text-text-primary transition-all duration-150 ${
+            selectedTier === 'lab_report'
+              ? 'border-2 border-primary bg-primary-soft'
+              : 'border border-border bg-surface'
+          }`}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+          <div className="mb-1.5 flex items-center justify-between">
             <UploadFileIcon sx={{ color: '#1E5E3A' }} />
-            <span className="badge-fit-strong" style={{ fontSize: '0.65rem', padding: '2px 7px' }}>
+            <span className="badge-fit-strong px-1.5 py-0.5 text-[0.65rem]">
               100% CONFIDENCE
             </span>
           </div>
-          <strong style={{ display: 'block', fontSize: '0.9rem', color: '#182420' }}>Soil Lab Test Upload</strong>
-          <span style={{ fontSize: '0.74rem', color: '#748782' }}>Upload PDF/Photo with OCR extraction</span>
+          <strong className="block text-[0.9rem] text-text-primary">Soil Lab Test Upload</strong>
+          <span className="text-xs text-text-muted">Upload PDF/Photo with OCR extraction</span>
         </button>
 
-        {/* Option 2: Manual Farmer Entry */}
         <button
           type="button"
           onClick={() => handleApply('manual')}
-          style={{
-            padding: '16px', borderRadius: 12, cursor: 'pointer', textAlign: 'left',
-            background: selectedTier === 'manual' ? '#EBF5ED' : '#FFFFFF',
-            border: selectedTier === 'manual' ? '2px solid #1E5E3A' : '1px solid #E5E2D8',
-            color: '#182420', transition: 'all 0.15s ease'
-          }}
+          className={`cursor-pointer rounded-xl p-4 text-left text-text-primary transition-all duration-150 ${
+            selectedTier === 'manual'
+              ? 'border-2 border-primary bg-primary-soft'
+              : 'border border-border bg-surface'
+          }`}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+          <div className="mb-1.5 flex items-center justify-between">
             <EditNoteIcon sx={{ color: '#1E5E3A' }} />
-            <span className="badge-fit-strong" style={{ fontSize: '0.65rem', padding: '2px 7px' }}>
+            <span className="badge-fit-strong px-1.5 py-0.5 text-[0.65rem]">
               90% CONFIDENCE
             </span>
           </div>
-          <strong style={{ display: 'block', fontSize: '0.9rem', color: '#182420' }}>Manual NPK/pH Entry</strong>
-          <span style={{ fontSize: '0.74rem', color: '#748782' }}>Directly enter N, P, K & pH values</span>
+          <strong className="block text-[0.9rem] text-text-primary">Manual NPK/pH Entry</strong>
+          <span className="text-xs text-text-muted">Directly enter N, P, K & pH values</span>
         </button>
 
-        {/* Option 3: Regional Govt DB Fallback */}
         <button
           type="button"
           onClick={() => handleApply('regional_gov_db')}
-          style={{
-            padding: '16px', borderRadius: 12, cursor: 'pointer', textAlign: 'left',
-            background: selectedTier === 'regional_gov_db' ? '#FFF8E7' : '#FFFFFF',
-            border: selectedTier === 'regional_gov_db' ? '2px solid #D97706' : '1px solid #E5E2D8',
-            color: '#182420', transition: 'all 0.15s ease'
-          }}
+          className={`cursor-pointer rounded-xl p-4 text-left text-text-primary transition-all duration-150 ${
+            selectedTier === 'regional_gov_db'
+              ? 'border-2 border-risk-moderate bg-[#FFF8E7]'
+              : 'border border-border bg-surface'
+          }`}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+          <div className="mb-1.5 flex items-center justify-between">
             <PublicIcon sx={{ color: '#D97706' }} />
-            <span className="badge-fit-moderate" style={{ fontSize: '0.65rem', padding: '2px 7px' }}>
+            <span className="badge-fit-moderate px-1.5 py-0.5 text-[0.65rem]">
               75% CONFIDENCE
             </span>
           </div>
-          <strong style={{ display: 'block', fontSize: '0.9rem', color: '#182420' }}>Regional Govt Database</strong>
-          <span style={{ fontSize: '0.74rem', color: '#748782' }}>District geospatial soil benchmark</span>
+          <strong className="block text-[0.9rem] text-text-primary">Regional Govt Database</strong>
+          <span className="text-xs text-text-muted">District geospatial soil benchmark</span>
         </button>
       </div>
 
-      {/* Tier Input Controls */}
       {selectedTier === 'lab_report' && (
-        <div style={{ background: '#F8F7F2', padding: 18, borderRadius: 12, border: '1px solid #E5E2D8' }}>
-          <label style={{ fontSize: '0.8rem', color: '#485954', display: 'block', marginBottom: 8, fontWeight: 700 }}>
+        <div className="rounded-xl border border-border bg-bg p-[18px]">
+          <label className="mb-2 block text-sm font-bold text-text-secondary">
             Upload Soil Health Card (PDF, PNG, JPG)
           </label>
           <input
             type="file"
             accept="image/*,application/pdf"
             onChange={handleFileUpload}
-            style={{ fontSize: '0.84rem', color: '#182420', marginBottom: 12 }}
+            className="mb-3 text-sm text-text-primary"
           />
+          {fileName && (
+            <p className="mb-2 text-xs text-text-muted">{fileName}</p>
+          )}
 
           {ocrLoading && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+            <div className="mt-2 flex items-center gap-2">
               <CircularProgress size={18} sx={{ color: '#1E5E3A' }} />
-              <span style={{ fontSize: '0.8rem', color: '#748782' }}>Extracting NPK & pH data via OCR...</span>
+              <span className="text-sm text-text-muted">Extracting NPK & pH data via OCR...</span>
             </div>
           )}
 
           {ocrSuccess && (
-            <div style={{ marginTop: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#1E5E3A', fontSize: '0.84rem', fontWeight: 800, marginBottom: 10 }}>
+            <div className="mt-3">
+              <div className="mb-2.5 flex items-center gap-1.5 text-sm font-extrabold text-primary">
                 <CheckCircleIcon fontSize="small" />
                 <span>Extracted Values Verified (100% Confidence)</span>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: 10 }}>
-                <div><label style={{ fontSize: '0.7rem', color: '#748782', fontWeight: 700 }}>N (kg/ha)</label><input type="number" value={labN} onChange={e => setLabN(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: 8, background: '#FFFFFF', border: '1px solid #E5E2D8', color: '#182420', fontSize: '0.84rem' }} /></div>
-                <div><label style={{ fontSize: '0.7rem', color: '#748782', fontWeight: 700 }}>P (kg/ha)</label><input type="number" value={labP} onChange={e => setLabP(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: 8, background: '#FFFFFF', border: '1px solid #E5E2D8', color: '#182420', fontSize: '0.84rem' }} /></div>
-                <div><label style={{ fontSize: '0.7rem', color: '#748782', fontWeight: 700 }}>K (kg/ha)</label><input type="number" value={labK} onChange={e => setLabK(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: 8, background: '#FFFFFF', border: '1px solid #E5E2D8', color: '#182420', fontSize: '0.84rem' }} /></div>
-                <div><label style={{ fontSize: '0.7rem', color: '#748782', fontWeight: 700 }}>pH Level</label><input type="number" step="0.1" value={labPh} onChange={e => setLabPh(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: 8, background: '#FFFFFF', border: '1px solid #E5E2D8', color: '#182420', fontSize: '0.84rem' }} /></div>
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] gap-2.5">
+                <div><label className={npkLabelClass}>N (kg/ha)</label><input type="number" value={labN} onChange={e => setLabN(e.target.value)} className={npkInputClass} /></div>
+                <div><label className={npkLabelClass}>P (kg/ha)</label><input type="number" value={labP} onChange={e => setLabP(e.target.value)} className={npkInputClass} /></div>
+                <div><label className={npkLabelClass}>K (kg/ha)</label><input type="number" value={labK} onChange={e => setLabK(e.target.value)} className={npkInputClass} /></div>
+                <div><label className={npkLabelClass}>pH Level</label><input type="number" step="0.1" value={labPh} onChange={e => setLabPh(e.target.value)} className={npkInputClass} /></div>
               </div>
               <button
                 type="button"
                 onClick={() => handleApply('lab_report')}
-                className="btn-primary"
-                style={{ marginTop: 12, padding: '8px 18px', fontSize: '0.82rem' }}
+                className="btn-primary mt-3 px-[18px] py-2 text-[0.82rem]"
               >
                 Apply Verified Lab Report Data
               </button>
@@ -217,34 +207,28 @@ export default function SoilTierSelector({ currentSoil, soilTierInfo, onApplyTie
       )}
 
       {selectedTier === 'manual' && (
-        <div style={{ background: '#F8F7F2', padding: 18, borderRadius: 12, border: '1px solid #E5E2D8' }}>
-          <span style={{ fontSize: '0.8rem', color: '#485954', fontWeight: 700, display: 'block', marginBottom: 10 }}>
+        <div className="rounded-xl border border-border bg-bg p-[18px]">
+          <span className="mb-2.5 block text-sm font-bold text-text-secondary">
             Enter Lab Soil Test NPK & pH Values
           </span>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 10, marginBottom: 12 }}>
-            <div><label style={{ fontSize: '0.7rem', color: '#748782', fontWeight: 700 }}>N (kg/ha)</label><input type="number" value={manualN} onChange={e => setManualN(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: 8, background: '#FFFFFF', border: '1px solid #E5E2D8', color: '#182420', fontSize: '0.84rem' }} /></div>
-            <div><label style={{ fontSize: '0.7rem', color: '#748782', fontWeight: 700 }}>P (kg/ha)</label><input type="number" value={manualP} onChange={e => setManualP(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: 8, background: '#FFFFFF', border: '1px solid #E5E2D8', color: '#182420', fontSize: '0.84rem' }} /></div>
-            <div><label style={{ fontSize: '0.7rem', color: '#748782', fontWeight: 700 }}>K (kg/ha)</label><input type="number" value={manualK} onChange={e => setManualK(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: 8, background: '#FFFFFF', border: '1px solid #E5E2D8', color: '#182420', fontSize: '0.84rem' }} /></div>
-            <div><label style={{ fontSize: '0.7rem', color: '#748782', fontWeight: 700 }}>pH Level</label><input type="number" step="0.1" value={manualPh} onChange={e => setManualPh(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: 8, background: '#FFFFFF', border: '1px solid #E5E2D8', color: '#182420', fontSize: '0.84rem' }} /></div>
+          <div className="mb-3 grid grid-cols-[repeat(auto-fit,minmax(110px,1fr))] gap-2.5">
+            <div><label className={npkLabelClass}>N (kg/ha)</label><input type="number" value={manualN} onChange={e => setManualN(e.target.value)} className={npkInputClass} /></div>
+            <div><label className={npkLabelClass}>P (kg/ha)</label><input type="number" value={manualP} onChange={e => setManualP(e.target.value)} className={npkInputClass} /></div>
+            <div><label className={npkLabelClass}>K (kg/ha)</label><input type="number" value={manualK} onChange={e => setManualK(e.target.value)} className={npkInputClass} /></div>
+            <div><label className={npkLabelClass}>pH Level</label><input type="number" step="0.1" value={manualPh} onChange={e => setManualPh(e.target.value)} className={npkInputClass} /></div>
           </div>
           <button
             type="button"
             onClick={() => handleApply('manual')}
-            className="btn-primary"
-            style={{ padding: '8px 18px', fontSize: '0.82rem' }}
+            className="btn-primary px-[18px] py-2 text-[0.82rem]"
           >
             Apply Manual Entry
           </button>
         </div>
       )}
 
-      {/* Low Confidence Alert Banner */}
       {currentConfidence < 80 && (
-        <div style={{
-          marginTop: 14, padding: '12px 16px', borderRadius: 10,
-          background: '#FFF8E7', border: '1px solid #FCE4B6',
-          color: '#B45309', fontSize: '0.82rem', lineHeight: 1.5
-        }}>
+        <div className="mt-3.5 rounded-[10px] border border-[#FCE4B6] bg-[#FFF8E7] px-4 py-3 text-[0.82rem] leading-normal text-fit-moderate">
           💡 <strong>Regional Average Soil Baseline ({currentConfidence}%):</strong> Recommendations use district government databases. For higher accuracy, enter your soil test values above.
         </div>
       )}

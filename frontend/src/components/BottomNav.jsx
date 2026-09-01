@@ -1,20 +1,21 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import HistoryIcon from '@mui/icons-material/History';
 import MapIcon from '@mui/icons-material/Map';
 import GrassIcon from '@mui/icons-material/Grass';
 import StoreIcon from '@mui/icons-material/Store';
 import WbSunnyIcon from '@mui/icons-material/WbSunny';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
-import WaterDropIcon from '@mui/icons-material/WaterDrop';
 
 const navItems = [
   { path: '/', icon: <MapIcon fontSize="small" />, key: 'map', label: 'Map' },
   { path: '/dashboard', icon: <GrassIcon fontSize="small" />, key: 'crops', label: 'Dashboard' },
-  { path: '/borewell', icon: <WaterDropIcon fontSize="small" />, key: 'borewell', label: 'Borewell' },
   { path: '/chat', icon: <SmartToyIcon fontSize="small" />, key: 'chat', label: 'AI Chat' },
   { path: '/market', icon: <StoreIcon fontSize="small" />, key: 'market', label: 'Market' },
-  { path: '/weather', icon: <WbSunnyIcon fontSize="small" />, key: 'weather', label: 'Weather' }
+  { path: '/weather', icon: <WbSunnyIcon fontSize="small" />, key: 'weather', label: 'Weather' },
+  { path: '/history', icon: <HistoryIcon fontSize="small" />, key: 'history', label: 'History' }
 ];
+
 
 export default function BottomNav() {
   const navigate = useNavigate();
@@ -22,65 +23,26 @@ export default function BottomNav() {
   const { t } = useTranslation();
 
   return (
-    <div className="mobile-bottom-nav" style={{
-      position: 'fixed',
-      bottom: 0,
-      left: 0,
-      right: 0,
-      zIndex: 1000,
-      height: 64,
-      background: '#FFFFFF',
-      borderTop: '1px solid #E5E2D8',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-around',
-      padding: '0 4px',
-      boxShadow: '0 -4px 16px rgba(24, 36, 32, 0.05)'
-    }}>
+    <div className="mobile-bottom-nav fixed right-0 bottom-0 left-0 z-[1000] flex h-16 items-center justify-between overflow-x-auto border-t border-border bg-surface px-0.5 shadow-[0_-4px_16px_rgba(24,36,32,0.05)]">
       {navItems.map(item => {
         const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
         return (
           <button
             key={item.key}
+            type="button"
             onClick={() => navigate(item.path)}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '8px 0',
-              flex: 1,
-              minHeight: 48,
-              color: isActive ? '#1E5E3A' : '#748782',
-              transition: 'all 0.15s ease',
-              position: 'relative'
-            }}
+            className={`relative flex min-h-11 flex-1 cursor-pointer flex-col items-center justify-center border-0 bg-transparent py-2 transition-all duration-150 ${
+              isActive ? 'text-primary' : 'text-text-muted'
+            }`}
           >
-            <div style={{
-              transform: isActive ? 'scale(1.15)' : 'scale(1)',
-              transition: 'transform 0.15s ease'
-            }}>
+            <div className={`transition-transform duration-150 ${isActive ? 'scale-[1.15]' : 'scale-100'}`}>
               {item.icon}
             </div>
-            <span style={{
-              fontSize: '0.64rem',
-              fontWeight: isActive ? 800 : 600,
-              marginTop: 3
-            }}>
+            <span className={`mt-0.5 text-[0.64rem] ${isActive ? 'font-extrabold' : 'font-semibold'}`}>
               {t(`nav.${item.key}`) || item.label}
             </span>
             {isActive && (
-              <span style={{
-                position: 'absolute',
-                top: 0,
-                width: 28,
-                height: 3,
-                borderRadius: '0 0 3px 3px',
-                background: '#1E5E3A'
-              }} />
+              <span className="absolute top-0 h-[3px] w-7 rounded-b-sm bg-primary" />
             )}
           </button>
         );

@@ -27,7 +27,6 @@ function FlyToLocation({ position }) {
   return null;
 }
 
-// Map Click Listener
 function MapClickHandler({ onSelectPoint }) {
   useMapEvents({
     click(e) {
@@ -38,7 +37,7 @@ function MapClickHandler({ onSelectPoint }) {
 }
 
 export default function Home() {
-  const { setFarmData, location, setLocation } = useContext(FarmContext);
+  const { setFarmData, location, setLocation, areaAcres, setAreaAcres } = useContext(FarmContext);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
@@ -46,14 +45,13 @@ export default function Home() {
   const [searchResults, setSearchResults] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [selectedPlaceName, setSelectedPlaceName] = useState('');
-  const [mapCenter] = useState([11.1271, 78.6569]); // Default Tamil Nadu centroid
+  const [mapCenter] = useState([11.1271, 78.6569]);
   const [mapZoom] = useState(7);
   const prefetchedDataRef = useRef(null);
   const searchTimeoutRef = useRef(null);
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  // Reverse geocode whenever pin is placed
   const reverseGeocode = async (lat, lng) => {
     try {
       const res = await axios.get('https://nominatim.openstreetmap.org/reverse', {
@@ -66,7 +64,7 @@ export default function Home() {
       const state = addr.state || '';
       const name = dist && state ? `${dist}, ${state}` : res.data?.display_name?.split(',').slice(0, 2).join(',') || '';
       if (name) setSelectedPlaceName(name);
-    } catch (e) {
+    } catch {
       // ignore geocode error
     }
   };
@@ -75,7 +73,7 @@ export default function Home() {
     try {
       const data = await analyseFarm(lat, lng);
       prefetchedDataRef.current = data;
-    } catch (e) {
+    } catch {
       // background error
     }
   };
@@ -90,7 +88,6 @@ export default function Home() {
     triggerPrefetch(pos.lat, pos.lng);
   };
 
-  // Search places via Nominatim
   const handleSearchChange = (e) => {
     const val = e.target.value;
     setSearchQuery(val);
@@ -155,63 +152,60 @@ export default function Home() {
     setError('');
     setStatus(t('home.detecting') || 'Detecting Location & Soil Matrix...');
 
-    try {
-      let lat = location?.lat;
-      let lng = location?.lng;
+    let targetLat = location?.lat;
+    let targetLng = location?.lng;
 
-      if (!lat || !lng) {
-        // If not selected yet, prompt user or use GPS
+    if (!targetLat || !targetLng) {
+      try {
         const pos = await new Promise((resolve, reject) => {
           navigator.geolocation.getCurrentPosition(resolve, reject, {
-            enableHighAccuracy: true, timeout: 8000
+            enableHighAccuracy: true, timeout: 4000
           });
         });
-        lat = pos.coords.latitude;
-        lng = pos.coords.longitude;
-        setLocation({ lat, lng });
+        targetLat = pos.coords.latitude;
+        targetLng = pos.coords.longitude;
+        setLocation({ lat: targetLat, lng: targetLng });
+      } catch {
+        targetLat = 11.3410;
+        targetLng = 77.7172;
+        setLocation({ lat: targetLat, lng: targetLng });
       }
+    }
 
+    try {
       setStatus(t('home.analyzing') || 'Running AgroPredict AI Models...');
 
-      if (prefetchedDataRef.current && prefetchedDataRef.current.location?.lat === lat) {
+      if (prefetchedDataRef.current && prefetchedDataRef.current.location?.lat === targetLat && prefetchedDataRef.current.areaAcres === (areaAcres || 1.0)) {
         setFarmData(prefetchedDataRef.current);
         navigate('/dashboard');
         return;
       }
 
-      const data = await analyseFarm(lat, lng);
+      const data = await analyseFarm(targetLat, targetLng, { areaAcres: areaAcres || 1.0 });
       setFarmData(data);
       navigate('/dashboard');
     } catch (err) {
-      console.error(err);
-      if (!location) {
-        // Default centroid fallback
-        const lat = 11.3410;
-        const lng = 77.7172;
-        setLocation({ lat, lng });
-        try {
-          const data = await analyseFarm(lat, lng);
-          setFarmData(data);
-          navigate('/dashboard');
-          return;
-        } catch (e) {
-          setError('Failed to analyze farm conditions. Please check backend connectivity.');
-          setLoading(false);
-          return;
-        }
+      console.error('Primary analysis error:', err);
+      try {
+        const fallbackLat = targetLat || 11.3410;
+        const fallbackLng = targetLng || 77.7172;
+        const data = await analyseFarm(fallbackLat, fallbackLng, { areaAcres: areaAcres || 1.0 });
+        setFarmData(data);
+        navigate('/dashboard');
+      } catch (e) {
+        console.error('Fallback analysis error:', e);
+        setError('Failed to analyze farm conditions. Please check backend connectivity on port 5000.');
+        setLoading(false);
       }
-      setError('Failed to analyze farm conditions. Please verify backend connectivity.');
-      setLoading(false);
     }
   };
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: 'calc(100vh - 64px)', overflow: 'hidden' }}>
-      {/* Full-screen Interactive Map */}
+    <div className="relative h-[calc(100vh-64px)] w-full overflow-hidden">
       <MapContainer
         center={mapCenter}
         zoom={mapZoom}
-        style={{ height: '100%', width: '100%', position: 'absolute', top: 0, left: 0 }}
+        className="absolute inset-0 h-full w-full"
         zoomControl={false}
       >
         <TileLayer
@@ -223,142 +217,100 @@ export default function Home() {
         {location && (
           <Marker position={[location.lat, location.lng]}>
             <Popup>
-              📍 <strong>{selectedPlaceName || 'Selected Farm Plot'}</strong><br />
-              ({location.lat.toFixed(4)}, {location.lng.toFixed(4)})
+              📍 <strong>{selectedPlaceName || 'Selected Farm Plot'}</strong>
             </Popup>
           </Marker>
         )}
       </MapContainer>
 
-      {/* Floating Control Card */}
-      <div style={{
-        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-        background: 'linear-gradient(180deg, rgba(248,247,242,0.15) 0%, rgba(248,247,242,0.45) 50%, rgba(248,247,242,0.88) 100%)',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        padding: 20, zIndex: 500, pointerEvents: 'none'
-      }}>
-        <div className="glass-card-static fade-in" style={{
-          pointerEvents: 'auto',
-          textAlign: 'center',
-          maxWidth: 540,
-          width: '100%',
-          padding: '32px 28px',
-          background: '#FFFFFF',
-          border: '1px solid #E5E2D8',
-          borderRadius: 16,
-          boxShadow: 'var(--shadow-hero)'
-        }}>
-          {/* Badge */}
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-            background: '#EBF5ED', border: '1px solid #C6E4CF',
-            padding: '5px 14px', borderRadius: 20, fontSize: '0.76rem', color: '#1E5E3A',
-            fontWeight: 800, marginBottom: 12
-          }}>
+      <div className="pointer-events-none absolute inset-0 z-[500] flex flex-col items-center justify-center bg-gradient-to-b from-bg/15 via-bg/45 to-bg/90 p-5">
+        <div className="glass-card-static fade-in pointer-events-auto w-full max-w-[540px] rounded-2xl border border-border bg-surface px-7 py-8 text-center shadow-hero">
+          <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-primary-border bg-primary-soft px-3.5 py-1 text-xs font-extrabold text-primary">
             <span>🌱</span>
             <span>Indian Smallholder Decision Support</span>
           </div>
 
-          <h1 style={{ fontSize: '2.1rem', fontWeight: 800, marginBottom: 6, letterSpacing: '-0.02em', lineHeight: 1.15, color: '#182420' }}>
+          <h1 className="mb-1.5 text-[2.1rem] font-extrabold leading-tight tracking-tight text-text-primary">
             AgroPredict AI
           </h1>
 
-          <p style={{ color: '#485954', fontSize: '0.88rem', marginBottom: 20, lineHeight: 1.45 }}>
+          <p className="mb-5 text-[0.88rem] leading-snug text-text-secondary">
             Search your village/district, click anywhere on the map, or use GPS to receive tailored crop & climate recommendations.
           </p>
 
-          {/* Search Box & GPS Bar */}
-          <div style={{ position: 'relative', marginBottom: 14 }}>
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 8,
-              background: '#F8F7F2', border: '1px solid #E5E2D8',
-              borderRadius: 12, padding: '6px 12px', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.03)'
-            }}>
+          <div className="relative mb-3.5">
+            <div className="flex items-center gap-2 rounded-xl border border-border bg-bg px-3 py-1.5 shadow-[inset_0_1px_3px_rgba(0,0,0,0.03)]">
               <SearchIcon sx={{ color: '#748782', fontSize: 20 }} />
               <input
                 type="text"
                 placeholder="Search village, city, or district (e.g. Madurai, Salem)..."
                 value={searchQuery}
                 onChange={handleSearchChange}
-                style={{
-                  border: 'none', background: 'transparent', outline: 'none',
-                  flex: 1, fontSize: '0.88rem', color: '#182420', fontWeight: 600
-                }}
+                className="flex-1 border-0 bg-transparent text-[0.88rem] font-semibold text-text-primary outline-none"
               />
               {searchLoading && <CircularProgress size={16} sx={{ color: '#1E5E3A' }} />}
               <button
                 type="button"
                 onClick={handleUseGPS}
                 title="Use Current GPS"
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 4,
-                  background: '#EBF5ED', border: '1px solid #C6E4CF',
-                  borderRadius: 8, padding: '5px 10px', fontSize: '0.74rem',
-                  fontWeight: 800, color: '#1E5E3A', cursor: 'pointer'
-                }}
+                className="flex min-h-11 cursor-pointer items-center gap-1 rounded-lg border border-primary-border bg-primary-soft px-2.5 py-1.5 text-xs font-extrabold text-primary"
               >
                 <MyLocationIcon sx={{ fontSize: 14 }} />
                 <span>GPS</span>
               </button>
             </div>
 
-            {/* Search Autocomplete Dropdown */}
             {searchResults.length > 0 && (
-              <div style={{
-                position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 4,
-                background: '#FFFFFF', border: '1px solid #E5E2D8', borderRadius: 12,
-                boxShadow: 'var(--shadow-card)', zIndex: 1000, overflow: 'hidden', textAlign: 'left'
-              }}>
+              <div className="absolute top-full right-0 left-0 z-[1000] mt-1 overflow-hidden rounded-xl border border-border bg-surface text-left shadow-card">
                 {searchResults.map((item, idx) => (
-                  <div
+                  <button
                     key={idx}
+                    type="button"
                     onClick={() => handleSelectSearchResult(item)}
-                    style={{
-                      padding: '10px 14px', borderBottom: idx < searchResults.length - 1 ? '1px solid #F0EFEA' : 'none',
-                      cursor: 'pointer', fontSize: '0.82rem', color: '#182420', fontWeight: 600,
-                      display: 'flex', alignItems: 'center', gap: 8,
-                      transition: 'background 0.1s'
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.background = '#F8F7F2'}
-                    onMouseLeave={e => e.currentTarget.style.background = '#FFFFFF'}
+                    className="flex w-full cursor-pointer items-center gap-2 border-0 border-b border-[#F0EFEA] bg-surface px-3.5 py-2.5 text-left text-[0.82rem] font-semibold text-text-primary last:border-b-0 hover:bg-bg"
                   >
                     <PlaceIcon sx={{ color: '#C85A32', fontSize: 16, flexShrink: 0 }} />
-                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <span className="overflow-hidden text-ellipsis whitespace-nowrap">
                       {item.display_name}
                     </span>
-                  </div>
+                  </button>
                 ))}
               </div>
             )}
           </div>
 
-          {/* Active Selection Indicator */}
           {location && (
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: 6,
-              background: '#F8F7F2', border: '1px solid #E5E2D8',
-              padding: '6px 14px', borderRadius: 10, fontSize: '0.78rem',
-              color: '#182420', fontWeight: 700, marginBottom: 18, maxWidth: '100%'
-            }}>
-              <PlaceIcon sx={{ color: '#C85A32', fontSize: 16 }} />
-              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {selectedPlaceName ? selectedPlaceName : `Plot (${location.lat.toFixed(4)}, ${location.lng.toFixed(4)})`}
-              </span>
+            <div className="mb-[18px] flex flex-col items-center gap-2.5">
+              <div className="inline-flex max-w-full items-center gap-1.5 rounded-[10px] border border-border bg-bg px-3.5 py-1.5 text-xs font-bold text-text-primary">
+                <PlaceIcon sx={{ color: '#C85A32', fontSize: 16 }} />
+                <span className="overflow-hidden text-ellipsis whitespace-nowrap">
+                  {selectedPlaceName ? selectedPlaceName : 'Selected Plot Location'}
+                </span>
+              </div>
+
+              <div className="inline-flex items-center gap-2 rounded-[10px] border-[1.5px] border-primary-light bg-surface-muted px-3.5 py-1.5">
+                <span className="text-[0.82rem] font-bold text-primary">
+                  🌾 Farm Area (Acres):
+                </span>
+                <input
+                  type="number"
+                  min="0.1"
+                  max="500"
+                  step="0.1"
+                  value={areaAcres || 1.0}
+                  onChange={(e) => setAreaAcres(e.target.value)}
+                  className="w-[70px] rounded-md border border-primary-border bg-surface px-2 py-0.5 text-center text-[0.88rem] font-extrabold text-primary outline-none"
+                />
+                <span className="text-xs font-semibold text-text-secondary">acres</span>
+              </div>
             </div>
           )}
 
-          {/* CTA Button */}
           <div>
             <button
               onClick={handleAnalyse}
               disabled={loading}
-              className="btn-accent"
-              style={{
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                padding: '12px 28px', minWidth: 260, fontSize: '0.95rem',
-                borderRadius: 12, margin: '0 auto',
-                opacity: loading ? 0.85 : 1
-              }}
+              className={`btn-accent mx-auto inline-flex min-w-[260px] items-center justify-center gap-2.5 rounded-xl px-7 py-3 text-[0.95rem] ${loading ? 'opacity-85' : ''}`}
             >
               {loading ? (
                 <>
@@ -367,7 +319,7 @@ export default function Home() {
                 </>
               ) : (
                 <>
-                  <span style={{ fontSize: '1.1rem' }}>📍</span>
+                  <span className="text-lg">📍</span>
                   <span>{t('home.title') || 'Analyse Selected Plot'}</span>
                 </>
               )}
@@ -375,11 +327,7 @@ export default function Home() {
           </div>
 
           {error && (
-            <div style={{
-              marginTop: 14, padding: '10px 14px', borderRadius: 10,
-              background: '#FDF3F0', border: '1px solid #F7D0C4',
-              color: '#C85A32', fontSize: '0.82rem', lineHeight: 1.4
-            }}>
+            <div className="mt-3.5 rounded-[10px] border border-accent-border bg-accent-soft px-3.5 py-2.5 text-[0.82rem] leading-snug text-accent">
               ⚠️ {error}
             </div>
           )}
