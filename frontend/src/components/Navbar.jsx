@@ -55,8 +55,8 @@ export default function Navbar() {
   const fullLocString = district ? `${district}, ${stateName}` : locString;
 
   return (
-    <header className="sticky top-0 z-[1100] flex h-16 items-center justify-between border-b border-border bg-surface px-6 shadow-subtle">
-      <div className="flex shrink-0 items-center gap-3">
+    <header className="app-navbar sticky top-0 z-[1100] flex h-16 items-center justify-between border-b border-border bg-surface px-6 shadow-subtle">
+      <div className="navbar-brand flex shrink-0 items-center gap-3">
         <button
           type="button"
           onClick={() => navigate('/')}
@@ -78,7 +78,7 @@ export default function Navbar() {
         {locString && (
           <div
             title={fullLocString}
-            className="flex max-w-[220px] cursor-default items-center gap-1.5 whitespace-nowrap rounded-full border border-primary-border bg-primary-soft px-3 py-1 text-xs font-extrabold text-primary"
+            className="navbar-location flex cursor-default items-center gap-1.5 whitespace-nowrap rounded-full border border-primary-border bg-primary-soft px-3 py-1 text-xs font-extrabold text-primary"
           >
             <span>📍</span>
             <span className="overflow-hidden text-ellipsis whitespace-nowrap">{locString}</span>
@@ -86,7 +86,7 @@ export default function Navbar() {
         )}
       </div>
 
-      <nav className="hidden-mobile nav-scroll-container flex max-w-full flex-nowrap items-center gap-0.5 overflow-x-auto py-0.5">
+      <nav className="navbar-links hidden-mobile nav-scroll-container flex max-w-full flex-nowrap items-center gap-0.5 overflow-x-auto py-0.5">
         {navItems.map(item => {
           const isActive = currentPath === item.path || (item.path !== '/' && currentPath.startsWith(item.path));
           return (
@@ -106,7 +106,7 @@ export default function Navbar() {
         })}
       </nav>
 
-      <div className="flex items-center gap-3">
+      <div className="navbar-actions flex items-center gap-3">
         <div className="hidden-mobile flex items-center gap-1.5 rounded-full border border-primary-border bg-primary-soft px-2.5 py-1 text-[0.7rem] font-extrabold text-primary">
           <span className="badge-live-dot h-1.5 w-1.5" />
           <span>{t('common.engineActive', 'Telemetry Live')}</span>

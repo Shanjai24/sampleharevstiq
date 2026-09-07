@@ -202,7 +202,7 @@ export default function Home() {
   };
 
   return (
-    <div className="relative h-[calc(100vh-64px)] w-full overflow-hidden">
+    <div className="home-map relative min-h-[480px] w-full overflow-hidden">
       <MapContainer
         center={mapCenter}
         zoom={mapZoom}
@@ -225,42 +225,119 @@ export default function Home() {
       </MapContainer>
 
       <div className="pointer-events-none absolute inset-0 z-[500] flex flex-col items-center justify-center bg-gradient-to-b from-bg/15 via-bg/45 to-bg/90 p-5">
-        <Card variant="static" className="fade-in pointer-events-auto w-full max-w-[540px] rounded-2xl px-7 py-8 text-center shadow-hero">
-          <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-primary-border bg-primary-soft px-3.5 py-1 text-xs font-extrabold text-primary">
+        <Card
+          variant="static"
+          className="home-panel fade-in pointer-events-auto w-full rounded-2xl text-center shadow-hero"
+        >
+          {/* Kicker */}
+          <div className="home-kicker mb-3 inline-flex items-center gap-1.5 rounded-full border border-primary-border bg-primary-soft px-3.5 py-1 text-xs font-extrabold text-primary">
             <span>🌱</span>
             <span>Indian Smallholder Decision Support</span>
           </div>
 
-          <h1 className="mb-1.5 text-[2.1rem] font-extrabold leading-tight tracking-tight text-text-primary">
+          {/* Title */}
+          <h1 className="home-title mb-1.5 text-[2.1rem] font-extrabold leading-tight tracking-tight text-text-primary">
             AgroPredict AI
           </h1>
 
-          <p className="mb-5 text-[0.88rem] leading-snug text-text-secondary">
-            Search your village/district, click anywhere on the map, or use GPS to receive tailored crop & climate recommendations.
+          {/* Description */}
+          <p className="home-description mb-5 text-[0.88rem] leading-snug text-text-secondary">
+            {t('home.instructions')}
           </p>
 
-          <div className="relative mb-3.5">
-            <div className="flex items-center gap-2 rounded-xl border border-border bg-bg px-3 py-1.5 shadow-[inset_0_1px_3px_rgba(0,0,0,0.03)]">
-              <SearchIcon sx={{ color: '#748782', fontSize: 20 }} />
+          {/* ================= SEARCH ================= */}
+          <div
+            className="home-search relative"
+            style={{
+              width: '100%',
+              marginBottom: '20px',
+            }}
+          >
+            <div
+              className="home-search-row"
+              style={{
+                width: '100%',
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: '8px',
+                boxSizing: 'border-box',
+                padding: '10px 12px',
+                borderRadius: '12px',
+                border: '1px solid var(--color-border, #ddd)',
+                background: 'var(--color-bg, #fff)',
+                boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.03)',
+              }}
+            >
+              {/* Search Icon */}
+              <SearchIcon
+                sx={{
+                  color: '#748782',
+                  fontSize: 20,
+                  flexShrink: 0,
+                }}
+              />
+
+              {/* Search Input */}
               <input
                 type="text"
-                placeholder="Search village, city, or district (e.g. Madurai, Salem)..."
+                placeholder={t('home.searchPlaceholder')}
                 value={searchQuery}
                 onChange={handleSearchChange}
-                className="flex-1 border-0 bg-transparent text-[0.88rem] font-semibold text-text-primary outline-none"
+                style={{
+                  flex: '1 1 auto',
+                  minWidth: 0,
+                  width: '100%',
+                  border: 0,
+                  outline: 'none',
+                  background: 'transparent',
+                  fontSize: '0.88rem',
+                  fontWeight: 600,
+                  color: 'inherit',
+                }}
               />
-              {searchLoading && <CircularProgress size={16} sx={{ color: '#1E5E3A' }} />}
+
+              {/* Loading */}
+              {searchLoading && (
+                <CircularProgress
+                  size={16}
+                  sx={{
+                    color: '#1E5E3A',
+                    flexShrink: 0,
+                  }}
+                />
+              )}
+
+              {/* ================= GPS ================= */}
               <button
                 type="button"
                 onClick={handleUseGPS}
-                title="Use Current GPS"
-                className="flex min-h-11 cursor-pointer items-center gap-1 rounded-lg border border-primary-border bg-primary-soft px-2.5 py-1.5 text-xs font-extrabold text-primary"
+                title={t('home.gps')}
+                style={{
+                  marginLeft: 'auto',
+                  flexShrink: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '4px',
+                  minHeight: '36px',
+                  padding: '6px 10px',
+                  borderRadius: '8px',
+                  border: '1px solid #B8DEC8',
+                  background: '#EFF9F2',
+                  color: '#1E5E3A',
+                  fontSize: '12px',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                }}
               >
                 <MyLocationIcon sx={{ fontSize: 14 }} />
                 <span>GPS</span>
               </button>
             </div>
 
+            {/* Search Results */}
             {searchResults.length > 0 && (
               <div className="absolute top-full right-0 left-0 z-[1000] mt-1 overflow-hidden rounded-xl border border-border bg-surface text-left shadow-card">
                 {searchResults.map((item, idx) => (
@@ -270,7 +347,14 @@ export default function Home() {
                     onClick={() => handleSelectSearchResult(item)}
                     className="flex w-full cursor-pointer items-center gap-2 border-0 border-b border-[#F0EFEA] bg-surface px-3.5 py-2.5 text-left text-[0.82rem] font-semibold text-text-primary last:border-b-0 hover:bg-bg"
                   >
-                    <PlaceIcon sx={{ color: '#C85A32', fontSize: 16, flexShrink: 0 }} />
+                    <PlaceIcon
+                      sx={{
+                        color: '#C85A32',
+                        fontSize: 16,
+                        flexShrink: 0,
+                      }}
+                    />
+
                     <span className="overflow-hidden text-ellipsis whitespace-nowrap">
                       {item.display_name}
                     </span>
@@ -280,19 +364,79 @@ export default function Home() {
             )}
           </div>
 
+          {/* ================= LOCATION + FARM AREA ================= */}
           {location && (
-            <div className="mb-[18px] flex flex-col items-center gap-2.5">
-              <div className="inline-flex max-w-full items-center gap-1.5 rounded-[10px] border border-border bg-bg px-3.5 py-1.5 text-xs font-bold text-text-primary">
-                <PlaceIcon sx={{ color: '#C85A32', fontSize: 16 }} />
+            <div
+              className="home-location"
+              style={{
+                width: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '16px',
+                marginBottom: '24px',
+              }}
+            >
+              {/* ================= SELECTED LOCATION ================= */}
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  maxWidth: '100%',
+                  width: 'fit-content',
+                  padding: '6px 14px',
+                  borderRadius: '10px',
+                  border: '1px solid #D9DDD9',
+                  background: '#FAFAF7',
+                  boxSizing: 'border-box',
+                }}
+                className="text-xs font-bold text-text-primary"
+              >
+                <PlaceIcon
+                  sx={{
+                    color: '#C85A32',
+                    fontSize: 16,
+                    flexShrink: 0,
+                  }}
+                />
+
                 <span className="overflow-hidden text-ellipsis whitespace-nowrap">
-                  {selectedPlaceName ? selectedPlaceName : 'Selected Plot Location'}
+                  {selectedPlaceName
+                    ? selectedPlaceName
+                    : t('home.selectedPlot')}
                 </span>
               </div>
 
-              <div className="inline-flex items-center gap-2 rounded-[10px] border-[1.5px] border-primary-light bg-surface-muted px-3.5 py-1.5">
-                <span className="text-[0.82rem] font-bold text-primary">
-                  🌾 Farm Area (Acres):
+              {/* ================= FARM AREA ================= */}
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  width: 'fit-content',
+                  padding: '6px 14px',
+                  borderRadius: '10px',
+                  border: '1.5px solid #1E5E3A',
+                  background: '#F5F8F5',
+                  boxSizing: 'border-box',
+                }}
+              >
+                {/* Farm Area Label */}
+                <span
+                  style={{
+                    fontSize: '0.82rem',
+                    fontWeight: 700,
+                    color: '#1E5E3A',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  🌾 {t('home.farmArea')}
                 </span>
+
+                {/* Acres Input */}
                 <input
                   type="number"
                   min="0.1"
@@ -300,34 +444,73 @@ export default function Home() {
                   step="0.1"
                   value={areaAcres || 1.0}
                   onChange={(e) => setAreaAcres(e.target.value)}
-                  className="w-[70px] rounded-md border border-primary-border bg-surface px-2 py-0.5 text-center text-[0.88rem] font-extrabold text-primary outline-none"
+                  style={{
+                    width: '70px',
+                    height: '24px',
+                    padding: '2px 8px',
+                    boxSizing: 'border-box',
+                    borderRadius: '6px',
+                    border: '1px solid #B8DEC8',
+                    background: '#FFFFFF',
+                    color: '#1E5E3A',
+                    textAlign: 'center',
+                    fontSize: '0.88rem',
+                    fontWeight: 800,
+                    outline: 'none',
+                  }}
                 />
-                <span className="text-xs font-semibold text-text-secondary">acres</span>
+
+                {/* Acres */}
+                <span
+                  style={{
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    color: '#748782',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  acres
+                </span>
               </div>
             </div>
           )}
 
-          <div>
+          {/* ================= ANALYSE BUTTON ================= */}
+          <div className="home-action">
             <button
               onClick={handleAnalyse}
               disabled={loading}
-              className={`btn-accent mx-auto inline-flex min-w-[260px] items-center justify-center gap-2.5 rounded-xl px-7 py-3 text-[0.95rem] ${loading ? 'opacity-85' : ''}`}
+              className={`btn-accent mx-auto inline-flex min-w-[260px] items-center justify-center gap-2.5 rounded-xl px-7 py-3 text-[0.95rem] ${
+                loading ? 'opacity-85' : ''
+              }`}
             >
               {loading ? (
                 <>
-                  <CircularProgress size={18} sx={{ color: '#fff' }} />
+                  <CircularProgress
+                    size={18}
+                    sx={{
+                      color: '#fff',
+                    }}
+                  />
+
                   <span>{status}</span>
                 </>
               ) : (
                 <>
                   <span className="text-lg">📍</span>
-                  <span>{t('home.title') || 'Analyse Selected Plot'}</span>
+
+                  <span>
+                    {t('home.title') || 'Analyse Selected Plot'}
+                  </span>
                 </>
               )}
             </button>
           </div>
 
-          <ErrorBanner className="mt-3.5 text-left">{error}</ErrorBanner>
+          {/* ================= ERROR ================= */}
+          <ErrorBanner className="mt-3.5 text-left">
+            {error}
+          </ErrorBanner>
         </Card>
       </div>
     </div>

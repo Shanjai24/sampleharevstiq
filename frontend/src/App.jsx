@@ -120,7 +120,7 @@ function App() {
         <BrowserRouter>
           <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: 'var(--color-bg)' }}>
             <Navbar />
-            <main className="app-main-content" style={{ flex: 1, overflowY: 'auto' }}>
+            <main className="app-main-content app-main" style={{ flex: 1, overflowY: 'auto' }}>
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/dashboard" element={<Dashboard />} />

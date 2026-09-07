@@ -206,79 +206,83 @@ export default function Weather() {
         marginBottom: 24
       }}>
         {/* Today's Hero Weather Card */}
-        <div className="hero-card-top-crop fade-in" style={{
-          padding: '28px 24px',
-          display: 'flex', flexDirection: 'column', justifyContent: 'space-between'
+        <div className="card-hero fade-in" style={{
+          padding: '32px 28px',
+          display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+          background: 'linear-gradient(135deg, #E0F2FE 0%, #FFFFFF 100%)'
         }}>
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <span style={{
-                background: '#1E5E3A', color: '#FFFFFF',
-                fontSize: '0.74rem', fontWeight: 800, padding: '4px 10px', borderRadius: 20,
-                letterSpacing: '0.03em'
-              }}>
-                TODAY'S FIELD TELEMETRY
-              </span>
-              <span style={{ fontSize: '0.8rem', color: '#485954', fontWeight: 600 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#1E5E3A', animation: 'pulse 2s infinite' }} />
+                <span style={{
+                  background: '#1E5E3A', color: '#FFFFFF',
+                  fontSize: '0.76rem', fontWeight: 800, padding: '5px 12px', borderRadius: 20,
+                  letterSpacing: '0.04em'
+                }}>
+                  TODAY'S FIELD TELEMETRY
+                </span>
+              </div>
+              <span style={{ fontSize: '0.82rem', color: '#485954', fontWeight: 600 }}>
                 {new Date().toLocaleDateString('en-IN', { weekday: 'long', month: 'short', day: 'numeric' })}
               </span>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '14px 0 20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '16px 0 24px' }}>
               <div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-                  <h2 style={{ fontSize: '3.2rem', fontWeight: 800, margin: 0, color: '#182420', lineHeight: 1 }}>
+                  <h2 style={{ fontSize: '3.5rem', fontWeight: 800, margin: 0, color: '#182420', lineHeight: 1, letterSpacing: '-0.02em' }}>
                     {cur.temperature != null ? Math.round(cur.temperature) : 30}°
                   </h2>
-                  <span style={{ fontSize: '1.3rem', color: '#748782', fontWeight: 600 }}>C</span>
+                  <span style={{ fontSize: '1.4rem', color: '#748782', fontWeight: 600 }}>C</span>
                 </div>
-                <p style={{ color: '#1E5E3A', fontSize: '1.1rem', fontWeight: 800, margin: '6px 0 0' }}>
+                <p style={{ color: '#0284C7', fontSize: '1.15rem', fontWeight: 800, margin: '8px 0 0' }}>
                   {w.d}
                 </p>
               </div>
 
               <div style={{
-                fontSize: '4.2rem', width: 90, height: 90, borderRadius: 24,
-                background: '#FFFFFF', border: '1px solid #E5E2D8',
+                fontSize: '4.5rem', width: 100, height: 100, borderRadius: 28,
+                background: '#FFFFFF', border: '2px solid #E5E2D8',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: 'var(--shadow-card)'
+                boxShadow: '0 8px 24px -4px rgba(2, 132, 199, 0.15)'
               }}>
                 {w.e}
               </div>
             </div>
           </div>
 
-          {/* Telemetry Sensor Bar */}
+          {/* Professional Telemetry Sensor Bar */}
           <div style={{
-            display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10,
-            background: '#FFFFFF', padding: '14px 16px', borderRadius: 12,
+            display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12,
+            background: '#FFFFFF', padding: '16px 20px', borderRadius: 14,
             border: '1px solid #E5E2D8', boxShadow: 'var(--shadow-subtle)'
           }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
-                <OpacityIcon sx={{ fontSize: 15, color: '#0284c7' }} />
-                <span style={{ fontSize: '0.72rem', color: '#748782' }}>Humidity</span>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                <OpacityIcon sx={{ fontSize: 18, color: '#0284C7' }} />
+                <span style={{ fontSize: '0.74rem', color: '#748782', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Humidity</span>
               </div>
-              <span style={{ fontWeight: 800, fontSize: '1.05rem', color: '#182420' }}>
+              <span style={{ fontWeight: 800, fontSize: '1.15rem', color: '#182420' }}>
                 {cur.humidity || 65}%
               </span>
             </div>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
-                <WaterDropIcon sx={{ fontSize: 15, color: '#1E5E3A' }} />
-                <span style={{ fontSize: '0.72rem', color: '#748782' }}>Precipitation</span>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                <WaterDropIcon sx={{ fontSize: 18, color: '#1E5E3A' }} />
+                <span style={{ fontSize: '0.74rem', color: '#748782', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Precipitation</span>
               </div>
-              <span style={{ fontWeight: 800, fontSize: '1.05rem', color: '#1E5E3A' }}>
-                {cur.precipitation || 0} <span style={{ fontSize: '0.7rem', fontWeight: 600 }}>mm</span>
+              <span style={{ fontWeight: 800, fontSize: '1.15rem', color: '#1E5E3A' }}>
+                {cur.precipitation || 0} <span style={{ fontSize: '0.74rem', fontWeight: 600 }}>mm</span>
               </span>
             </div>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
-                <AirIcon sx={{ fontSize: 15, color: '#D97706' }} />
-                <span style={{ fontSize: '0.72rem', color: '#748782' }}>Wind</span>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                <AirIcon sx={{ fontSize: 18, color: '#D97706' }} />
+                <span style={{ fontSize: '0.74rem', color: '#748782', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Wind</span>
               </div>
-              <span style={{ fontWeight: 800, fontSize: '1.05rem', color: '#182420' }}>
-                {cur.windSpeed || 10} <span style={{ fontSize: '0.7rem', fontWeight: 600 }}>km/h</span>
+              <span style={{ fontWeight: 800, fontSize: '1.15rem', color: '#182420' }}>
+                {cur.windSpeed || 10} <span style={{ fontSize: '0.74rem', fontWeight: 600 }}>km/h</span>
               </span>
             </div>
           </div>

@@ -4,8 +4,25 @@
   "home": {
     "title": "Analyse My Farm",
     "subtitle": "Tap to get AI-powered recommendations for your location",
+    "instructions": "Search your village or district, click anywhere on the map, or use GPS for tailored crop and climate recommendations.",
+    "searchPlaceholder": "Search village, city, or district (e.g. Madurai, Salem)...",
+    "gps": "Use current GPS",
+    "selectedPlot": "Selected Plot Location",
+    "farmArea": "Farm Area (Acres):",
     "detecting": "Detecting your location...",
     "analyzing": "Analyzing farm conditions..."
+  },
+  "soil": {
+    "title": "Soil Data Source & Accuracy Tier",
+    "subtitle": "Select a soil data method for tailored fertilizer and yield accuracy",
+    "labTitle": "Soil Lab Test Upload",
+    "labDesc": "Upload a PDF or photo for OCR extraction",
+    "manualTitle": "Manual NPK/pH Entry",
+    "manualDesc": "Enter N, P, K and pH values directly",
+    "regionalTitle": "Regional Govt Database",
+    "regionalDesc": "District geospatial soil benchmark",
+    "baseline": "Regional Average Soil Baseline ({{confidence}}%):",
+    "baselineDesc": "Recommendations use district government databases. For higher accuracy, enter your soil test values above."
   },
   "dashboard": {
     "title": "Farm Analysis",

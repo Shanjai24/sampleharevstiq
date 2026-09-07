@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { parseSoilReportOCR } from '../services/api';
 import ScienceIcon from '@mui/icons-material/Science';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
@@ -12,6 +13,7 @@ const npkInputClass =
 const npkLabelClass = 'text-[0.7rem] font-bold text-text-muted';
 
 export default function SoilTierSelector({ currentSoil, soilTierInfo, onApplyTier }) {
+  const { t } = useTranslation();
   const [selectedTier, setSelectedTier] = useState(soilTierInfo?.tier || 'regional_gov_db');
 
   const [manualN, setManualN] = useState(soilTierInfo?.N || 190);
@@ -82,10 +84,10 @@ export default function SoilTierSelector({ currentSoil, soilTierInfo, onApplyTie
           </div>
           <div>
             <h3 className="m-0 text-[1.05rem] font-extrabold text-text-primary">
-              Soil Data Source & Accuracy Tier
+              {t('soil.title')}
             </h3>
             <span className="text-xs text-text-muted">
-              Select soil telemetry method for tailored fertilizer and yield accuracy
+              {t('soil.subtitle')}
             </span>
           </div>
         </div>
@@ -117,8 +119,8 @@ export default function SoilTierSelector({ currentSoil, soilTierInfo, onApplyTie
               100% CONFIDENCE
             </span>
           </div>
-          <strong className="block text-[0.9rem] text-text-primary">Soil Lab Test Upload</strong>
-          <span className="text-xs text-text-muted">Upload PDF/Photo with OCR extraction</span>
+            <strong className="block text-[0.9rem] text-text-primary">{t('soil.labTitle')}</strong>
+            <span className="text-xs text-text-muted">{t('soil.labDesc')}</span>
         </button>
 
         <button
@@ -136,8 +138,8 @@ export default function SoilTierSelector({ currentSoil, soilTierInfo, onApplyTie
               90% CONFIDENCE
             </span>
           </div>
-          <strong className="block text-[0.9rem] text-text-primary">Manual NPK/pH Entry</strong>
-          <span className="text-xs text-text-muted">Directly enter N, P, K & pH values</span>
+            <strong className="block text-[0.9rem] text-text-primary">{t('soil.manualTitle')}</strong>
+            <span className="text-xs text-text-muted">{t('soil.manualDesc')}</span>
         </button>
 
         <button
@@ -155,8 +157,8 @@ export default function SoilTierSelector({ currentSoil, soilTierInfo, onApplyTie
               75% CONFIDENCE
             </span>
           </div>
-          <strong className="block text-[0.9rem] text-text-primary">Regional Govt Database</strong>
-          <span className="text-xs text-text-muted">District geospatial soil benchmark</span>
+            <strong className="block text-[0.9rem] text-text-primary">{t('soil.regionalTitle')}</strong>
+            <span className="text-xs text-text-muted">{t('soil.regionalDesc')}</span>
         </button>
       </div>
 
@@ -229,7 +231,7 @@ export default function SoilTierSelector({ currentSoil, soilTierInfo, onApplyTie
 
       {currentConfidence < 80 && (
         <div className="mt-3.5 rounded-[10px] border border-[#FCE4B6] bg-[#FFF8E7] px-4 py-3 text-[0.82rem] leading-normal text-fit-moderate">
-          💡 <strong>Regional Average Soil Baseline ({currentConfidence}%):</strong> Recommendations use district government databases. For higher accuracy, enter your soil test values above.
+          💡 <strong>{t('soil.baseline', { confidence: currentConfidence })}</strong> {t('soil.baselineDesc')}
         </div>
       )}
     </div>

@@ -201,7 +201,376 @@ export default function Dashboard() {
   const topWeatherMatch = normalizePct(topCrop.weatherMatch, 85);
 
   return (
-    <div className="page-container">
+    <>
+      <style>{`
+/* =========================================================
+   AgroPredict Dashboard — strong visual layout refresh
+   Everything is contained in Dashboard.jsx.
+   ========================================================= */
+
+.dashboard-ui-v2 {
+  --ui-green: #1e5e3a;
+  --ui-green-soft: #edf7f0;
+  --ui-orange: #c85a32;
+  --ui-orange-soft: #fff5ef;
+  --ui-ink: #182420;
+  --ui-muted: #6f807a;
+  --ui-border: #e3e7e1;
+  --ui-bg: #f7f8f4;
+
+  /* IMPORTANT: override the old page-container width */
+  width: min(1380px, calc(100% - 56px)) !important;
+  max-width: 1380px !important;
+  margin: 0 auto !important;
+  padding: 32px 0 72px !important;
+  box-sizing: border-box !important;
+}
+
+/* Give every major dashboard block a predictable vertical rhythm */
+.dashboard-ui-v2 > * {
+  box-sizing: border-box !important;
+}
+
+/* Saved analysis / alert banners */
+.dashboard-ui-v2 > div[style*="FFF8E7"],
+.dashboard-ui-v2 > div[style*="FDF3F0"] {
+  margin-bottom: 28px !important;
+  border-radius: 16px !important;
+}
+
+/* Main dashboard header */
+.dashboard-ui-v2 .dashboard-header {
+  padding: 30px 34px !important;
+  margin-bottom: 30px !important;
+  min-height: 150px !important;
+  border-radius: 20px !important;
+  box-shadow: 0 10px 30px rgba(24, 36, 32, .07) !important;
+}
+
+.dashboard-ui-v2 .dashboard-header > div:first-child {
+  gap: 28px !important;
+}
+
+.dashboard-ui-v2 .dashboard-header h1 {
+  font-size: clamp(1.85rem, 2.6vw, 2.45rem) !important;
+  line-height: 1.08 !important;
+  letter-spacing: -.035em !important;
+}
+
+.dashboard-ui-v2 .dashboard-header p {
+  margin-top: 16px !important;
+  line-height: 1.6 !important;
+}
+
+/* Soil selector */
+.dashboard-ui-v2 .dashboard-soil {
+  margin: 0 0 30px !important;
+}
+
+/* =========================================================
+   4 KPI / readiness cards
+   ========================================================= */
+.dashboard-ui-v2 .dashboard-vitals-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 22px !important;
+  margin: 0 0 42px !important;
+  align-items: stretch !important;
+}
+
+.dashboard-ui-v2 .dashboard-vitals-grid > .card-standard {
+  min-width: 0 !important;
+  min-height: 235px !important;
+  padding: 24px !important;
+  border-radius: 18px !important;
+  box-shadow: 0 8px 24px rgba(24, 36, 32, .055) !important;
+  transition: transform .18s ease, box-shadow .18s ease !important;
+}
+
+.dashboard-ui-v2 .dashboard-vitals-grid > .card-standard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(24, 36, 32, .09) !important;
+}
+
+.dashboard-ui-v2 .dashboard-vitals-grid > .card-standard > div:first-child {
+  margin-bottom: 18px !important;
+}
+
+/* =========================================================
+   Section headings
+   ========================================================= */
+.dashboard-ui-v2 .dashboard-section-heading {
+  margin-bottom: 16px !important;
+  min-height: 42px;
+}
+
+.dashboard-ui-v2 .dashboard-section-heading h2 {
+  line-height: 1.2 !important;
+  letter-spacing: -.02em !important;
+}
+
+.dashboard-ui-v2 .dashboard-section-heading > span {
+  white-space: nowrap;
+}
+
+/* =========================================================
+   Primary recommendation
+   ========================================================= */
+.dashboard-ui-v2 .dashboard-recommendation-card {
+  margin-bottom: 42px !important;
+  padding: 32px 34px !important;
+  border-radius: 20px !important;
+  border: 1px solid #c9e2d1 !important;
+  box-shadow: 0 14px 36px rgba(30, 94, 58, .08) !important;
+  background:
+    radial-gradient(circle at 92% 8%, rgba(198,228,207,.24), transparent 28%),
+    linear-gradient(135deg, #ffffff 0%, #fbfdfb 100%) !important;
+}
+
+.dashboard-ui-v2 .dashboard-recommendation-card > div:first-child {
+  margin-bottom: 30px !important;
+}
+
+.dashboard-ui-v2 .dashboard-recommendation-card > div:nth-child(2) {
+  grid-template-columns: minmax(0, 1.2fr) minmax(340px, .8fr) !important;
+  gap: 42px !important;
+  margin-bottom: 30px !important;
+  align-items: center !important;
+}
+
+.dashboard-ui-v2 .dashboard-recommendation-card .metric-hero {
+  font-size: 2.35rem !important;
+  line-height: 1 !important;
+}
+
+/* Profit callout */
+.dashboard-ui-v2 .dashboard-recommendation-card [style*="FDF3F0"] {
+  padding: 24px !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 22px rgba(200, 90, 50, .07) !important;
+}
+
+/* Suitability breakdown */
+.dashboard-ui-v2 .dashboard-recommendation-card .card-well {
+  padding: 18px 20px !important;
+  border-radius: 14px !important;
+  margin-top: 4px !important;
+}
+
+/* Bottom CTA row */
+.dashboard-ui-v2 .dashboard-recommendation-card > div:last-child {
+  margin-top: 24px !important;
+}
+
+/* =========================================================
+   Comparison table
+   ========================================================= */
+.dashboard-ui-v2 table {
+  width: 100% !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+.dashboard-ui-v2 table th {
+  padding: 15px 14px !important;
+  background: #f6f8f5 !important;
+  font-size: .72rem !important;
+  letter-spacing: .025em !important;
+  text-transform: uppercase !important;
+  color: #63736d !important;
+}
+
+.dashboard-ui-v2 table td {
+  padding: 17px 14px !important;
+  vertical-align: middle !important;
+  font-size: .82rem !important;
+}
+
+.dashboard-ui-v2 table tbody tr:hover {
+  background: #fbfcfa !important;
+}
+
+/* =========================================================
+   Alternative candidates
+   ========================================================= */
+
+/* The alternative grid is an anonymous inline-style grid.
+   Force a real 3-column desktop layout. */
+.dashboard-ui-v2 > div[style*="minmax(290px"] {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 22px !important;
+}
+
+/* Alternative crop cards */
+.dashboard-ui-v2 > div[style*="minmax(290px"] > .card-standard {
+  min-width: 0 !important;
+  min-height: 300px !important;
+  padding: 22px !important;
+  border-radius: 18px !important;
+  box-shadow: 0 7px 22px rgba(24,36,32,.055) !important;
+}
+
+/* =========================================================
+   Rotation / lower 2-card area
+   ========================================================= */
+.dashboard-ui-v2 > div[style*="minmax(340px"] {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 24px !important;
+  margin-bottom: 38px !important;
+}
+
+.dashboard-ui-v2 > div[style*="minmax(340px"] > .card-standard {
+  min-width: 0 !important;
+  border-radius: 18px !important;
+  padding: 26px !important;
+  box-shadow: 0 8px 24px rgba(24,36,32,.055) !important;
+}
+
+/* Rotation plan itself */
+.dashboard-ui-v2 .card-standard[style*="C6E4CF"] {
+  padding: 28px !important;
+  border-radius: 20px !important;
+}
+
+/* =========================================================
+   Buttons
+   ========================================================= */
+.dashboard-ui-v2 button {
+  transition: transform .16s ease, box-shadow .16s ease, background .16s ease !important;
+}
+
+.dashboard-ui-v2 button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.dashboard-ui-v2 .btn-accent,
+.dashboard-ui-v2 .btn-primary {
+  min-height: 42px !important;
+  border-radius: 11px !important;
+}
+
+.dashboard-ui-v2 .btn-secondary {
+  min-height: 40px !important;
+  border-radius: 10px !important;
+}
+
+/* =========================================================
+   Typography cleanup
+   ========================================================= */
+.dashboard-ui-v2 h2,
+.dashboard-ui-v2 h3 {
+  letter-spacing: -.015em;
+}
+
+.dashboard-ui-v2 p {
+  line-height: 1.55;
+}
+
+/* Prevent long Tamil/English labels from breaking card geometry */
+.dashboard-ui-v2 .card-standard,
+.dashboard-ui-v2 .card-hero {
+  overflow: hidden;
+}
+
+/* =========================================================
+   Desktop wide screens
+   ========================================================= */
+@media (min-width: 1500px) {
+  .dashboard-ui-v2 {
+    width: min(1440px, calc(100% - 80px)) !important;
+    max-width: 1440px !important;
+  }
+
+  .dashboard-ui-v2 .dashboard-vitals-grid {
+    gap: 24px !important;
+  }
+}
+
+/* =========================================================
+   Tablet
+   ========================================================= */
+@media (max-width: 1100px) {
+  .dashboard-ui-v2 {
+    width: calc(100% - 36px) !important;
+    max-width: none !important;
+    padding-top: 24px !important;
+  }
+
+  .dashboard-ui-v2 .dashboard-vitals-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .dashboard-ui-v2 .dashboard-recommendation-card > div:nth-child(2) {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+
+  .dashboard-ui-v2 > div[style*="minmax(290px"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+/* =========================================================
+   Mobile
+   ========================================================= */
+@media (max-width: 700px) {
+  .dashboard-ui-v2 {
+    width: calc(100% - 20px) !important;
+    padding: 16px 0 40px !important;
+  }
+
+  .dashboard-ui-v2 .dashboard-header,
+  .dashboard-ui-v2 .dashboard-recommendation-card,
+  .dashboard-ui-v2 .card-standard[style*="C6E4CF"] {
+    padding: 20px !important;
+    border-radius: 15px !important;
+  }
+
+  .dashboard-ui-v2 .dashboard-header {
+    min-height: 0 !important;
+  }
+
+  .dashboard-ui-v2 .dashboard-header > div:first-child {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .dashboard-ui-v2 .dashboard-header button {
+    align-self: flex-start !important;
+  }
+
+  .dashboard-ui-v2 .dashboard-vitals-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+    margin-bottom: 30px !important;
+  }
+
+  .dashboard-ui-v2 .dashboard-vitals-grid > .card-standard {
+    min-height: 0 !important;
+  }
+
+  .dashboard-ui-v2 .dashboard-recommendation-card > div:first-child,
+  .dashboard-ui-v2 .dashboard-section-heading {
+    align-items: flex-start !important;
+  }
+
+  .dashboard-ui-v2 > div[style*="minmax(290px"],
+  .dashboard-ui-v2 > div[style*="minmax(340px"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  .dashboard-ui-v2 table {
+    min-width: 850px !important;
+  }
+
+  .dashboard-ui-v2 > div[style*="overflowX"] {
+    overflow-x: auto !important;
+  }
+}
+`}</style>
+      <div className="page-container dashboard-page dashboard-ui-v2">
       {/* Session Notification Banner */}
       {isLoadedFromCache && (
         <div style={{
@@ -231,36 +600,48 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Main Header */}
-      <div className="fade-in" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16, marginBottom: 20 }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6, flexWrap: 'wrap' }}>
-            <h1 style={{ fontSize: '1.85rem', fontWeight: 800, color: '#182420', margin: 0, letterSpacing: '-0.02em' }}>
-              Farm Intelligence Dashboard
-            </h1>
-            <span className="badge-live">
-              <span className="badge-live-dot" />
-              LIVE TELEMETRY & ML
-            </span>
+      {/* Professional Main Header */}
+      <div className="dashboard-header card-hero fade-in" style={{ padding: '24px 28px', marginBottom: 24 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16 }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8, flexWrap: 'wrap' }}>
+              <div style={{ width: 44, height: 44, borderRadius: 12, background: 'linear-gradient(135deg, #EBF5ED 0%, #C6E4CF 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px -2px rgba(30, 94, 58, 0.15)' }}>
+                <span style={{ fontSize: '1.8rem' }}>🌾</span>
+              </div>
+              <div>
+                <h1 style={{ fontSize: '1.95rem', fontWeight: 800, color: '#182420', margin: 0, letterSpacing: '-0.02em' }}>
+                  Farm Intelligence Dashboard
+                </h1>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4, flexWrap: 'wrap' }}>
+                  <span className="badge-live">
+                    <span className="badge-live-dot" />
+                    LIVE TELEMETRY & ML
+                  </span>
+                  <span style={{ fontSize: '0.8rem', color: '#485954', fontWeight: 500 }}>
+                    Real-time agronomic analysis
+                  </span>
+                </div>
+              </div>
+            </div>
+            <p style={{ color: '#485954', fontSize: '0.88rem', margin: '8px 0 0', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', lineHeight: 1.5 }}>
+              <span>📍</span>
+              <strong>{loc?.district ? `${loc.district}, ${loc.state}` : 'Selected Farm Plot'}</strong>
+              <span style={{ color: '#748782' }}>•</span>
+              <span style={{ color: '#748782', fontSize: '0.82rem' }}>Plot Size: <strong>{currentArea} Acres</strong></span>
+              <span style={{ color: '#748782' }}>•</span>
+              <span style={{ color: '#748782', fontSize: '0.82rem' }}>GPS: {loc?.lat?.toFixed(4)}, {loc?.lng?.toFixed(4)}</span>
+            </p>
           </div>
-          <p style={{ color: '#485954', fontSize: '0.88rem', margin: 0, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-            <span>📍</span>
-            <strong>{loc?.district ? `${loc.district}, ${loc.state}` : 'Selected Farm Plot'}</strong>
-            <span style={{ color: '#748782' }}>•</span>
-            <span style={{ color: '#748782', fontSize: '0.82rem' }}>Plot Size: <strong>{currentArea} Acres</strong></span>
-            <span style={{ color: '#748782' }}>•</span>
-            <span style={{ color: '#748782', fontSize: '0.82rem' }}>GPS: {loc?.lat?.toFixed(4)}, {loc?.lng?.toFixed(4)}</span>
-          </p>
-        </div>
 
-        <button
-          onClick={() => navigate('/')}
-          className="btn-secondary"
-          style={{ fontSize: '0.84rem' }}
-        >
-          <span>🗺️</span>
-          <span>{t('dashboard.changeLocation', 'Select Different Plot')}</span>
-        </button>
+          <button
+            onClick={() => navigate('/')}
+            className="btn-secondary"
+            style={{ fontSize: '0.86rem', padding: '10px 18px' }}
+          >
+            <span>🗺️</span>
+            <span>{t('dashboard.changeLocation', 'Select Different Plot')}</span>
+          </button>
+        </div>
       </div>
 
       {/* Biosecurity Outbreak Radar Alert Card */}
@@ -300,7 +681,7 @@ export default function Dashboard() {
       )}
 
       {/* Soil Data Tier Selector */}
-      <div style={{ marginBottom: 24 }}>
+      <div className="dashboard-soil" style={{ marginBottom: 24 }}>
         <SoilTierSelector
           currentSoil={soil}
           soilTierInfo={soilTierInfo}
@@ -309,7 +690,7 @@ export default function Dashboard() {
       </div>
 
       {/* De-duplicated Farm Readiness Vitals (4 Distinct Pillars) */}
-      <div style={{
+      <div className="dashboard-vitals-grid" style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
         gap: 14,
@@ -524,8 +905,8 @@ export default function Dashboard() {
       {/* ========================================================================= */}
       {/* HERO SECTION: #1 RECOMMENDED CROP (DOMINANT VISUAL ANCHOR) */}
       {/* ========================================================================= */}
-      <div style={{ marginBottom: 32 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+      <div className="dashboard-recommendation" style={{ marginBottom: 32 }}>
+        <div className="dashboard-section-heading" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <StarsIcon sx={{ color: '#C85A32', fontSize: 24 }} />
             <h2 style={{ fontSize: '1.35rem', fontWeight: 800, margin: 0, color: '#182420' }}>
@@ -537,7 +918,7 @@ export default function Dashboard() {
           </span>
         </div>
 
-        <div className="card-hero fade-in" style={{ padding: '26px 30px' }}>
+        <div className="dashboard-recommendation-card card-hero fade-in" style={{ padding: '26px 30px' }}>
           {/* Top Banner Tag */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginBottom: 20 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1121,8 +1502,9 @@ export default function Dashboard() {
         {/* AI Crop Yield Predictor Widget */}
         <DashboardYieldPredictor crops={crops} farmData={farmData} initialArea={currentArea} onAreaChange={(newA) => setAreaAcres(newA)} />
       </div>
-    </div>
-  );
+    </div>  
+    </>
+  );    
 }
 
 function DashboardYieldPredictor({ crops, farmData, initialArea, onAreaChange }) {

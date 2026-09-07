@@ -321,45 +321,47 @@ export default function Chat() {
 
           {/* Messages Scroll Area */}
           <div style={{
-            flex: 1, overflowY: 'auto', padding: '18px 20px', display: 'flex',
-            flexDirection: 'column', gap: 14
+            flex: 1, overflowY: 'auto', padding: '20px 24px', display: 'flex',
+            flexDirection: 'column', gap: 16
           }}>
             {messages.map((msg, i) => (
               <div key={i} style={{
-                display: 'flex', gap: 10,
+                display: 'flex', gap: 12,
                 flexDirection: msg.role === 'user' ? 'row-reverse' : 'row',
                 alignItems: 'flex-start'
               }} className="fade-in">
                 <div style={{
-                  width: 34, height: 34, borderRadius: 10, display: 'flex',
+                  width: 38, height: 38, borderRadius: 12, display: 'flex',
                   alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                  background: msg.role === 'user' ? '#C85A32' : '#1E5E3A',
-                  boxShadow: 'var(--shadow-subtle)'
+                  background: msg.role === 'user' ? 'linear-gradient(135deg, #C85A32 0%, #9F3E1E 100%)' : 'linear-gradient(135deg, #1E5E3A 0%, #144026 100%)',
+                  boxShadow: '0 4px 12px -2px rgba(0, 0, 0, 0.1)'
                 }}>
                   {msg.role === 'user'
-                    ? <PersonIcon sx={{ fontSize: 20, color: '#fff' }} />
-                    : <SmartToyIcon sx={{ fontSize: 20, color: '#fff' }} />
+                    ? <PersonIcon sx={{ fontSize: 22, color: '#fff' }} />
+                    : <SmartToyIcon sx={{ fontSize: 22, color: '#fff' }} />
                   }
                 </div>
 
                 <div style={{
-                  maxWidth: '82%', padding: '14px 18px', borderRadius: 14,
-                  fontSize: '0.88rem', lineHeight: 1.6, whiteSpace: 'pre-wrap',
-                  background: msg.role === 'user' ? '#FDF3F0' : '#F8F7F2',
+                  maxWidth: '80%', padding: '16px 20px', borderRadius: 16,
+                  fontSize: '0.9rem', lineHeight: 1.65, whiteSpace: 'pre-wrap',
+                  background: msg.role === 'user' ? '#FDF3F0' : '#FFFFFF',
                   border: msg.role === 'user' ? '1px solid #F7D0C4' : '1px solid #E5E2D8',
                   color: '#182420',
                   boxShadow: 'var(--shadow-subtle)',
-                  borderTopLeftRadius: msg.role === 'ai' ? 2 : 14,
-                  borderTopRightRadius: msg.role === 'user' ? 2 : 14
+                  borderTopLeftRadius: msg.role === 'ai' ? 4 : 16,
+                  borderTopRightRadius: msg.role === 'user' ? 4 : 16,
+                  transition: 'all 0.2s ease'
                 }}>
                   {msg.text}
 
                   {msg.sources && msg.sources.length > 0 && (
                     <div style={{
-                      marginTop: 10, paddingTop: 8, borderTop: '1px solid #E5E2D8',
-                      fontSize: '0.72rem', color: '#748782'
+                      marginTop: 12, paddingTop: 10, borderTop: '1px solid #E5E2D8',
+                      fontSize: '0.74rem', color: '#748782', display: 'flex', alignItems: 'center', gap: 6
                     }}>
-                      📚 <strong>Verified Sources:</strong> {msg.sources.map(s => s.source || s.topic || s.scheme || s.crop || 'Agronomy KB').filter(Boolean).join(', ')}
+                      <span style={{ fontSize: '1rem' }}>📚</span>
+                      <strong>Verified Sources:</strong> {msg.sources.map(s => s.source || s.topic || s.scheme || s.crop || 'Agronomy KB').filter(Boolean).join(', ')}
                     </div>
                   )}
 
@@ -369,13 +371,13 @@ export default function Chat() {
                       onClick={() => handleSpeak(`msg-${i}`, msg.text)}
                       title="Listen to advisory"
                       style={{
-                        marginTop: 8, display: 'inline-flex', alignItems: 'center', gap: 4,
-                        padding: '3px 10px', borderRadius: 8, border: '1px solid #C6E4CF',
-                        background: 'transparent', color: '#1E5E3A', cursor: 'pointer',
-                        fontSize: '0.72rem', fontWeight: 700
+                        marginTop: 10, display: 'inline-flex', alignItems: 'center', gap: 6,
+                        padding: '4px 12px', borderRadius: 10, border: '1px solid #C6E4CF',
+                        background: '#EBF5ED', color: '#1E5E3A', cursor: 'pointer',
+                        fontSize: '0.74rem', fontWeight: 700, transition: 'all 0.2s ease'
                       }}
                     >
-                      <VolumeUpIcon sx={{ fontSize: 13 }} />
+                      <VolumeUpIcon sx={{ fontSize: 14 }} />
                       {speakingId === `msg-${i}` ? 'Stop' : '🔊 Listen'}
                     </button>
                   )}
