@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FarmContext } from '../App';
+import { FarmContext } from '../context/FarmContext';
 import LanguageToggle from './LanguageToggle';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';

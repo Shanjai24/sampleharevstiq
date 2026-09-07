@@ -417,3 +417,85 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: 0.01em;
 }
 
+/* Linear/Fintech SaaS Elevation & Hierarchy Styles */
+.card-hero {
+  background: linear-gradient(135deg, #FFFFFF 0%, #F5FAF7 100%);
+  border: 1.5px solid #C6E4CF;
+  border-radius: 16px;
+  box-shadow: 0 12px 32px -4px rgba(30, 94, 58, 0.12), 0 4px 12px rgba(24, 36, 32, 0.03);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.card-hero:hover {
+  border-color: #2E7D4E;
+  box-shadow: 0 16px 36px -4px rgba(30, 94, 58, 0.18), 0 6px 16px rgba(24, 36, 32, 0.04);
+}
+
+.card-standard {
+  background: #FFFFFF;
+  border: 1px solid #E5E2D8;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px -2px rgba(24, 36, 32, 0.04), 0 1px 3px rgba(24, 36, 32, 0.02);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.card-standard:hover {
+  border-color: #CECBC0;
+  box-shadow: 0 8px 24px -4px rgba(24, 36, 32, 0.08), 0 2px 6px rgba(24, 36, 32, 0.03);
+  transform: translateY(-2px);
+}
+
+.card-well {
+  background: #F8F7F2;
+  border: 1px solid #ECE9E1;
+  border-radius: 10px;
+}
+
+.metric-hero {
+  font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #C85A32;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.metric-secondary {
+  font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #182420;
+  line-height: 1.2;
+}
+
+.table-comparison {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.85rem;
+}
+.table-comparison th {
+  background: #F8F7F2;
+  color: #485954;
+  font-weight: 700;
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 10px 14px;
+  border-bottom: 1px solid #E5E2D8;
+  text-align: left;
+}
+.table-comparison td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #F0EFEA;
+  color: #182420;
+  vertical-align: middle;
+}
+.table-comparison tr:hover td {
+  background: #FAF9F5;
+}
+.table-comparison tr:last-child td {
+  border-bottom: none;
+}
+
+

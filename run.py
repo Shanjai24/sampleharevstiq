@@ -24,12 +24,15 @@ CYAN = "\033[96m"
 BOLD = "\033[1m"
 RESET = "\033[0m"
 
+ml_venv_py = os.path.join(ROOT_DIR, "ml", "venv", "Scripts", "python.exe") if sys.platform == "win32" else os.path.join(ROOT_DIR, "ml", "venv", "bin", "python")
+ml_python = ml_venv_py if os.path.exists(ml_venv_py) else sys.executable
+
 SERVICES = [
     {
         "name": "ML-ENGINE",
         "color": GREEN,
         "cwd": os.path.join(ROOT_DIR, "ml"),
-        "cmd": [sys.executable, "app.py"]
+        "cmd": [ml_python, "-u", "app.py"]
     },
     {
         "name": "BACKEND",
@@ -105,9 +108,11 @@ def shutdown(signum=None, frame=None):
     sys.exit(0)
 
 def main():
-    # Enable ANSI escape sequences on Windows console
+    # Enable ANSI escape sequences on Windows console and ensure UTF-8 output
     if sys.platform == "win32":
         os.system("")
+        if hasattr(sys.stdout, 'reconfigure'):
+            sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
     print(f"{BOLD}{CYAN}======================================================{RESET}")
     print(f"{BOLD}{CYAN}   🌱 AgroPredict / HarvestIQ - All-in-One Runner     {RESET}")
@@ -129,12 +134,13 @@ def main():
         time.sleep(0.5)
 
     # Keep main thread alive and monitor processes
+    reported_exited = set()
     try:
         while True:
             time.sleep(1)
             for name, proc in processes:
-                if proc.poll() is not None and not shutting_down:
-                    # One of the processes exited unexpectedly
+                if proc.poll() is not None and not shutting_down and name not in reported_exited:
+                    reported_exited.add(name)
                     print(f"{YELLOW}[WARN]{RESET} {name} exited with code {proc.returncode}", flush=True)
     except KeyboardInterrupt:
         shutdown()

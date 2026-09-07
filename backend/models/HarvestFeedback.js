@@ -11,7 +11,15 @@ const HarvestFeedbackSchema = new mongoose.Schema({
   predictedProfit: { type: Number, default: 0 },   // INR
   actualProfit: { type: Number, required: true },    // INR
   profitDelta: { type: Number, default: 0 },
-  feedbackNotes: { type: String, default: '' },
+  soil_ph: { type: Number, default: 6.5 },
+  avg_temperature: { type: Number, default: 30.0 },
+  rainfall_7day: { type: Number, default: 50.0 },
+  humidity: { type: Number, default: 65.0 },
+  soil_type: { type: String, default: 'loam' },
+  state: { type: String, default: 'Tamil Nadu' },
+  area_acres: { type: Number, default: 1.0 },
+  elevation: { type: Number, default: 200.0 },
+  month: { type: Number, default: 6 },
   recordedAt: { type: Date, default: Date.now }
 });
 

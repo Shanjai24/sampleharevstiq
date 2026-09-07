@@ -1,0 +1,163 @@
+{
+  "rice": {
+    "Tamil Nadu": [
+      {
+        "buyerName": "Tamil Nadu Civil Supplies Corporation (TNCSC) MSP Center",
+        "buyerType": "msp",
+        "pricePerQuintal": 2300,
+        "minimumQuantityQuintal": 5,
+        "location": "District Direct Purchase Center (DPC)",
+        "contactInfo": "Visit nearest DPC or TNCSC portal",
+        "benefits": "Guaranteed Government MSP floor price, zero commission fee."
+      },
+      {
+        "buyerName": "Thanjavur Delta Farmer Producer Company (FPO)",
+        "buyerType": "fpo",
+        "pricePerQuintal": 2550,
+        "minimumQuantityQuintal": 10,
+        "location": "Thanjavur / Mayiladuthurai",
+        "contactInfo": "Ph: +91 98424 12345",
+        "benefits": "Bulk aggregation bonus + free moisture testing."
+      },
+      {
+        "buyerName": "Ponni Rice Mill Exporters Pvt Ltd",
+        "buyerType": "exporter",
+        "pricePerQuintal": 2700,
+        "minimumQuantityQuintal": 25,
+        "location": "Madurai APMC Industrial Zone",
+        "contactInfo": "Ph: +91 94431 87654",
+        "benefits": "Premium rate for fine grain (BMT/AD T45) with moisture <14%."
+      }
+    ],
+    "Andhra Pradesh": [
+      {
+        "buyerName": "AP State APMC MSP Procurement Depot",
+        "buyerType": "msp",
+        "pricePerQuintal": 2300,
+        "minimumQuantityQuintal": 5,
+        "location": "District Rythu Bharosa Kendra (RBK)",
+        "contactInfo": "Visit local RBK center",
+        "benefits": "Official Government MSP guarantee."
+      },
+      {
+        "buyerName": "Godavari Agri Processors & Exporters",
+        "buyerType": "processor",
+        "pricePerQuintal": 2650,
+        "minimumQuantityQuintal": 20,
+        "location": "Kakinada Port Zone",
+        "contactInfo": "Ph: +91 884 2345678",
+        "benefits": "Direct mill purchase with prompt 48h RTGS payment."
+      }
+    ]
+  },
+  "cotton": {
+    "Tamil Nadu": [
+      {
+        "buyerName": "Cotton Corporation of India (CCI) MSP Procurement Center",
+        "buyerType": "msp",
+        "pricePerQuintal": 7121,
+        "minimumQuantityQuintal": 5,
+        "location": "Coimbatore / Tiruppur APMC Mandi",
+        "contactInfo": "Visit CCI Mandi Counter",
+        "benefits": "Guaranteed MSP for Long Staple Cotton."
+      },
+      {
+        "buyerName": "Coimbatore Textile Spinners Association",
+        "buyerType": "processor",
+        "pricePerQuintal": 7600,
+        "minimumQuantityQuintal": 15,
+        "location": "Tiruppur Textile Hub",
+        "contactInfo": "Ph: +91 422 2567890",
+        "benefits": "+₹480/quintal over mandi rate for clean lint."
+      }
+    ],
+    "Maharashtra": [
+      {
+        "buyerName": "Mahacot State Cotton Federation MSP",
+        "buyerType": "msp",
+        "pricePerQuintal": 7121,
+        "minimumQuantityQuintal": 5,
+        "location": "Yavatmal / Amravati Yard",
+        "contactInfo": "Mahacot Farmers Portal",
+        "benefits": "Guaranteed MSP purchase."
+      },
+      {
+        "buyerName": "Vidarbha Organic Cotton Exporters Consortium",
+        "buyerType": "exporter",
+        "pricePerQuintal": 7850,
+        "minimumQuantityQuintal": 20,
+        "location": "Nagpur Dry Port",
+        "contactInfo": "Ph: +91 712 9876543",
+        "benefits": "Premium export contract pricing for non-GMO fiber."
+      }
+    ]
+  },
+  "groundnut": {
+    "Tamil Nadu": [
+      {
+        "buyerName": "NAFED / TANFED Groundnut MSP Procurement",
+        "buyerType": "msp",
+        "pricePerQuintal": 6377,
+        "minimumQuantityQuintal": 5,
+        "location": "Vellore / Tiruvannamalai APMC",
+        "contactInfo": "TANFED Regional Office",
+        "benefits": "Official Government MSP floor."
+      },
+      {
+        "buyerName": "Polachi Cold-Pressed Oil Refineries",
+        "buyerType": "processor",
+        "pricePerQuintal": 6850,
+        "minimumQuantityQuintal": 10,
+        "location": "Pollachi Industrial Estate",
+        "contactInfo": "Ph: +91 4259 223344",
+        "benefits": "+₹470/q bonus for oil content >48%."
+      }
+    ]
+  },
+  "tomato": {
+    "Tamil Nadu": [
+      {
+        "buyerName": "Hatsun Agri Products Processing Plant",
+        "buyerType": "processor",
+        "pricePerQuintal": 2800,
+        "minimumQuantityQuintal": 10,
+        "location": "Hosur / Dharmapuri",
+        "contactInfo": "Ph: +91 4344 289900",
+        "benefits": "Fixed contract price shielding from mandi volatility."
+      },
+      {
+        "buyerName": "FreshToFarm Retail Supermarket Supply",
+        "buyerType": "retail_chain",
+        "pricePerQuintal": 3100,
+        "minimumQuantityQuintal": 5,
+        "location": "Chennai / Bangalore Direct Hub",
+        "contactInfo": "Ph: +91 99000 11223",
+        "benefits": "Daily farmgate pickup for Grade-A uniform tomatoes."
+      }
+    ]
+  },
+  "chilli": {
+    "Andhra Pradesh": [
+      {
+        "buyerName": "Guntur Spice Exporters Association",
+        "buyerType": "exporter",
+        "pricePerQuintal": 18500,
+        "minimumQuantityQuintal": 10,
+        "location": "Guntur Mirchi Yard",
+        "contactInfo": "Ph: +91 863 2211445",
+        "benefits": "Top export price for Teja / S17 dry red chilli."
+      }
+    ],
+    "Tamil Nadu": [
+      {
+        "buyerName": "Ramnad Mundu Chilli FPO Federation",
+        "buyerType": "fpo",
+        "pricePerQuintal": 16200,
+        "minimumQuantityQuintal": 5,
+        "location": "Ramanathapuram Yard",
+        "contactInfo": "Ph: +91 4567 234567",
+        "benefits": "GI Tagged premium pricing for Mundu variety."
+      }
+    ]
+  }
+}

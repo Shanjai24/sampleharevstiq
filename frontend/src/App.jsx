@@ -1,5 +1,5 @@
-import { useState, createContext } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Navbar from './components/Navbar';
@@ -7,13 +7,16 @@ import BottomNav from './components/BottomNav';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import CropDetail from './pages/CropDetail';
-import Borewell from './pages/Borewell';
 import Market from './pages/Market';
 import Weather from './pages/Weather';
 import History from './pages/History';
 import Chat from './pages/Chat';
 
-export const FarmContext = createContext(null);
+
+import SchemesAndLoans from './pages/SchemesAndLoans';
+import SellForProfit from './pages/SellForProfit';
+
+import { FarmContext } from './context/FarmContext';
 
 const appTheme = createTheme({
   palette: {
@@ -51,6 +54,25 @@ function App() {
     return localStorage.getItem('agropredict_last_analyzed_at') || null;
   });
 
+  const [areaAcres, setAreaAcresState] = useState(() => {
+    try {
+      const saved = localStorage.getItem('agropredict_cached_area');
+      return saved ? parseFloat(saved) : 1.0;
+    } catch {
+      return 1.0;
+    }
+  });
+
+  const setAreaAcres = (val) => {
+    const num = Math.max(0.1, parseFloat(val) || 1.0);
+    setAreaAcresState(num);
+    try {
+      localStorage.setItem('agropredict_cached_area', num.toString());
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const setLocation = (loc) => {
     setLocationState(loc);
     if (loc) {
@@ -71,6 +93,10 @@ function App() {
           setLocationState(data.location);
           localStorage.setItem('agropredict_cached_location', JSON.stringify(data.location));
         }
+        if (data.areaAcres) {
+          setAreaAcresState(data.areaAcres);
+          localStorage.setItem('agropredict_cached_area', data.areaAcres.toString());
+        }
       } catch (e) {
         console.error(e);
       }
@@ -90,7 +116,7 @@ function App() {
   return (
     <ThemeProvider theme={appTheme}>
       <CssBaseline />
-      <FarmContext.Provider value={{ farmData, setFarmData, location, setLocation, sessionAnalyzed, setSessionAnalyzed, lastAnalyzedAt }}>
+      <FarmContext.Provider value={{ farmData, setFarmData, location, setLocation, areaAcres, setAreaAcres, sessionAnalyzed, setSessionAnalyzed, lastAnalyzedAt }}>
         <BrowserRouter>
           <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: 'var(--color-bg)' }}>
             <Navbar />
@@ -99,11 +125,14 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/crop/:name" element={<CropDetail />} />
-                <Route path="/borewell" element={<Borewell />} />
+                <Route path="/borewell" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/market" element={<Market />} />
                 <Route path="/weather" element={<Weather />} />
                 <Route path="/history" element={<History />} />
                 <Route path="/chat" element={<Chat />} />
+                <Route path="/schemes-loans" element={<SchemesAndLoans />} />
+                <Route path="/sell-for-profit" element={<SellForProfit />} />
+
               </Routes>
             </main>
             <BottomNav />

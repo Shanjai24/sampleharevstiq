@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FarmContext } from '../App';
+import { FarmContext } from '../context/FarmContext';
 import { getMarketPrices, predictYield } from '../services/api';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -40,22 +40,25 @@ export default function CropDetail() {
   const { name } = useParams();
   const { farmData } = useContext(FarmContext);
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t: _t } = useTranslation();
   const [marketData, setMarketData] = useState(null);
 
-  // Yield prediction state
-  const [area, setArea] = useState('1.0');
-  const [soilType, setSoilType] = useState(farmData?.soil?.soilType || 'loam');
-  const [soilPh, setSoilPh] = useState(farmData?.soil?.ph || '6.5');
-  const [temp, setTemp] = useState(farmData?.weather?.current?.temperature || '30.0');
-  const [rainfall, setRainfall] = useState(farmData?.weather?.rainfall7day || '50.0');
-  const [humidity, setHumidity] = useState(farmData?.weather?.current?.humidity || '60.0');
-  const [elevation, setElevation] = useState(farmData?.elevation || '200.0');
-  const [month] = useState(new Date().getMonth() + 1);
-  const [stateName] = useState(farmData?.location?.state || 'Tamil Nadu');
+  // Yield prediction inputs (derived from farmData, used in handlePredict)
+  const area = '1.0';
+  const soilType = farmData?.soil?.soilType || 'loam';
+  const soilPh = farmData?.soil?.ph || '6.5';
+  const temp = farmData?.weather?.current?.temperature || '30.0';
+  const rainfall = farmData?.weather?.rainfall7day || '50.0';
+  const humidity = farmData?.weather?.current?.humidity || '60.0';
+  const elevation = farmData?.elevation || '200.0';
+  const month = new Date().getMonth() + 1;
+  const stateName = farmData?.location?.state || 'Tamil Nadu';
 
+  // eslint-disable-next-line no-unused-vars
   const [predictedData, setPredictedData] = useState(null);
+  // eslint-disable-next-line no-unused-vars
   const [predLoading, setPredLoading] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [predError, setPredError] = useState('');
 
   const crop = farmData?.crops?.find(c => c.crop === name) || { crop: name, name: name };
@@ -101,6 +104,7 @@ export default function CropDetail() {
     if (farmData && name) {
       handlePredict();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [farmData, name]);
 
   const plantWindow = crop.plantMonths?.map(m => monthNames[m - 1]).join(', ') || 'Year-round';
@@ -114,9 +118,15 @@ export default function CropDetail() {
     ? `${Math.round(parseFloat(crop.waterPerDay) * 4047)} L/acre`
     : '1,200 L/acre';
 
-  const matchPct = Math.round((crop.score || 0.85) * 100);
-  const soilMatch = Math.round((crop.soilMatch || 0.88) * 100);
-  const weatherMatch = Math.round((crop.weatherMatch || 0.82) * 100);
+  const normalizePct = (val, defaultVal = 80) => {
+    if (val == null) return defaultVal;
+    const num = typeof val === 'number' ? val : parseFloat(val) || defaultVal;
+    return num <= 1 ? Math.round(num * 100) : Math.min(100, Math.round(num));
+  };
+
+  const matchPct = normalizePct(crop.score, 85);
+  const soilMatch = normalizePct(crop.soilMatch, 88);
+  const weatherMatch = normalizePct(crop.weatherMatch, 82);
 
   return (
     <div className="page-container">
@@ -199,41 +209,54 @@ export default function CropDetail() {
           <AttachMoneyIcon sx={{ color: '#C85A32', fontSize: 26 }} />
           <div>
             <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0, color: '#182420' }}>
-              Crop Economics & Projected Net Revenue
+              Crop Economics & Projected Net Revenue ({farmData?.areaAcres || 1.0} Acre Plot)
             </h3>
             <span style={{ fontSize: '0.74rem', color: '#748782' }}>
               Calculated from ML predicted yield × regional modal price − estimated cultivation cost
+              {crop.yieldSource === 'heuristic_fallback' ? ' • (estimated — AI service unavailable)' : ''}
             </span>
           </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
           <div style={{ background: '#FFFFFF', padding: '16px', borderRadius: 12, border: '1px solid #E5E2D8', boxShadow: 'var(--shadow-subtle)' }}>
-            <span style={{ fontSize: '0.72rem', color: '#748782', display: 'block', fontWeight: 600 }}>Predicted Yield / Acre</span>
+            <span style={{ fontSize: '0.72rem', color: '#748782', display: 'block', fontWeight: 600 }}>Predicted Yield</span>
             <span style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1E5E3A' }}>
-              {crop.estimatedYieldPerAcre || '2.5'} <span style={{ fontSize: '0.8rem', color: '#748782', fontWeight: 500 }}>tons/ac</span>
+              {crop.predictedYieldPerAcre || crop.estimatedYieldPerAcre || '2.5'} <span style={{ fontSize: '0.8rem', color: '#748782', fontWeight: 500 }}>tons/ac</span>
             </span>
+            <div style={{ fontSize: '0.75rem', color: '#485954', marginTop: 2, fontWeight: 700 }}>
+              Total: {crop.totalYield || Math.round((crop.predictedYieldPerAcre || 2.5) * (farmData?.areaAcres || 1.0) * 100) / 100} tons
+            </div>
           </div>
 
           <div style={{ background: '#FFFFFF', padding: '16px', borderRadius: 12, border: '1px solid #E5E2D8', boxShadow: 'var(--shadow-subtle)' }}>
             <span style={{ fontSize: '0.72rem', color: '#748782', display: 'block', fontWeight: 600 }}>Gross Realization</span>
             <span style={{ fontSize: '1.35rem', fontWeight: 800, color: '#182420' }}>
-              ₹{(crop.estimatedRevenue || 60000).toLocaleString()}
+              ₹{(crop.totalEstimatedRevenue || crop.estimatedRevenue || 60000).toLocaleString()}
             </span>
+            <div style={{ fontSize: '0.75rem', color: '#485954', marginTop: 2 }}>
+              ₹{(crop.estimatedRevenuePerAcre || crop.estimatedRevenue || 60000).toLocaleString()} / acre
+            </div>
           </div>
 
           <div style={{ background: '#FFFFFF', padding: '16px', borderRadius: 12, border: '1px solid #E5E2D8', boxShadow: 'var(--shadow-subtle)' }}>
             <span style={{ fontSize: '0.72rem', color: '#748782', display: 'block', fontWeight: 600 }}>Est. Input & Labour Cost</span>
             <span style={{ fontSize: '1.35rem', fontWeight: 800, color: '#C85A32' }}>
-              ₹{(crop.estimatedCost || 18000).toLocaleString()}
+              ₹{(crop.totalEstimatedCost || crop.estimatedCost || 18000).toLocaleString()}
             </span>
+            <div style={{ fontSize: '0.75rem', color: '#485954', marginTop: 2 }}>
+              ₹{(crop.estimatedCostPerAcre || crop.estimatedCost || 18000).toLocaleString()} / acre
+            </div>
           </div>
 
           <div style={{ background: '#EBF5ED', padding: '16px', borderRadius: 12, border: '1px solid #C6E4CF', boxShadow: 'var(--shadow-subtle)' }}>
             <span style={{ fontSize: '0.72rem', color: '#1E5E3A', display: 'block', fontWeight: 800 }}>EXPECTED NET PROFIT</span>
             <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#1E5E3A' }}>
-              ₹{(crop.estimatedProfit || 42000).toLocaleString()} <span style={{ fontSize: '0.8rem', color: '#748782', fontWeight: 500 }}>/ acre</span>
+              ₹{(crop.totalEstimatedProfit || crop.estimatedProfit || 42000).toLocaleString()}
             </span>
+            <div style={{ fontSize: '0.78rem', color: '#1E5E3A', marginTop: 2, fontWeight: 700 }}>
+              ₹{(crop.estimatedProfitPerAcre || crop.estimatedProfit || 42000).toLocaleString()} / acre
+            </div>
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FarmContext } from '../App';
+import { FarmContext } from '../context/FarmContext';
 import { getBorewellRisk } from '../services/api';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import IconButton from '@mui/material/IconButton';
@@ -22,7 +22,7 @@ export default function Borewell() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const fetchBorewellRisk = () => {
+  const fetchBorewellRisk = useCallback(() => {
     if (!location) return;
     setLoading(true);
     setError('');
@@ -36,10 +36,11 @@ export default function Borewell() {
         setError('Failed to fetch groundwater risk analysis. Please verify backend service connectivity.');
         setLoading(false);
       });
-  };
+  }, [location]);
 
   useEffect(() => {
     if (farmData?.borewell) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setRiskData(farmData.borewell);
       setLoading(false);
     } else if (location) {
@@ -47,7 +48,7 @@ export default function Borewell() {
     } else {
       setLoading(false);
     }
-  }, [farmData, location]);
+  }, [farmData, location, fetchBorewellRisk]);
 
   if (loading) {
     return (

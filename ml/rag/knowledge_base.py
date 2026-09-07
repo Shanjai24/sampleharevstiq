@@ -132,6 +132,26 @@ class KnowledgeBase:
                     'id': hashlib.md5(text[:100].encode()).hexdigest()
                 })
 
+        # Buyer Directory & Contract Linkage (Phase 4.3)
+        buyer_dir_path = os.path.join(BASE_DIR, 'data', 'buyer_directory.json')
+        if os.path.exists(buyer_dir_path):
+            with open(buyer_dir_path, 'r', encoding='utf-8') as f:
+                buyers_by_crop = json.load(f)
+            for crop_name, states in buyers_by_crop.items():
+                for state_name, buyer_list in states.items():
+                    for b in buyer_list:
+                        text = (
+                            f"Crop: {crop_name}. State: {state_name}. Buyer Name: {b.get('buyerName', '')}. "
+                            f"Type: {b.get('buyerType', '')}. Price per quintal: ₹{b.get('pricePerQuintal', 0)}. "
+                            f"Min Quantity: {b.get('minimumQuantityQuintal', 0)} quintals. Location: {b.get('location', '')}. "
+                            f"Contact: {b.get('contactInfo', '')}. Benefit: {b.get('benefits', '')}"
+                        )
+                        self.documents.append({
+                            'text': text,
+                            'metadata': {'source': 'buyer_directory', 'crop': crop_name, 'state': state_name, 'buyer': b.get('buyerName', '')},
+                            'id': hashlib.md5(text[:100].encode()).hexdigest()
+                        })
+
     def _build_vector_store(self):
         """Build ChromaDB collection with HuggingFace embeddings."""
         print("[RAG] Loading embedding model...")
@@ -247,6 +267,12 @@ class KnowledgeBase:
                     score += 6.0
             if any(p in query_lower for p in ['disease', 'photo', 'picture', 'image', 'camera', 'scan', 'diagnos']) and 'diagnose a plant disease from a photo' in text_lower:
                 score += 3.0
+            if any(p in query_lower for p in ['sell', 'buyer', 'company', 'contract farming', 'best price', 'msp', 'purchaser', 'trader']):
+                if doc['metadata'].get('source') == 'buyer_directory':
+                    score += 8.0
+            if any(p in query_lower for p in ['loan', 'credit', 'subsidy', 'scheme', 'eligible', 'pm-kisan', 'kisan credit', 'pmfby', 'insurance', 'government', 'drip subsidy']):
+                if doc['metadata'].get('source') == 'government_schemes':
+                    score += 8.0
 
             if score > 0:
                 scored.append({

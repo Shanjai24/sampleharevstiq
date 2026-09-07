@@ -21,6 +21,7 @@ export const analyseFarm = (lat, lng, options = {}) =>
   api.post('/api/farm/analyse', {
     lat,
     lng,
+    areaAcres: options.areaAcres,
     soilInputTier: options.soilInputTier,
     manualSoil: options.manualSoil,
     soilReportData: options.soilReportData
@@ -59,7 +60,11 @@ export const sendChat = (message, farmData) =>
 export const analyzeVision = (imageB64, cropHint) =>
   api.post('/api/chat/vision', { image: imageB64, cropHint }).then(r => r.data);
 
+export const getChatStatus = () =>
+  api.get('/api/chat/status').then(r => r.data).catch(() => ({ online: false, mode: 'limited' }));
+
 export const predictYield = (data) =>
   api.post('/api/crops/predict-yield', data).then(r => r.data);
 
 export default api;
+

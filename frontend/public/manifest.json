@@ -1,0 +1,16 @@
+{
+  "short_name": "HarvestIQ",
+  "name": "HarvestIQ AgroPredict AI",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#2E6F40",
+  "background_color": "#FAF9F5",
+  "description": "Real-time decision support, weather telemetry, crop recommendations, and market intelligence for Indian smallholder farmers."
+}

@@ -36,9 +36,14 @@ app.use('/api/borewell', require('./routes/borewell'));
 app.use('/api/history', require('./routes/history'));
 app.use('/api/chat', require('./routes/chat'));
 app.use('/api/crops', require('./routes/crops'));
+app.use('/api/schemes', require('./routes/schemes'));
+app.use('/api/alerts', require('./routes/alerts'));
+
+const { startScheduler } = require('./jobs/scheduler');
 
 app.listen(PORT, () => {
   console.log(`🚀 HarvestIQ Backend Server running on http://localhost:${PORT}`);
+  startScheduler();
 });
 
 module.exports = app;

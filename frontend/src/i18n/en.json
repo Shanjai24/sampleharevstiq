@@ -1,6 +1,6 @@
 {
-  "app": { "name": "FarmSense", "tagline": "AI-Powered Smart Farming" },
-  "nav": { "map": "Map Analysis", "crops": "Dashboard", "dashboard": "Dashboard", "borewell": "Groundwater", "chat": "AI Advisory", "market": "Mandi Market", "weather": "Weather", "history": "Saved Plots" },
+  "app": { "name": "HarvestIQ", "tagline": "AI-Powered Smart Farming" },
+  "nav": { "map": "Map Analysis", "crops": "Dashboard", "dashboard": "Dashboard", "borewell": "Groundwater", "chat": "AI Advisory", "market": "Mandi Market", "weather": "Weather", "history": "Saved Plots", "sell_profit": "Sell For Profit", "schemes": "Schemes & Loans" },
   "home": {
     "title": "Analyse My Farm",
     "subtitle": "Tap to get AI-powered recommendations for your location",
@@ -9,10 +9,21 @@
   },
   "dashboard": {
     "title": "Farm Analysis",
-    "groundwater": "Groundwater Risk",
+    "groundwater": "Groundwater Safety",
+    "gwGood": "Good",
+    "gwModerate": "Moderate",
+    "gwRisk": "Risk",
     "weather": "Weather Today",
     "crops": "Top Crops",
-    "market": "Mandi Prices"
+    "market": "Mandi Prices",
+    "runFresh": "Run Fresh Analysis",
+    "changeLocation": "Select Different Plot",
+    "noFarmTitle": "No Farm Plot Analyzed Yet",
+    "noFarmDesc": "Select your farm plot on the interactive map or enable GPS to calculate soil compatibility, groundwater risks, and expected profit.",
+    "listen": "Listen",
+    "stop": "Stop",
+    "viewFactors": "View Factor Breakdown",
+    "hideFactors": "Hide Details"
   },
   "crop": {
     "plantWindow": "Best Planting Window",
@@ -26,8 +37,8 @@
     "match": "match for your location"
   },
   "borewell": {
-    "title": "Borewell Risk Assessment",
-    "riskScore": "Risk Score",
+    "title": "Groundwater Safety Assessment",
+    "riskScore": "Aquifer Score",
     "breakdown": "Risk Breakdown",
     "recommendation": "Recommendation",
     "whyRisky": "Why is this risky?",
@@ -42,7 +53,9 @@
     "nearest": "Nearest Mandis",
     "bestMandi": "Best Mandi to Sell",
     "priceTrend": "Price Trend (30 Days)",
-    "price": "Price (₹/quintal)"
+    "price": "Price (₹/quintal)",
+    "live": "Live APMC",
+    "baseline": "Curated Baseline"
   },
   "weather": {
     "title": "Weather Forecast",
@@ -54,17 +67,39 @@
     "temp": "Temperature",
     "humidity": "Humidity",
     "rainfall": "Rainfall",
-    "wind": "Wind Speed"
+    "wind": "Wind Speed",
+    "live": "Live Open-Meteo",
+    "fallback": "Estimated"
   },
   "history": {
-    "title": "Saved Farms",
-    "noFarms": "No saved farms yet",
-    "save": "Save This Location",
-    "farmName": "Farm Name",
-    "notes": "Notes (optional)"
+    "title": "Saved Plots & Harvest Feedback Records",
+    "subtitle": "Bookmark your agricultural plots and log post-harvest yield feedback for ML self-learning",
+    "bookmarkTitle": "Bookmark Active Farm Plot",
+    "bookmarkSubtitle": "Save this plot's coordinates for quick re-analysis",
+    "bookmarkedPlots": "Bookmarked Farm Plots",
+    "noFarms": "No saved farm locations yet",
+    "noFarmsDesc": "Analyze a farm plot on the map and tap 'Save Plot Location' to access it anytime.",
+    "save": "Save Plot Location",
+    "farmName": "Farm Plot Name",
+    "notes": "Plot Notes / Crop Type (Optional)",
+    "logHarvest": "Log Harvest",
+    "submitFeedback": "Post-Harvest Feedback",
+    "actualYield": "Actual Yield (Tons / Acre)",
+    "actualProfit": "Actual Net Profit (INR / Acre)",
+    "cropHarvested": "Crop Harvested",
+    "submitBtn": "Submit Feedback",
+    "cancelBtn": "Cancel",
+    "loadAnalysis": "Load Analysis",
+    "enterNameWarn": "Enter a plot name above to save"
   },
   "chat": {
-    "placeholder": "Ask about crops, diseases, weather..."
+    "placeholder": "Ask about crops, diseases, weather...",
+    "listening": "Listening...",
+    "aiOnline": "AI: Online",
+    "aiLimited": "AI: Limited",
+    "listen": "Listen",
+    "stop": "Stop",
+    "micTip": "Speak your question"
   },
   "common": {
     "loading": "Loading...",
@@ -73,6 +108,10 @@
     "back": "Back",
     "save": "Save",
     "delete": "Delete",
-    "quintal": "quintal"
+    "quintal": "quintal",
+    "engineActive": "Telemetry Live",
+    "liveData": "Live",
+    "estimatedData": "Estimated"
   }
 }
+

@@ -8,8 +8,9 @@ import MyLocationIcon from '@mui/icons-material/MyLocation';
 import PlaceIcon from '@mui/icons-material/Place';
 import L from 'leaflet';
 import axios from 'axios';
-import { FarmContext } from '../App';
+import { FarmContext } from '../context/FarmContext';
 import { analyseFarm } from '../services/api';
+import { Card, ErrorBanner } from '../components/ui';
 import 'leaflet/dist/leaflet.css';
 
 delete L.Icon.Default.prototype._getIconUrl;
@@ -224,7 +225,7 @@ export default function Home() {
       </MapContainer>
 
       <div className="pointer-events-none absolute inset-0 z-[500] flex flex-col items-center justify-center bg-gradient-to-b from-bg/15 via-bg/45 to-bg/90 p-5">
-        <div className="glass-card-static fade-in pointer-events-auto w-full max-w-[540px] rounded-2xl border border-border bg-surface px-7 py-8 text-center shadow-hero">
+        <Card variant="static" className="fade-in pointer-events-auto w-full max-w-[540px] rounded-2xl px-7 py-8 text-center shadow-hero">
           <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-primary-border bg-primary-soft px-3.5 py-1 text-xs font-extrabold text-primary">
             <span>🌱</span>
             <span>Indian Smallholder Decision Support</span>
@@ -326,12 +327,8 @@ export default function Home() {
             </button>
           </div>
 
-          {error && (
-            <div className="mt-3.5 rounded-[10px] border border-accent-border bg-accent-soft px-3.5 py-2.5 text-[0.82rem] leading-snug text-accent">
-              ⚠️ {error}
-            </div>
-          )}
-        </div>
+          <ErrorBanner className="mt-3.5 text-left">{error}</ErrorBanner>
+        </Card>
       </div>
     </div>
   );

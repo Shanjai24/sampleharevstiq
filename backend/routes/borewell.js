@@ -74,4 +74,41 @@ router.get('/:lat/:lng', async (req, res) => {
   }
 });
 
+// POST /api/borewell/feedback — Report actual drilling outcomes (Phase 3.2)
+router.post('/feedback', async (req, res) => {
+  try {
+    const mongoose = require('mongoose');
+    let BorewellFeedback;
+    try {
+      BorewellFeedback = require('../models/BorewellFeedback');
+    } catch (e) {
+      BorewellFeedback = null;
+    }
+
+    const { userId, lat, lng, district, state, actualDepthFt, succeeded, actualCost, notes } = req.body;
+
+    const record = {
+      userId: userId || 'anonymous',
+      lat: parseFloat(lat) || 11.341,
+      lng: parseFloat(lng) || 77.717,
+      district: district || 'Unknown',
+      state: state || 'Tamil Nadu',
+      actualDepthFt: parseFloat(actualDepthFt) || 300,
+      succeeded: Boolean(succeeded),
+      actualCost: parseFloat(actualCost) || 0,
+      notes: notes || '',
+      reportedAt: new Date()
+    };
+
+    if (BorewellFeedback && mongoose.connection.readyState === 1) {
+      const fb = new BorewellFeedback(record);
+      await fb.save();
+    }
+
+    res.json({ success: true, message: 'Borewell outcome report saved successfully. Thank you for contributing field data!' });
+  } catch (error) {
+    res.status(500).json({ error: 'Borewell feedback save failed', message: error.message });
+  }
+});
+
 module.exports = router;

@@ -1,7 +1,7 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FarmContext } from '../App';
+import { FarmContext } from '../context/FarmContext';
 import { getWeather } from '../services/api';
 import WbSunnyIcon from '@mui/icons-material/WbSunny';
 import WaterDropIcon from '@mui/icons-material/WaterDrop';
@@ -13,7 +13,10 @@ import ShieldIcon from '@mui/icons-material/Shield';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
-const codeToW = (c) => {
+const codeToW = (c, precip = 0) => {
+  if (precip >= 10.0) return { e: '⛈️', d: 'Heavy Rain', bg: '#FAF5FF', border: '#E9D5FF' };
+  if (precip >= 2.5) return { e: '🌧️', d: 'Moderate Rain', bg: '#EFF6FF', border: '#BFDBFE' };
+  if (precip >= 0.5) return { e: '🌦️', d: 'Light Rain', bg: '#EFF6FF', border: '#BFDBFE' };
   if (c <= 1) return { e: '☀️', d: 'Clear Sky', bg: '#FFFBEB', border: '#FDE68A' };
   if (c <= 3) return { e: '⛅', d: 'Partly Cloudy', bg: '#F8F9FA', border: '#E5E7EB' };
   if (c <= 48) return { e: '🌫️', d: 'Foggy / Hazy', bg: '#F3F4F6', border: '#E5E7EB' };
@@ -31,7 +34,7 @@ export default function Weather() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const fetchWeather = () => {
+  const fetchWeather = useCallback(() => {
     const lat = location?.lat || farmData?.location?.lat;
     const lng = location?.lng || farmData?.location?.lng;
     if (!lat || !lng) {
@@ -50,15 +53,16 @@ export default function Weather() {
         setError('Failed to fetch weather forecast. Please check network connection.');
         setLoading(false);
       });
-  };
+  }, [location, farmData]);
 
   useEffect(() => {
     if (location || farmData) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchWeather();
     } else {
       setLoading(false);
     }
-  }, [location, farmData]);
+  }, [fetchWeather, location, farmData]);
 
   if (!location && !farmData) {
     return (
@@ -115,8 +119,13 @@ export default function Weather() {
   }
 
   const cur = data?.current || {};
-  const w = codeToW(cur.weatherCode);
   const fc = data?.forecast || [];
+  const todayFc = fc[0] || {};
+  const effectiveCode = (cur.precipitation > 0 || todayFc.precipitation > 0) 
+    ? (cur.weatherCode > 0 ? cur.weatherCode : (todayFc.weatherCode || 61)) 
+    : cur.weatherCode;
+  const effectivePrecip = cur.precipitation > 0 ? cur.precipitation : (todayFc.precipitation || 0);
+  const w = codeToW(effectiveCode, effectivePrecip);
   const irr = data?.irrigation || {};
   const isLive = fc && fc.length > 0;
   const locDistrict = farmData?.location?.district || 'Selected Plot';
@@ -382,7 +391,7 @@ export default function Weather() {
             gap: 12
           }}>
             {fc.map((day, i) => {
-              const dw = codeToW(day.weatherCode);
+              const dw = codeToW(day.weatherCode, day.precipitation || 0);
               const dn = i === 0 ? 'Today' : new Date(day.date).toLocaleDateString('en-IN', { weekday: 'short', month: 'numeric', day: 'numeric' });
               const isToday = i === 0;
 

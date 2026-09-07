@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FarmContext } from '../App';
-import { sendChat, analyzeVision } from '../services/api';
+import { FarmContext } from '../context/FarmContext';
+import { sendChat, analyzeVision, getChatStatus } from '../services/api';
+import { speakText, stopSpeaking, startListening, isSpeechSynthesisSupported, isSpeechRecognitionSupported } from '../services/voice';
 import SendIcon from '@mui/icons-material/Send';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import PersonIcon from '@mui/icons-material/Person';
@@ -13,6 +14,8 @@ import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import CloseIcon from '@mui/icons-material/Close';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+import MicIcon from '@mui/icons-material/Mic';
 
 const QUICK_QUESTIONS = [
   { emoji: '🌾', text: 'What crops suit my soil best?', key: 'crops_soil' },
@@ -25,10 +28,44 @@ const QUICK_QUESTIONS = [
 
 export default function Chat() {
   const { farmData } = useContext(FarmContext);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   
   // Tab state: 'chat' | 'vision'
   const [activeTab, setActiveTab] = useState('chat');
+
+  // AI status
+  const [chatStatus, setChatStatus] = useState({ online: null, mode: 'loading' });
+  useEffect(() => {
+    getChatStatus().then(s => setChatStatus(s)).catch(() => setChatStatus({ online: false, mode: 'limited' }));
+  }, []);
+
+  // Voice state
+  const [speakingId, setSpeakingId] = useState(null);
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef(null);
+
+  const handleSpeak = (id, text) => {
+    if (speakingId === id) { stopSpeaking(); setSpeakingId(null); return; }
+    stopSpeaking();
+    setSpeakingId(id);
+    speakText(text, i18n.language || 'en', { onEnd: () => setSpeakingId(null), onError: () => setSpeakingId(null) });
+  };
+
+  const handleMic = () => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+    const rec = startListening({
+      lang: i18n.language || 'en',
+      onStart: () => setIsListening(true),
+      onResult: (transcript) => { setInput(prev => prev + transcript); setIsListening(false); },
+      onError: () => setIsListening(false),
+      onEnd: () => setIsListening(false)
+    });
+    recognitionRef.current = rec;
+  };
 
   // Chat State
   const [messages, setMessages] = useState([
@@ -68,7 +105,10 @@ export default function Chat() {
     setLoading(true);
 
     try {
-      const response = await sendChat(msg, farmData);
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('CHAT_TIMEOUT')), 10000)
+      );
+      const response = await Promise.race([sendChat(msg, farmData), timeoutPromise]);
       const aiMsg = {
         role: 'ai',
         text: response.message || response.answer || 'No response received.',
@@ -79,11 +119,17 @@ export default function Chat() {
       setMessages(prev => [...prev, aiMsg]);
     } catch (error) {
       console.error('[AgroPredict Chat Error]:', error);
+      const isTimeout = error.message === 'CHAT_TIMEOUT';
+      const fallbackCrop = farmData?.crops?.[0]?.crop || 'Rice';
+      const fallbackSoil = farmData?.soil?.soilType || 'loam';
+      const fallbackDist = farmData?.location?.district || 'your district';
       setMessages(prev => [...prev, {
         role: 'ai',
-        text: `⚠️ **Notice:** Unable to connect to advisory server. Please check internet connection and retry.`,
-        sources: [],
-        mode: 'error-notice',
+        text: isTimeout 
+          ? `⏱️ **Agronomist Rule Fallback (Response Fast-Path):**\n\nFor your **${fallbackSoil}** plot in **${fallbackDist}**, current advisories recommend focusing on root aeration and optimal moisture for **${fallbackCrop}**.\n\n• **NPK Balance:** Maintain balanced N:P:K split applications according to growth stage.\n• **Watering:** Avoid standing water during root development.\n• **Pest Vigilance:** Inspect under-leaf foliage twice weekly for early signs of leaf blight or mites.`
+          : `⚠️ **Notice:** Advisory server unavailable. Please check internet connection and retry.`,
+        sources: [{ source: 'instant_rule_engine' }],
+        mode: isTimeout ? 'agronomist-fastpath' : 'error-notice',
         time: new Date()
       }]);
     }
@@ -169,13 +215,24 @@ export default function Chat() {
               <h2 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#182420' }}>
                 AI Crop Doctor & Farm Advisor
               </h2>
-              <span className="badge-live" style={{ fontSize: '0.68rem', padding: '2px 7px' }}>
-                <span className="badge-live-dot" />
-                ONLINE
-              </span>
+              {/* AI Status Pill (Phase 2.5 Transparency) */}
+              {chatStatus.mode === 'loading' ? (
+                <span style={{ fontSize: '0.68rem', padding: '2px 8px', borderRadius: 10, background: '#F8F7F2', border: '1px solid #E5E2D8', color: '#748782', fontWeight: 700 }}>
+                  ⏳ Connecting...
+                </span>
+              ) : chatStatus.online ? (
+                <span className="badge-live" style={{ fontSize: '0.68rem', padding: '3px 9px', background: '#EBF5ED', color: '#1E5E3A', border: '1px solid #C6E4CF', borderRadius: 12, fontWeight: 800 }}>
+                  <span className="badge-live-dot" />
+                  ✨ AI-Powered (Gemini)
+                </span>
+              ) : (
+                <span style={{ fontSize: '0.68rem', padding: '3px 9px', borderRadius: 12, background: '#FFF8E7', border: '1px solid #FCE4B6', color: '#B45309', fontWeight: 800 }}>
+                  📘 Basic Advisory Mode (Rule-Based)
+                </span>
+              )}
             </div>
             <p style={{ fontSize: '0.74rem', color: '#748782', margin: 0 }}>
-              24/7 agricultural advisory, disease photo diagnosis, & soil solutions
+              {chatStatus.online ? '24/7 Gemini-powered advisory, disease photo diagnosis, & soil solutions' : '24/7 agricultural advisory, disease photo diagnosis, & soil solutions'}
             </p>
           </div>
         </div>
@@ -305,6 +362,23 @@ export default function Chat() {
                       📚 <strong>Verified Sources:</strong> {msg.sources.map(s => s.source || s.topic || s.scheme || s.crop || 'Agronomy KB').filter(Boolean).join(', ')}
                     </div>
                   )}
+
+                  {/* TTS Listen button for AI messages */}
+                  {msg.role === 'ai' && isSpeechSynthesisSupported() && (
+                    <button
+                      onClick={() => handleSpeak(`msg-${i}`, msg.text)}
+                      title="Listen to advisory"
+                      style={{
+                        marginTop: 8, display: 'inline-flex', alignItems: 'center', gap: 4,
+                        padding: '3px 10px', borderRadius: 8, border: '1px solid #C6E4CF',
+                        background: 'transparent', color: '#1E5E3A', cursor: 'pointer',
+                        fontSize: '0.72rem', fontWeight: 700
+                      }}
+                    >
+                      <VolumeUpIcon sx={{ fontSize: 13 }} />
+                      {speakingId === `msg-${i}` ? 'Stop' : '🔊 Listen'}
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -351,7 +425,7 @@ export default function Chat() {
             </div>
           )}
 
-          {/* Input Bar with Direct Camera Upload Button */}
+          {/* Input Bar with Direct Camera Upload Button + Microphone STT */}
           <div style={{
             padding: '12px 16px', display: 'flex', gap: 10, alignItems: 'center',
             borderTop: '1px solid #E5E2D8', background: '#FFFFFF'
@@ -371,19 +445,39 @@ export default function Chat() {
               <CameraAltIcon sx={{ fontSize: 22 }} />
             </button>
 
+            {/* Microphone STT button */}
+            {isSpeechRecognitionSupported() && (
+              <button
+                onClick={handleMic}
+                title={isListening ? 'Stop listening' : 'Speak your question'}
+                style={{
+                  width: 44, height: 44, borderRadius: 10,
+                  border: `1px solid ${isListening ? '#C85A32' : '#E5E2D8'}`,
+                  background: isListening ? '#FDF3F0' : '#F8F7F2',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  cursor: 'pointer', color: isListening ? '#C85A32' : '#748782',
+                  flexShrink: 0, transition: 'all 0.15s ease',
+                  animation: isListening ? 'pulse 1.5s infinite' : 'none'
+                }}
+              >
+                <MicIcon sx={{ fontSize: 22 }} />
+              </button>
+            )}
+
             <textarea
               ref={inputRef}
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={t('chat.placeholder') || 'Ask about crop health, soil NPK, weather advisory, mandi rates...'}
+              placeholder={isListening ? '🎤 Listening...' : (t('chat.placeholder') || 'Ask about crop health, soil NPK, weather advisory, mandi rates...')}
               rows={1}
               style={{
                 flex: 1, resize: 'none', padding: '12px 16px', borderRadius: 10,
-                background: '#F8F7F2', border: '1px solid #E5E2D8',
+                background: isListening ? '#FFF8E7' : '#F8F7F2',
+                border: `1px solid ${isListening ? '#FCE4B6' : '#E5E2D8'}`,
                 color: '#182420', fontSize: '0.88rem', outline: 'none',
                 fontFamily: 'inherit', minHeight: 44, maxHeight: 110,
-                boxSizing: 'border-box'
+                boxSizing: 'border-box', transition: 'all 0.2s ease'
               }}
             />
 
@@ -492,21 +586,32 @@ export default function Chat() {
             </div>
           )}
 
-          {/* Vision Diagnosis Results Step Cards */}
+              {/* Vision Diagnosis Results Step Cards */}
           {visionResult && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }} className="fade-in">
               
-              {visionResult.type === 'unclear_photo' ? (
+              {(visionResult.type === 'unclear_photo' || (visionResult.confidence != null && visionResult.confidence < 0.5)) ? (
                 <div style={{
                   padding: 20, borderRadius: 12, background: '#FFF8E7',
                   border: '1px solid #FCE4B6', color: '#B45309'
                 }}>
                   <h4 style={{ fontWeight: 800, fontSize: '1rem', margin: '0 0 6px' }}>
-                    🔍 Unclear Photo Guidance
+                    🔍 Uncertain Diagnosis — Try a Clearer Photo
                   </h4>
-                  <p style={{ fontSize: '0.86rem', margin: 0, lineHeight: 1.55 }}>
-                    {visionResult.message || 'We could not confidently identify foliage symptoms from this angle. Please upload a clear close-up leaf photo against a neutral background.'}
+                  <p style={{ fontSize: '0.86rem', margin: '0 0 10px', lineHeight: 1.55 }}>
+                    {visionResult.message || 'Confidence score is below 50%. For an accurate diagnosis, please take a well-lit, close-up photo of an affected single leaf against a plain background and avoid direct lens glare.'}
                   </p>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '0.74rem', background: '#FFFFFF', padding: '4px 10px', borderRadius: 8, border: '1px solid #FCE4B6', fontWeight: 600 }}>
+                      📸 Close-up single leaf
+                    </span>
+                    <span style={{ fontSize: '0.74rem', background: '#FFFFFF', padding: '4px 10px', borderRadius: 8, border: '1px solid #FCE4B6', fontWeight: 600 }}>
+                      ☀️ Good natural lighting
+                    </span>
+                    <span style={{ fontSize: '0.74rem', background: '#FFFFFF', padding: '4px 10px', borderRadius: 8, border: '1px solid #FCE4B6', fontWeight: 600 }}>
+                      🌱 Provide crop name hint
+                    </span>
+                  </div>
                 </div>
               ) : (
                 <>
@@ -529,9 +634,28 @@ export default function Chat() {
                       )}
                     </div>
 
-                    <span className="badge-fit-strong" style={{ fontSize: '0.82rem', padding: '5px 14px' }}>
-                      {Math.round((visionResult.confidence || 0.88) * 100)}% Confidence
-                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      {/* TTS Listen Button on Vision Result */}
+                      {isSpeechSynthesisSupported() && (
+                        <button
+                          onClick={() => handleSpeak('vision-result', `Diagnosis: ${visionResult.title || 'Plant condition'}. ${visionResult.description || ''} Immediate treatment: ${visionResult.steps?.immediate_organic?.[0] || 'Apply recommended organic remedy'}`)}
+                          title="Listen to diagnosis"
+                          style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 5,
+                            padding: '6px 14px', borderRadius: 9, border: '1px solid #C6E4CF',
+                            background: '#EBF5ED', color: '#1E5E3A', fontWeight: 700, fontSize: '0.8rem',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <VolumeUpIcon sx={{ fontSize: 16 }} />
+                          {speakingId === 'vision-result' ? 'Stop' : '🔊 Listen'}
+                        </button>
+                      )}
+
+                      <span className="badge-fit-strong" style={{ fontSize: '0.82rem', padding: '5px 14px' }}>
+                        {Math.round((visionResult.confidence || 0.88) * 100)}% Confidence
+                      </span>
+                    </div>
                   </div>
 
                   {/* 4 Step Remediation Cards */}

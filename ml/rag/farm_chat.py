@@ -24,17 +24,18 @@ SYSTEM_PROMPT = """You are HarvestIQ AI (AgroPredict Agronomist), a compassionat
 Your advice must be practical, safe, scientifically accurate, and easy for farmers to follow.
 Structure your answers with clear bullet points, specific product names, dosages (e.g. ml/litre or kg/acre), and timings."""
 
-RESPONSE_PROMPT = """Farm Location: {location}
+RESPONSE_PROMPT = """Farm Location: {location} (Plot Size: {area_acres} Acres)
 Soil Type: {soil_type} (pH: {soil_ph})
 Weather: {temperature}°C, {humidity}% humidity, 7-day rainfall: {rainfall}mm
 Recommended Crops: {crops}
+Market Mandi Price: {mandi_price}
 
 Knowledge Base Reference:
 {rag_context}
 
 Farmer Question: {question}
 
-Provide a direct, practical, and helpful answer for this farmer."""
+Provide a direct, practical, personalized answer for this farmer, referencing their specific plot size, crop, and location where relevant."""
 
 
 class FarmChat:
@@ -143,6 +144,8 @@ class FarmChat:
         temperature = "N/A"
         humidity = "N/A"
         rainfall = "N/A"
+        area_acres = "1.0"
+        mandi_price = "N/A"
         crops_str = "Not specified"
 
         if farm_context:
@@ -154,6 +157,8 @@ class FarmChat:
             temperature = farm_context.get('temperature', 'N/A')
             humidity = farm_context.get('humidity', 'N/A')
             rainfall = farm_context.get('rainfall', 'N/A')
+            area_acres = str(farm_context.get('area_acres', farm_context.get('areaAcres', '1.0')))
+            mandi_price = str(farm_context.get('mandi_price', farm_context.get('currentPrice', 'N/A')))
             crops_list = farm_context.get('crops', [])
             if isinstance(crops_list, list):
                 crops_str = ", ".join([
@@ -166,7 +171,7 @@ class FarmChat:
             try:
                 return self._generate_with_llm(
                     query_clean, rag_context, location, soil_type, soil_ph,
-                    temperature, humidity, rainfall, crops_str, rag_results
+                    temperature, humidity, rainfall, area_acres, mandi_price, crops_str, rag_results
                 )
             except Exception as err:
                 print(f"[CHAT] LLM invocation failed ({err}), switching to Conversational Agronomist Engine.")
@@ -399,11 +404,11 @@ class FarmChat:
         }
 
     def _generate_with_llm(self, query, rag_context, location, soil_type, soil_ph,
-                           temperature, humidity, rainfall, crops_str, rag_results):
+                           temperature, humidity, rainfall, area_acres, mandi_price, crops_str, rag_results):
         prompt = RESPONSE_PROMPT.format(
-            location=location, soil_type=soil_type, soil_ph=soil_ph,
+            location=location, area_acres=area_acres, soil_type=soil_type, soil_ph=soil_ph,
             temperature=temperature, humidity=humidity, rainfall=rainfall,
-            crops=crops_str, rag_context=rag_context, question=query
+            crops=crops_str, mandi_price=mandi_price, rag_context=rag_context, question=query
         )
 
         messages = [
@@ -518,9 +523,14 @@ class FarmChat:
         }
 
     def get_status(self):
+        is_llm = self.llm is not None
         return {
+            'status': 'ok',
             'initialized': self.initialized,
-            'llm_available': self.llm is not None,
-            'llm_model': 'gemini-2.0-flash' if self.llm else 'conversational-rag-engine',
+            'online': is_llm,
+            'llm_available': is_llm,
+            'mode': 'online' if is_llm else 'limited',
+            'model': 'Gemini 2.0 Flash' if is_llm else 'Built-in Agricultural RAG Engine',
             'knowledge_base': self.knowledge_base.get_status() if self.initialized else None
         }
+

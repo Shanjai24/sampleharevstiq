@@ -1,5 +1,5 @@
-import { useState, useContext, useEffect } from 'react';
-import { FarmContext } from '../App';
+import { useState, useContext, useEffect, useCallback } from 'react';
+import { FarmContext } from '../context/FarmContext';
 import { getMarketPrices } from '../services/api';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import MenuItem from '@mui/material/MenuItem';
@@ -10,6 +10,7 @@ import StoreIcon from '@mui/icons-material/Store';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import { Badge, Card, EmptyState, ErrorBanner, SkeletonBlock } from '../components/ui';
 
 const cropOptions = [
   'rice', 'wheat', 'groundnut', 'cotton', 'sugarcane', 'maize',
@@ -27,7 +28,7 @@ export default function Market() {
   const state = farmData?.location?.state || 'Tamil Nadu';
   const district = farmData?.location?.district || '';
 
-  const fetchPrices = () => {
+  const fetchPrices = useCallback(() => {
     setLoading(true);
     setError('');
     getMarketPrices(state, crop)
@@ -40,11 +41,12 @@ export default function Market() {
         setError('Failed to fetch Mandi price data. Please ensure backend services are online.');
         setLoading(false);
       });
-  };
+  }, [state, crop]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchPrices();
-  }, [crop, state]);
+  }, [fetchPrices]);
 
   const isLive = data?.prices && data.prices.length > 0;
 
@@ -57,14 +59,9 @@ export default function Market() {
               Mandi Market Intelligence
             </h1>
             {isLive ? (
-              <span className="badge-live">
-                <span className="badge-live-dot" />
-                LIVE APMC MANDI RATES
-              </span>
+              <Badge variant="live">LIVE APMC MANDI RATES</Badge>
             ) : (
-              <span className="badge-estimated">
-                ⚡ ESTIMATED APMC BENCHMARK
-              </span>
+              <Badge variant="estimated">⚡ ESTIMATED APMC BENCHMARK</Badge>
             )}
           </div>
           <p className="m-0 text-[0.88rem] text-text-secondary">
@@ -106,25 +103,21 @@ export default function Market() {
         </div>
       </div>
 
-      {error && (
-        <div className="mb-6 rounded-xl border border-accent-border bg-accent-soft px-5 py-3.5 text-[0.86rem] text-accent">
-          ⚠️ {error}
-        </div>
-      )}
+      <ErrorBanner className="mb-6">{error}</ErrorBanner>
 
       {loading ? (
         <div className="flex flex-col gap-3.5">
           <div className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-[18px]">
-            <div className="skeleton h-[140px]" />
-            <div className="skeleton h-[140px]" />
+            <SkeletonBlock height={140} />
+            <SkeletonBlock height={140} />
           </div>
-          <div className="skeleton h-[260px]" />
+          <SkeletonBlock height={260} />
         </div>
       ) : data ? (
         <>
           <div className="mb-6 grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-[18px]">
             {data.bestMandi && (
-              <div className="hero-card-top-crop fade-in px-6 py-[22px]">
+              <Card variant="hero" className="fade-in px-6 py-[22px]">
                 <div className="mb-2 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-soft">
@@ -149,10 +142,10 @@ export default function Market() {
                   </span>
                   <span className="text-[0.82rem] font-semibold text-text-muted">/ quintal (Modal)</span>
                 </div>
-              </div>
+              </Card>
             )}
 
-            <div className="glass-card fade-in fade-in-delay-1 flex flex-col justify-between px-6 py-[22px]">
+            <Card className="fade-in fade-in-delay-1 flex flex-col justify-between px-6 py-[22px]">
               <div className="mb-2 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#FFF8E7]">
@@ -162,9 +155,9 @@ export default function Market() {
                     Market Momentum & Strategy
                   </span>
                 </div>
-                <span className={`${data.trend === 'UP' ? 'badge-fit-strong' : 'badge-fit-moderate'} px-2 py-0.5 text-[0.7rem]`}>
+                <Badge variant={data.trend === 'UP' ? 'fit-strong' : 'fit-moderate'} className="px-2 py-0.5 text-[0.7rem]">
                   {data.trend === 'UP' ? 'Bullish Trend' : 'Stable Rate'}
-                </span>
+                </Badge>
               </div>
 
               <div>
@@ -177,11 +170,11 @@ export default function Market() {
                     : 'Prices are holding steady across regional mandis. Safe to sell regularly or hold dry produce.'}
                 </p>
               </div>
-            </div>
+            </Card>
           </div>
 
           <div className="mb-6 grid grid-cols-[repeat(auto-fit,minmax(360px,1fr))] gap-5">
-            <div className="glass-card fade-in fade-in-delay-2 p-6">
+            <Card className="fade-in fade-in-delay-2 p-6">
               <div className="mb-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <AccountBalanceIcon sx={{ color: '#1E5E3A', fontSize: 20 }} />
@@ -224,7 +217,7 @@ export default function Market() {
                   </tbody>
                 </table>
               </div>
-            </div>
+            </Card>
 
             {data.history && data.history.length > 0 && (
               <div className="glass-card fade-in fade-in-delay-3 p-6">

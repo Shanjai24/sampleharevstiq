@@ -66,7 +66,11 @@ router.post('/save', async (req, res) => {
 // POST /api/history/feedback — Submit Post-Harvest Farmer Feedback
 router.post('/feedback', async (req, res) => {
   try {
-    const { userId, farmName, crop, soilInputTier, predictedYield, actualYield, predictedProfit, actualProfit, feedbackNotes } = req.body;
+    const {
+      userId, farmName, crop, soilInputTier, predictedYield, actualYield,
+      predictedProfit, actualProfit, feedbackNotes,
+      soil_ph, avg_temperature, rainfall_7day, humidity, soil_type, state, area_acres, elevation, month
+    } = req.body;
 
     const yPred = parseFloat(predictedYield) || 2.0;
     const yAct = parseFloat(actualYield) || 2.0;
@@ -78,7 +82,7 @@ router.post('/feedback', async (req, res) => {
     const record = {
       userId: userId || 'default-user',
       farmName: farmName || 'Saved Plot',
-      crop: crop || 'Rice',
+      crop: (crop || 'rice').toLowerCase(),
       soilInputTier: soilInputTier || 'regional_fallback',
       predictedYield: yPred,
       actualYield: yAct,
@@ -87,18 +91,58 @@ router.post('/feedback', async (req, res) => {
       actualProfit: pAct,
       profitDelta,
       feedbackNotes: feedbackNotes || '',
+      soil_ph: parseFloat(soil_ph) || 6.5,
+      avg_temperature: parseFloat(avg_temperature) || 30.0,
+      rainfall_7day: parseFloat(rainfall_7day) || 50.0,
+      humidity: parseFloat(humidity) || 65.0,
+      soil_type: soil_type || 'loam',
+      state: state || 'Tamil Nadu',
+      area_acres: parseFloat(area_acres) || 1.0,
+      elevation: parseFloat(elevation) || 200.0,
+      month: parseInt(month) || (new Date().getMonth() + 1),
       recordedAt: new Date()
     };
 
+    let savedFb = record;
     if (HarvestFeedback && HarvestFeedback.db?.readyState === 1) {
       const fb = new HarvestFeedback(record);
       await fb.save();
-      res.json({ success: true, feedback: fb });
+      savedFb = fb;
     } else {
       record._id = Date.now().toString();
       feedbackMemoryStore.push(record);
-      res.json({ success: true, feedback: record });
     }
+
+    // Sync to ml/data/harvest_feedback_logs.json as file-based fallback
+    try {
+      const path = require('path');
+      const fs = require('fs');
+      const jsonPath = path.join(__dirname, '../../ml/data/harvest_feedback_logs.json');
+      let currentLogs = [];
+      if (fs.existsSync(jsonPath)) {
+        currentLogs = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+      }
+      currentLogs.push({
+        crop: record.crop,
+        soil_type: record.soil_type,
+        soil_ph: record.soil_ph,
+        avg_temperature: record.avg_temperature,
+        rainfall_7day: record.rainfall_7day,
+        humidity: record.humidity,
+        area_acres: record.area_acres,
+        elevation: record.elevation,
+        state: record.state,
+        month: record.month,
+        actual_yield: record.actualYield,
+        tier: record.soilInputTier,
+        recordedAt: record.recordedAt
+      });
+      fs.writeFileSync(jsonPath, JSON.stringify(currentLogs, null, 2), 'utf8');
+    } catch (fsErr) {
+      console.warn('[FEEDBACK JSON SYNC WARN]', fsErr.message);
+    }
+
+    res.json({ success: true, feedback: savedFb });
   } catch (error) {
     res.status(500).json({ error: 'Feedback save failed', message: error.message });
   }

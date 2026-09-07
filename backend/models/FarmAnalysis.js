@@ -18,6 +18,8 @@ const farmAnalysisSchema = new mongoose.Schema({
   groundwaterRisk: { type: String, enum: ['LOW', 'MODERATE', 'HIGH'] },
   riskScore: Number,
   borewellDetail: mongoose.Schema.Types.Mixed,
+  areaAcres: { type: Number, default: 1.0 },
+  yieldSource: { type: String, enum: ['ml_model', 'heuristic_fallback'], default: 'ml_model' },
   recommendedCrops: [{
     crop: String,
     score: Number,
@@ -27,8 +29,19 @@ const farmAnalysisSchema = new mongoose.Schema({
     soilMatch: Number,
     weatherMatch: Number,
     currentPrice: Number,
+    pricePerTon: Number,
+    predictedYieldPerAcre: Number,
+    totalYield: Number,
+    estimatedCostPerAcre: Number,
+    totalEstimatedCost: Number,
+    estimatedRevenuePerAcre: Number,
+    totalEstimatedRevenue: Number,
+    estimatedProfitPerAcre: Number,
+    totalEstimatedProfit: Number,
+    yieldSource: String,
     priceTrend: String,
-    tips: [String]
+    tips: [String],
+    fertilizerPlan: mongoose.Schema.Types.Mixed
   }],
   weatherSummary: {
     temperature: Number,

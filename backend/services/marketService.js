@@ -171,7 +171,8 @@ async function getMarketPrices(state, crop) {
           minPrice: parseFloat(r.min_price || r.Min_Price || 0),
           maxPrice: parseFloat(r.max_price || r.Max_Price || 0),
           modalPrice: parseFloat(r.modal_price || r.Modal_Price || 0),
-          date: r.arrival_date || r.Arrival_Date || new Date().toISOString()
+          date: r.arrival_date || r.Arrival_Date || new Date().toISOString(),
+          source: 'live'
         }));
       }
     } catch (error) {
@@ -185,9 +186,11 @@ async function getMarketPrices(state, crop) {
     records = mockData.map(m => ({
       ...m,
       commodity: crop,
-      date: new Date().toISOString()
+      date: new Date().toISOString(),
+      source: 'curated_baseline'
     }));
   }
+
 
   // Save to DB Cache if DB is available
   if (MarketPrice && mongoose.connection.readyState === 1 && records.length > 0) {

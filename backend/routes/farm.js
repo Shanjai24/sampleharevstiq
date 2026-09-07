@@ -6,7 +6,7 @@ const { getWeather } = require('../services/weatherService');
 const { getSoilData } = require('../services/soilService');
 const { getElevation } = require('../services/elevationService');
 const { getMarketPrices } = require('../services/marketService');
-const { recommendCrops, getBorewellRisk } = require('../services/mlService');
+const { recommendCrops, getBorewellRisk, predictYield } = require('../services/mlService');
 const { getDistanceToRiver, estimateNdviScore } = require('../services/geospatialService');
 const { getRegionalSoilData } = require('../services/regionalSoilData');
 const { calculateFertilizerRecommendation } = require('../services/fertilizerService');
@@ -19,29 +19,43 @@ try {
   FarmAnalysis = null;
 }
 
-// Estimated cultivation cost per acre per crop (INR)
-const CROP_ESTIMATED_COSTS = {
-  rice: 18000,
-  wheat: 16000,
-  maize: 14000,
-  cotton: 22000,
-  groundnut: 19000,
-  sugarcane: 35000,
-  soybean: 15000,
-  tomato: 28000,
-  onion: 26000,
-  turmeric: 32000,
-  chickpea: 14000,
-  mustard: 13000,
-  banana: 45000,
-  millet: 11000,
-  chilli: 30000
+// Load ground-truth crop database
+const fs = require('fs');
+const path = require('path');
+let cropDb = {};
+try {
+  const cropDbPath = path.join(__dirname, '../../ml/data/crop_database.json');
+  if (fs.existsSync(cropDbPath)) {
+    cropDb = JSON.parse(fs.readFileSync(cropDbPath, 'utf8'));
+  }
+} catch (e) {
+  console.warn('crop_database.json load warn in farm.js:', e.message);
+}
+
+// Realistic crop agronomic benchmarks (base yield in tons/acre & cultivation cost in INR/acre)
+const CROP_BENCHMARKS = {
+  rice: { baseYield: 2.5, costPerAcre: 22000 },
+  wheat: { baseYield: 1.8, costPerAcre: 16000 },
+  groundnut: { baseYield: 1.0, costPerAcre: 18000 },
+  cotton: { baseYield: 0.8, costPerAcre: 24000 },
+  sugarcane: { baseYield: 30.0, costPerAcre: 55000 },
+  maize: { baseYield: 2.2, costPerAcre: 16000 },
+  soybean: { baseYield: 0.9, costPerAcre: 14000 },
+  tomato: { baseYield: 10.0, costPerAcre: 45000 },
+  onion: { baseYield: 7.0, costPerAcre: 35000 },
+  turmeric: { baseYield: 2.0, costPerAcre: 30000 },
+  chickpea: { baseYield: 0.6, costPerAcre: 12000 },
+  mustard: { baseYield: 0.6, costPerAcre: 11000 },
+  banana: { baseYield: 15.0, costPerAcre: 75000 },
+  millet: { baseYield: 0.6, costPerAcre: 9000 },
+  chilli: { baseYield: 1.2, costPerAcre: 30000 }
 };
 
 // POST /api/farm/analyse — AgroPredict Main Analysis Endpoint
 router.post('/analyse', async (req, res) => {
   try {
-    const { lat, lng, soilInputTier, manualSoil, soilReportData } = req.body;
+    const { lat, lng, soilInputTier, manualSoil, soilReportData, areaAcres: rawArea } = req.body;
+    const areaAcres = Math.max(0.1, parseFloat(rawArea) || 1.0);
     if (!lat || !lng) {
       return res.status(400).json({ error: 'lat and lng parameters are required' });
     }
@@ -173,8 +187,10 @@ router.post('/analyse', async (req, res) => {
       })
     ]);
 
-    // Fetch market prices & compute Profit Analysis (Revenue - Cost)
+    // Fetch market prices & compute Profit Analysis (Revenue - Cost) using primary ML predictYield
     const rawCrops = cropRecommendation.crops || [];
+    let overallYieldSource = 'ml_model';
+
     const cropsWithEconomics = await Promise.all(
       rawCrops.slice(0, 6).map(async (c) => {
         const prices = await getMarketPrices(state, c.crop);
@@ -182,11 +198,60 @@ router.post('/analyse', async (req, res) => {
         const modalPriceQuintal = topPrice?.modalPrice || 2400; // INR per quintal (1 quintal = 0.1 ton)
         const pricePerTon = modalPriceQuintal * 10;
 
-        // Estimated yield per acre (approx 1.5 - 3.5 tons depending on suitability score)
-        const estYieldPerAcre = Math.round((1.5 + (c.score || 0.8) * 2.0) * 10) / 10;
-        const estimatedRevenue = Math.round(estYieldPerAcre * pricePerTon);
-        const cropCost = CROP_ESTIMATED_COSTS[c.crop] || 18000;
-        const estimatedProfit = estimatedRevenue - cropCost;
+        const cropKey = (c.crop || '').toLowerCase();
+        const dbInfo = cropDb[cropKey] || {};
+        const benchmark = CROP_BENCHMARKS[cropKey] || { baseYield: dbInfo.baseYield || 2.0, costPerAcre: 18000 };
+        const baseYield = dbInfo.baseYield || benchmark.baseYield || 2.0;
+        const harvestDays = dbInfo.harvestDays || 110;
+        const waterPerDay = dbInfo.waterPerDay || 5;
+        const plantMonths = dbInfo.plantMonths || [6, 7];
+        const tips = dbInfo.tips || [];
+        const nameTa = dbInfo.nameTa || '';
+        const nameHi = dbInfo.nameHi || '';
+        const suitability = (c.score != null ? c.score : 0.75);
+
+        // Heuristic fallback yield calibrated to ground-truth baseYield
+        const fallbackYieldPerAcre = Math.round(baseYield * (0.7 + 0.5 * suitability) * 100) / 100;
+
+        // Try calling real ML Yield Predictor model
+        let predictedYieldPerAcre = fallbackYieldPerAcre;
+        let cropYieldSource = 'heuristic_fallback';
+        try {
+          const mlYieldRes = await predictYield({
+            crop: c.crop,
+            soil_type: finalSoilData.soilType,
+            soil_ph: finalSoilData.ph,
+            avg_temperature: weather.current.temperature,
+            rainfall_7day: weather.rainfall7day,
+            humidity: weather.current.humidity,
+            area_acres: areaAcres,
+            elevation: elevationData.elevation,
+            state: state,
+            month: month
+          });
+
+          if (mlYieldRes && mlYieldRes.predictedYieldPerAcre) {
+            predictedYieldPerAcre = mlYieldRes.predictedYieldPerAcre;
+            cropYieldSource = 'ml_model';
+          }
+        } catch (err) {
+          console.warn(`[ML YIELD FALLBACK] Using benchmark heuristic for ${c.crop}:`, err.message);
+        }
+
+        if (cropYieldSource === 'heuristic_fallback') {
+          overallYieldSource = 'heuristic_fallback';
+        }
+
+        const totalYield = Math.round(predictedYieldPerAcre * areaAcres * 100) / 100;
+
+        const estimatedCostPerAcre = benchmark.costPerAcre;
+        const totalEstimatedCost = Math.round(estimatedCostPerAcre * areaAcres);
+
+        const estimatedRevenuePerAcre = Math.round(predictedYieldPerAcre * pricePerTon);
+        const totalEstimatedRevenue = Math.round(estimatedRevenuePerAcre * areaAcres);
+
+        const estimatedProfitPerAcre = estimatedRevenuePerAcre - estimatedCostPerAcre;
+        const totalEstimatedProfit = totalEstimatedRevenue - totalEstimatedCost;
 
         // Calculate Fertilizer Recommendation
         const fertilizerPlan = calculateFertilizerRecommendation(
@@ -199,12 +264,28 @@ router.post('/analyse', async (req, res) => {
 
         return {
           ...c,
+          harvestDays,
+          waterPerDay,
+          plantMonths,
+          tips,
+          nameTa,
+          nameHi,
+          baseYield,
           currentPrice: modalPriceQuintal,
           pricePerTon,
-          estimatedYieldPerAcre: estYieldPerAcre,
-          estimatedRevenue,
-          estimatedCost: cropCost,
-          estimatedProfit,
+          predictedYieldPerAcre,
+          totalYield,
+          estimatedYieldPerAcre: predictedYieldPerAcre, // alias for legacy/backward compatibility
+          estimatedCostPerAcre,
+          totalEstimatedCost,
+          estimatedCost: totalEstimatedCost, // total for the plot
+          estimatedRevenuePerAcre,
+          totalEstimatedRevenue,
+          estimatedRevenue: totalEstimatedRevenue, // total for the plot
+          estimatedProfitPerAcre,
+          totalEstimatedProfit,
+          estimatedProfit: totalEstimatedProfit, // total for the plot
+          yieldSource: cropYieldSource,
           fertilizerPlan,
           market: topPrice?.market || 'Local APMC',
           prices: prices.slice(0, 5)
@@ -212,11 +293,11 @@ router.post('/analyse', async (req, res) => {
       })
     );
 
-    // Rank crops by Net Profit and flag highest-profit choice
-    cropsWithEconomics.sort((a, b) => b.estimatedProfit - a.estimatedProfit);
+    // Rank crops by total net profit and flag highest-profit choice
+    cropsWithEconomics.sort((a, b) => b.totalEstimatedProfit - a.totalEstimatedProfit);
     if (cropsWithEconomics.length > 0) {
       cropsWithEconomics[0].isHighestProfit = true;
-      cropsWithEconomics[0].recommendationReason = '⭐ Highest expected net profit per acre';
+      cropsWithEconomics[0].recommendationReason = `⭐ Highest expected net profit (${areaAcres} acre plot)`;
     }
 
     // Detailed borewell object
@@ -245,20 +326,32 @@ router.post('/analyse', async (req, res) => {
     const result = {
       brand: 'AgroPredict',
       location: { lat: roundedLat, lng: roundedLng, district, state },
+      areaAcres,
+      yieldSource: overallYieldSource,
       soilTierInfo,
       weather: {
         current: weather.current,
         soilTemperature: weather.soilTemperature,
         evapotranspiration: weather.evapotranspiration,
         forecast: weather.forecast,
-        rainfall7day: weather.rainfall7day
+        rainfall7day: weather.rainfall7day,
+        source: weather.source || 'live'
       },
       soil: finalSoilData,
       elevation: elevationData.elevation,
       borewell: borewellWithDetails,
       crops: cropsWithEconomics,
+      dataSources: {
+        weather: weather.source || 'live',
+        soil: soilTierInfo.tier === 'lab_report' ? 'lab_report' : soilTierInfo.tier === 'manual' ? 'manual' : 'regional_gov_db',
+        elevation: elevationData.source || 'live',
+        groundwater: 'gradient_boosting_ml',
+        market: 'apmc_mandi_baseline',
+        ndvi: 'precipitation_clay_model'
+      },
       analyzedAt: new Date().toISOString()
     };
+
 
     // Save to Mongo DB Cache
     if (!soilInputTier && FarmAnalysis && mongoose.connection.readyState === 1) {

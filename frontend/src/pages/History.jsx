@@ -1,7 +1,7 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FarmContext } from '../App';
+import { FarmContext } from '../context/FarmContext';
 import { saveHistory, getHistory, deleteHistory, analyseFarm, getUserId, submitHarvestFeedback, getHarvestFeedbacks } from '../services/api';
 import TextField from '@mui/material/TextField';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -36,10 +36,10 @@ export default function History() {
 
   const userId = getUserId();
 
-  const loadData = () => {
+  const loadData = useCallback(() => {
     getHistory(userId).then(d => setFarms(d.farms || [])).catch(() => {});
     getHarvestFeedbacks(userId).then(d => setFeedbacks(d.feedbacks || [])).catch(() => {});
-  };
+  }, [userId]);
 
   useEffect(() => {
     loadData();
@@ -49,7 +49,8 @@ export default function History() {
         : 'My Farm Plot';
       setFarmName(defaultName);
     }
-  }, [userId, farmData, location]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadData, farmData, location]);
 
   const handleSave = async () => {
     if (!farmName.trim()) return;
@@ -110,11 +111,20 @@ export default function History() {
         farmName: activeFeedbackFarm.farmName,
         crop: feedbackCrop,
         soilInputTier: farmData?.soilTierInfo?.tier || 'regional_fallback',
-        predictedYield: 2.2,
+        predictedYield: farmData?.crops?.[0]?.predictedYieldPerAcre || 2.2,
         actualYield: parseFloat(actualYield),
-        predictedProfit: 38000,
+        predictedProfit: farmData?.crops?.[0]?.totalEstimatedProfit || 38000,
         actualProfit: parseFloat(actualProfit),
-        feedbackNotes
+        feedbackNotes,
+        soil_ph: farmData?.soil?.ph || 6.5,
+        avg_temperature: farmData?.weather?.current?.temperature || 30.0,
+        rainfall_7day: farmData?.weather?.rainfall7day || 50.0,
+        humidity: farmData?.weather?.current?.humidity || 65.0,
+        soil_type: farmData?.soil?.soilType || 'loam',
+        state: activeFeedbackFarm.state || farmData?.location?.state || 'Tamil Nadu',
+        area_acres: farmData?.areaAcres || 1.0,
+        elevation: farmData?.elevation || 200.0,
+        month: new Date().getMonth() + 1
       });
       setActiveFeedbackFarm(null);
       setFeedbackNotes('');
@@ -128,15 +138,45 @@ export default function History() {
 
   return (
     <div className="page-container">
-      {/* Header */}
-      <div className="fade-in" style={{ marginBottom: 22 }}>
-        <h1 style={{ fontSize: '1.85rem', fontWeight: 800, margin: 0, color: '#182420', letterSpacing: '-0.02em' }}>
-          Saved Plots & Harvest Feedback Records
-        </h1>
-        <p style={{ color: '#748782', fontSize: '0.88rem', marginTop: 4 }}>
-          Bookmark your agricultural plots and log post-harvest yield feedback for ML self-learning
-        </p>
-      </div>
+      {/* Harvest Date Countdown Reminders (Phase 2.6) */}
+      {farms.length > 0 && (
+        <div className="glass-card fade-in" style={{ padding: '18px 22px', marginBottom: 24, background: '#FAFDFB', border: '1px solid #C6E4CF' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+            <span style={{ fontSize: '1.4rem' }}>⏳</span>
+            <div>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#182420' }}>
+                Active Harvest Window Reminders
+              </h3>
+              <span style={{ fontSize: '0.74rem', color: '#748782' }}>
+                Calculated growth cycle windows for your saved agricultural plots
+              </span>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
+            {farms.slice(0, 3).map((f, idx) => {
+              const createdDate = new Date(f.createdAt || Date.now());
+              const harvestWindowDays = 110; // avg crop cycle
+              const harvestDate = new Date(createdDate.getTime() + harvestWindowDays * 86400 * 1000);
+              const daysRemaining = Math.max(0, Math.ceil((harvestDate.getTime() - Date.now()) / (86400 * 1000)));
+
+              return (
+                <div key={idx} style={{ background: '#FFFFFF', padding: '12px 14px', borderRadius: 10, border: '1px solid #E5E2D8' }}>
+                  <div style={{ fontSize: '0.84rem', fontWeight: 800, color: '#182420' }}>
+                    📍 {f.farmName || f.district || 'Saved Plot'}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#485954', marginTop: 2 }}>
+                    Est. Harvest: <strong>{harvestDate.toLocaleDateString()}</strong>
+                  </div>
+                  <div style={{ fontSize: '0.72rem', fontWeight: 800, color: daysRemaining < 15 ? '#C85A32' : '#1E5E3A', marginTop: 4 }}>
+                    {daysRemaining > 0 ? `⏳ ${daysRemaining} days until harvest` : '🌾 Ready for Harvest!'}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Save Current Location Form Card */}
       {(location || farmData) && (
@@ -150,10 +190,10 @@ export default function History() {
             </div>
             <div>
               <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#182420' }}>
-                Bookmark Active Farm Plot
+                {t('history.bookmarkTitle') || 'Bookmark Active Farm Plot'}
               </h3>
               <span style={{ fontSize: '0.74rem', color: '#748782' }}>
-                Save this plot's coordinates for quick re-analysis
+                {t('history.bookmarkSubtitle') || "Save this plot's coordinates for quick re-analysis"}
               </span>
             </div>
           </div>
@@ -208,11 +248,11 @@ export default function History() {
                 cursor: saving || !farmName.trim() ? 'not-allowed' : 'pointer'
               }}
             >
-              {saving ? 'Saving Plot...' : '💾 Save Plot Location'}
+              {saving ? t('common.loading') : `💾 ${t('history.save') || 'Save Plot Location'}`}
             </button>
             {!farmName.trim() && (
               <span style={{ fontSize: '0.76rem', color: '#B45309', fontWeight: 600 }}>
-                ⚠️ Enter a plot name above to save
+                ⚠️ {t('history.enterNameWarn') || 'Enter a plot name above to save'}
               </span>
             )}
           </div>
@@ -329,19 +369,38 @@ export default function History() {
       )}
 
       {/* Saved Plots Grid */}
-      <h3 style={{ fontSize: '1.15rem', fontWeight: 800, marginBottom: 16, color: '#182420' }}>
-        🏡 Bookmarked Farm Plots ({farms.length})
-      </h3>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <h3 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, color: '#182420' }}>
+          🏡 {t('history.bookmarkedPlots') || 'Bookmarked Farm Plots'} ({farms.length})
+        </h3>
+        <button
+          type="button"
+          onClick={() => setActiveFeedbackFarm({ farmName: farmData?.location?.district ? `${farmData.location.district} Plot` : 'My Active Farm' })}
+          className="btn-secondary"
+          style={{ padding: '6px 14px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: 5 }}
+        >
+          <RateReviewIcon sx={{ fontSize: 16, color: '#1E5E3A' }} />
+          <span>{t('history.logHarvest') || 'Log Harvest Feedback'}</span>
+        </button>
+      </div>
 
       {farms.length === 0 ? (
-        <div className="glass-card" style={{ textAlign: 'center', padding: '48px 24px', color: '#748782' }}>
+        <div className="glass-card" style={{ textAlign: 'center', padding: '44px 24px', color: '#748782' }}>
           <div style={{ fontSize: '3rem', marginBottom: 12 }}>🌱</div>
           <p style={{ fontSize: '1rem', fontWeight: 700, color: '#182420', margin: 0 }}>
             {t('history.noFarms') || 'No saved farm locations yet.'}
           </p>
-          <p style={{ fontSize: '0.84rem', color: '#748782', marginTop: 4 }}>
-            Analyze a farm plot on the map and tap "Save Plot Location" to access it anytime.
+          <p style={{ fontSize: '0.84rem', color: '#748782', marginTop: 4, marginBottom: 20 }}>
+            {t('history.noFarmsDesc') || 'Analyze a farm plot on the map and tap "Save Plot Location" to access it anytime.'}
           </p>
+          <button
+            type="button"
+            onClick={() => setActiveFeedbackFarm({ farmName: farmData?.location?.district ? `${farmData.location.district} Plot` : 'My Active Farm' })}
+            className="btn-accent"
+            style={{ padding: '9px 20px', fontSize: '0.86rem' }}
+          >
+            📝 {t('history.logHarvest') || 'Log Post-Harvest Feedback'}
+          </button>
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 16, marginBottom: 32 }}>
@@ -392,7 +451,7 @@ export default function History() {
                     }}
                   >
                     <RateReviewIcon sx={{ fontSize: 16 }} />
-                    <span>Log Harvest</span>
+                    <span>{t('history.logHarvest') || 'Log Harvest'}</span>
                   </button>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -401,7 +460,7 @@ export default function History() {
                     ) : (
                       <>
                         <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#1E5E3A', display: 'flex', alignItems: 'center', gap: 4 }}>
-                          Load Analysis <ArrowForwardIcon sx={{ fontSize: 14 }} />
+                          {t('history.loadAnalysis') || 'Load Analysis'} <ArrowForwardIcon sx={{ fontSize: 14 }} />
                         </span>
                         <IconButton
                           disabled={!!loadingFarmId}

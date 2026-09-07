@@ -15,7 +15,7 @@ export default function LanguageToggle() {
     i18n.changeLanguage(code);
     try {
       localStorage.setItem('i18nextLng', code);
-    } catch (e) {}
+    } catch { /* localStorage unavailable */ }
   };
 
   return (
