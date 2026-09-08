@@ -6,11 +6,11 @@ import CircularProgress from '@mui/material/CircularProgress';
 import SearchIcon from '@mui/icons-material/Search';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
 import PlaceIcon from '@mui/icons-material/Place';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import L from 'leaflet';
 import axios from 'axios';
 import { FarmContext } from '../context/FarmContext';
 import { analyseFarm } from '../services/api';
-import { Card, ErrorBanner } from '../components/ui';
 import 'leaflet/dist/leaflet.css';
 
 delete L.Icon.Default.prototype._getIconUrl;
@@ -202,11 +202,12 @@ export default function Home() {
   };
 
   return (
-    <div className="home-map relative min-h-[480px] w-full overflow-hidden">
+    <div style={{ position: 'relative', height: 'calc(100vh - 57px)', minHeight: 480, overflow: 'hidden' }}>
+      {/* Map Layer */}
       <MapContainer
         center={mapCenter}
         zoom={mapZoom}
-        className="absolute inset-0 h-full w-full"
+        style={{ position: 'absolute', inset: 0, height: '100%', width: '100%' }}
         zoomControl={false}
       >
         <TileLayer
@@ -224,138 +225,191 @@ export default function Home() {
         )}
       </MapContainer>
 
-      <div className="pointer-events-none absolute inset-0 z-[500] flex flex-col items-center justify-center bg-gradient-to-b from-bg/15 via-bg/45 to-bg/90 p-5">
-        <Card
-          variant="static"
-          className="home-panel fade-in pointer-events-auto w-full rounded-2xl text-center shadow-hero"
+      {/* Subtle overlay for legibility */}
+      <div style={{ pointerEvents: 'none', position: 'absolute', inset: 0, background: 'rgba(248,247,242,0.10)', zIndex: 400 }} />
+
+      {/* Centered Card Container */}
+      <div style={{
+        pointerEvents: 'none',
+        position: 'absolute',
+        inset: 0,
+        zIndex: 500,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingBottom: '5vh',
+      }}>
+        {/* Main Landing Card */}
+        <div
+          style={{
+            pointerEvents: 'auto',
+            width: 'min(540px, calc(100vw - 28px))',
+            background: '#FFFFFF',
+            borderRadius: '16px',
+            padding: '32px 36px 28px',
+            boxShadow: '0 8px 40px rgba(24,36,32,0.13), 0 2px 8px rgba(24,36,32,0.06)',
+            border: '1px solid rgba(20,80,50,0.07)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
         >
-          {/* Kicker */}
-          <div className="home-kicker mb-3 inline-flex items-center gap-1.5 rounded-full border border-primary-border bg-primary-soft px-3.5 py-1 text-xs font-extrabold text-primary">
+          {/* Badge */}
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '4px 12px',
+            borderRadius: '999px',
+            background: '#EBF5ED',
+            border: '1px solid #C6E4CF',
+            fontSize: '0.72rem',
+            fontWeight: 700,
+            color: '#1E5E3A',
+            letterSpacing: '0.01em',
+            marginBottom: '14px',
+          }}>
             <span>🌱</span>
             <span>Indian Smallholder Decision Support</span>
           </div>
 
           {/* Title */}
-          <h1 className="home-title mb-1.5 text-[2.1rem] font-extrabold leading-tight tracking-tight text-text-primary">
+          <h1 style={{
+            fontFamily: "'Outfit', 'Plus Jakarta Sans', sans-serif",
+            fontSize: 'clamp(1.9rem, 5vw, 2.55rem)',
+            fontWeight: 800,
+            lineHeight: 1.1,
+            color: '#182420',
+            letterSpacing: '-0.02em',
+            textAlign: 'center',
+            marginBottom: '10px',
+          }}>
             AgroPredict AI
           </h1>
 
           {/* Description */}
-          <p className="home-description mb-5 text-[0.88rem] leading-snug text-text-secondary">
-            {t('home.instructions')}
+          <p style={{
+            fontSize: '0.875rem',
+            fontWeight: 400,
+            color: '#485954',
+            textAlign: 'center',
+            lineHeight: 1.6,
+            maxWidth: '380px',
+            marginBottom: '22px',
+          }}>
+            {t('home.instructions') || 'Search your village or district, click anywhere on the map, or use GPS for tailored crop and climate recommendations.'}
           </p>
 
-          {/* ================= SEARCH ================= */}
-          <div
-            className="home-search relative"
-            style={{
+          {/* Search Box */}
+          <div style={{ width: '100%', position: 'relative', marginBottom: '14px' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
               width: '100%',
-              marginBottom: '20px',
-            }}
-          >
-            <div
-              className="home-search-row"
-              style={{
-                width: '100%',
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: '8px',
-                boxSizing: 'border-box',
-                padding: '10px 12px',
-                borderRadius: '12px',
-                border: '1px solid var(--color-border, #ddd)',
-                background: 'var(--color-bg, #fff)',
-                boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.03)',
-              }}
-            >
-              {/* Search Icon */}
-              <SearchIcon
-                sx={{
-                  color: '#748782',
-                  fontSize: 20,
-                  flexShrink: 0,
-                }}
-              />
+              height: '50px',
+              padding: '0 8px 0 14px',
+              borderRadius: '10px',
+              border: '1.5px solid #E0DDD5',
+              background: '#FAFAF8',
+              boxSizing: 'border-box',
+            }}>
+              <SearchIcon sx={{ color: '#9CA8A3', fontSize: 20, flexShrink: 0 }} />
 
-              {/* Search Input */}
               <input
                 type="text"
-                placeholder={t('home.searchPlaceholder')}
+                placeholder={t('home.searchPlaceholder') || 'Search village, city, or district (e.g. Madurai, Salem)...'}
                 value={searchQuery}
                 onChange={handleSearchChange}
                 style={{
                   flex: '1 1 auto',
                   minWidth: 0,
-                  width: '100%',
                   border: 0,
                   outline: 'none',
                   background: 'transparent',
-                  fontSize: '0.88rem',
-                  fontWeight: 600,
-                  color: 'inherit',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  color: '#182420',
+                  fontFamily: 'inherit',
                 }}
               />
 
-              {/* Loading */}
               {searchLoading && (
-                <CircularProgress
-                  size={16}
-                  sx={{
-                    color: '#1E5E3A',
-                    flexShrink: 0,
-                  }}
-                />
+                <CircularProgress size={15} sx={{ color: '#1E5E3A', flexShrink: 0 }} />
               )}
 
-              {/* ================= GPS ================= */}
+              {/* Compact GPS button inside search row */}
               <button
                 type="button"
                 onClick={handleUseGPS}
-                title={t('home.gps')}
+                title="Use GPS location"
                 style={{
-                  marginLeft: 'auto',
                   flexShrink: 0,
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
                   gap: '4px',
-                  minHeight: '36px',
-                  padding: '6px 10px',
-                  borderRadius: '8px',
+                  height: '34px',
+                  padding: '0 10px',
+                  borderRadius: '7px',
                   border: '1px solid #B8DEC8',
-                  background: '#EFF9F2',
+                  background: '#EBF5ED',
                   color: '#1E5E3A',
-                  fontSize: '12px',
-                  fontWeight: 800,
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
                   cursor: 'pointer',
                   whiteSpace: 'nowrap',
+                  fontFamily: 'inherit',
+                  letterSpacing: '0.01em',
                 }}
+                onMouseEnter={e => e.currentTarget.style.background = '#D6EFE0'}
+                onMouseLeave={e => e.currentTarget.style.background = '#EBF5ED'}
               >
-                <MyLocationIcon sx={{ fontSize: 14 }} />
+                <MyLocationIcon sx={{ fontSize: 13 }} />
                 <span>GPS</span>
               </button>
             </div>
 
-            {/* Search Results */}
+            {/* Search Results dropdown */}
             {searchResults.length > 0 && (
-              <div className="absolute top-full right-0 left-0 z-[1000] mt-1 overflow-hidden rounded-xl border border-border bg-surface text-left shadow-card">
+              <div style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                right: 0,
+                zIndex: 1000,
+                marginTop: '4px',
+                background: '#FFFFFF',
+                border: '1px solid #E5E2D8',
+                borderRadius: '10px',
+                overflow: 'hidden',
+                boxShadow: '0 8px 24px rgba(24,36,32,0.10)',
+              }}>
                 {searchResults.map((item, idx) => (
                   <button
                     key={idx}
                     type="button"
                     onClick={() => handleSelectSearchResult(item)}
-                    className="flex w-full cursor-pointer items-center gap-2 border-0 border-b border-[#F0EFEA] bg-surface px-3.5 py-2.5 text-left text-[0.82rem] font-semibold text-text-primary last:border-b-0 hover:bg-bg"
+                    style={{
+                      display: 'flex',
+                      width: '100%',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '10px 14px',
+                      border: 0,
+                      borderBottom: idx < searchResults.length - 1 ? '1px solid #F0EFEA' : 'none',
+                      background: '#FFFFFF',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      fontSize: '0.82rem',
+                      fontWeight: 600,
+                      color: '#182420',
+                      fontFamily: 'inherit',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = '#F8F7F2'}
+                    onMouseLeave={e => e.currentTarget.style.background = '#FFFFFF'}
                   >
-                    <PlaceIcon
-                      sx={{
-                        color: '#C85A32',
-                        fontSize: 16,
-                        flexShrink: 0,
-                      }}
-                    />
-
-                    <span className="overflow-hidden text-ellipsis whitespace-nowrap">
+                    <PlaceIcon sx={{ color: '#C85A32', fontSize: 15, flexShrink: 0 }} />
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {item.display_name}
                     </span>
                   </button>
@@ -364,79 +418,57 @@ export default function Home() {
             )}
           </div>
 
-          {/* ================= LOCATION + FARM AREA ================= */}
+          {/* Location + Farm Area row (shown only after location is selected) */}
           {location && (
-            <div
-              className="home-location"
-              style={{
-                width: '100%',
+            <div style={{
+              display: 'flex',
+              flexDirection: 'row',
+              gap: '10px',
+              width: '100%',
+              marginBottom: '16px',
+              alignItems: 'stretch',
+            }}>
+              {/* Plot location selected */}
+              <div style={{
+                flex: '1 1 0',
+                minWidth: 0,
                 display: 'flex',
-                flexDirection: 'column',
                 alignItems: 'center',
-                justifyContent: 'center',
-                gap: '16px',
-                marginBottom: '24px',
-              }}
-            >
-              {/* ================= SELECTED LOCATION ================= */}
-              <div
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  maxWidth: '100%',
-                  width: 'fit-content',
-                  padding: '6px 14px',
-                  borderRadius: '10px',
-                  border: '1px solid #D9DDD9',
-                  background: '#FAFAF7',
-                  boxSizing: 'border-box',
-                }}
-                className="text-xs font-bold text-text-primary"
-              >
-                <PlaceIcon
-                  sx={{
-                    color: '#C85A32',
-                    fontSize: 16,
-                    flexShrink: 0,
-                  }}
-                />
-
-                <span className="overflow-hidden text-ellipsis whitespace-nowrap">
-                  {selectedPlaceName
-                    ? selectedPlaceName
-                    : t('home.selectedPlot')}
+                gap: '7px',
+                padding: '9px 12px',
+                borderRadius: '9px',
+                border: '1.5px solid #C6E4CF',
+                background: '#F2FBF5',
+                overflow: 'hidden',
+              }}>
+                <PlaceIcon sx={{ color: '#1E5E3A', fontSize: 16, flexShrink: 0 }} />
+                <span style={{
+                  fontSize: '0.82rem',
+                  fontWeight: 600,
+                  color: '#1E5E3A',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  flex: 1,
+                }}>
+                  {selectedPlaceName || 'Plot location selected'}
                 </span>
+                <CheckCircleIcon sx={{ color: '#1E5E3A', fontSize: 16, flexShrink: 0 }} />
               </div>
 
-              {/* ================= FARM AREA ================= */}
-              <div
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  width: 'fit-content',
-                  padding: '6px 14px',
-                  borderRadius: '10px',
-                  border: '1.5px solid #1E5E3A',
-                  background: '#F5F8F5',
-                  boxSizing: 'border-box',
-                }}
-              >
-                {/* Farm Area Label */}
-                <span
-                  style={{
-                    fontSize: '0.82rem',
-                    fontWeight: 700,
-                    color: '#1E5E3A',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  🌾 {t('home.farmArea')}
-                </span>
-
-                {/* Acres Input */}
+              {/* Farm area input */}
+              <div style={{
+                flex: '0 0 auto',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '7px',
+                padding: '9px 12px',
+                borderRadius: '9px',
+                border: '1.5px solid #E0DDD5',
+                background: '#FAFAF8',
+                whiteSpace: 'nowrap',
+              }}>
+                <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#485954' }}>Farm area</span>
                 <input
                   type="number"
                   min="0.1"
@@ -445,74 +477,85 @@ export default function Home() {
                   value={areaAcres || 1.0}
                   onChange={(e) => setAreaAcres(e.target.value)}
                   style={{
-                    width: '70px',
-                    height: '24px',
-                    padding: '2px 8px',
+                    width: '52px',
+                    height: '28px',
+                    padding: '0 6px',
                     boxSizing: 'border-box',
                     borderRadius: '6px',
-                    border: '1px solid #B8DEC8',
+                    border: '1.5px solid #C6E4CF',
                     background: '#FFFFFF',
-                    color: '#1E5E3A',
+                    color: '#182420',
                     textAlign: 'center',
                     fontSize: '0.88rem',
-                    fontWeight: 800,
+                    fontWeight: 700,
                     outline: 'none',
+                    fontFamily: 'inherit',
                   }}
                 />
-
-                {/* Acres */}
-                <span
-                  style={{
-                    fontSize: '12px',
-                    fontWeight: 600,
-                    color: '#748782',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  acres
-                </span>
+                <span style={{ fontSize: '0.82rem', fontWeight: 500, color: '#748782' }}>acres</span>
               </div>
             </div>
           )}
 
-          {/* ================= ANALYSE BUTTON ================= */}
-          <div className="home-action">
-            <button
-              onClick={handleAnalyse}
-              disabled={loading}
-              className={`btn-accent mx-auto inline-flex min-w-[260px] items-center justify-center gap-2.5 rounded-xl px-7 py-3 text-[0.95rem] ${
-                loading ? 'opacity-85' : ''
-              }`}
-            >
-              {loading ? (
-                <>
-                  <CircularProgress
-                    size={18}
-                    sx={{
-                      color: '#fff',
-                    }}
-                  />
+          {/* Analyse My Farm CTA */}
+          <button
+            onClick={handleAnalyse}
+            disabled={loading}
+            style={{
+              width: '100%',
+              minHeight: '52px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              borderRadius: '10px',
+              border: 'none',
+              background: loading ? '#D97B54' : '#C85A32',
+              color: '#FFFFFF',
+              fontSize: '1rem',
+              fontWeight: 700,
+              cursor: loading ? 'not-allowed' : 'pointer',
+              letterSpacing: '-0.01em',
+              fontFamily: 'inherit',
+              boxShadow: '0 4px 16px rgba(200,90,50,0.28)',
+              transition: 'background 0.18s',
+              marginTop: location ? 0 : '4px',
+            }}
+            onMouseEnter={e => { if (!loading) e.currentTarget.style.background = '#B54E2A'; }}
+            onMouseLeave={e => { if (!loading) e.currentTarget.style.background = '#C85A32'; }}
+          >
+            {loading ? (
+              <>
+                <CircularProgress size={18} sx={{ color: '#fff' }} />
+                <span>{status}</span>
+              </>
+            ) : (
+              <>
+                <span>Analyse My Farm</span>
+                <span style={{ fontSize: '1.1rem', fontWeight: 400 }}>→</span>
+              </>
+            )}
+          </button>
 
-                  <span>{status}</span>
-                </>
-              ) : (
-                <>
-                  <span className="text-lg">📍</span>
-
-                  <span>
-                    {t('home.title') || 'Analyse Selected Plot'}
-                  </span>
-                </>
-              )}
-            </button>
-          </div>
-
-          {/* ================= ERROR ================= */}
-          <ErrorBanner className="mt-3.5 text-left">
-            {error}
-          </ErrorBanner>
-        </Card>
+          {/* Error message */}
+          {error && (
+            <div style={{
+              marginTop: '12px',
+              width: '100%',
+              padding: '10px 14px',
+              borderRadius: '8px',
+              background: '#FDF3F0',
+              border: '1px solid #F7D0C4',
+              fontSize: '0.82rem',
+              color: '#9F3E1E',
+              fontWeight: 600,
+            }}>
+              {error}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 }
+

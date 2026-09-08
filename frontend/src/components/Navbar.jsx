@@ -5,7 +5,6 @@ import { FarmContext } from '../context/FarmContext';
 import LanguageToggle from './LanguageToggle';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
-import HistoryIcon from '@mui/icons-material/History';
 import MapIcon from '@mui/icons-material/Map';
 import GrassIcon from '@mui/icons-material/Grass';
 import StoreIcon from '@mui/icons-material/Store';
@@ -13,16 +12,14 @@ import WbSunnyIcon from '@mui/icons-material/WbSunny';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 
 const navItems = [
-  { path: '/', icon: <MapIcon fontSize="small" />, key: 'map', label: 'Map Analysis' },
-  { path: '/dashboard', icon: <GrassIcon fontSize="small" />, key: 'crops', label: 'Dashboard' },
-  { path: '/chat', icon: <SmartToyIcon fontSize="small" />, key: 'chat', label: 'AI Advisory' },
-  { path: '/market', icon: <StoreIcon fontSize="small" />, key: 'market', label: 'Mandi Market' },
-  { path: '/sell-for-profit', icon: <MonetizationOnIcon fontSize="small" />, key: 'sell_profit', label: 'Sell For Profit' },
-  { path: '/schemes-loans', icon: <AccountBalanceIcon fontSize="small" />, key: 'schemes', label: 'Schemes & Loans' },
-  { path: '/weather', icon: <WbSunnyIcon fontSize="small" />, key: 'weather', label: 'Weather' },
-  { path: '/history', icon: <HistoryIcon fontSize="small" />, key: 'history', label: 'Saved Plots' }
+  { path: '/', icon: <MapIcon sx={{ fontSize: 17 }} />, key: 'map', label: 'Map Analysis' },
+  { path: '/dashboard', icon: <GrassIcon sx={{ fontSize: 17 }} />, key: 'crops', label: 'Dashboard' },
+  { path: '/chat', icon: <SmartToyIcon sx={{ fontSize: 17 }} />, key: 'chat', label: 'AI Advisory' },
+  { path: '/market', icon: <StoreIcon sx={{ fontSize: 17 }} />, key: 'market', label: 'Mandi Market' },
+  { path: '/sell-for-profit', icon: <MonetizationOnIcon sx={{ fontSize: 17 }} />, key: 'sell_profit', label: 'Sell For Profit' },
+  { path: '/schemes-loans', icon: <AccountBalanceIcon sx={{ fontSize: 17 }} />, key: 'schemes', label: 'Schemes & Loans' },
+  { path: '/weather', icon: <WbSunnyIcon sx={{ fontSize: 17 }} />, key: 'weather', label: 'Weather' }
 ];
-
 
 const STATE_CODES = {
   'Tamil Nadu': 'TN', 'Maharashtra': 'MH', 'Madhya Pradesh': 'MP', 'Gujarat': 'GJ',
@@ -41,7 +38,6 @@ export default function Navbar() {
   const stateName = farmData?.location?.state;
   const stateCode = STATE_CODES[stateName] || stateName;
 
-  // Only display location pill if an analysis has been executed or user is navigating farm details
   const showLocPill = sessionAnalyzed || currentPath !== '/';
 
   const locString = (showLocPill && district)
@@ -53,66 +49,163 @@ export default function Navbar() {
         : null;
 
   const fullLocString = district ? `${district}, ${stateName}` : locString;
+  const showNav = sessionAnalyzed || currentPath !== '/';
 
   return (
-    <header className="app-navbar sticky top-0 z-[1100] flex h-16 items-center justify-between border-b border-border bg-surface px-6 shadow-subtle">
-      <div className="navbar-brand flex shrink-0 items-center gap-3">
+    <header className="sticky top-0 z-[1100] flex h-16 w-full items-center justify-between border-b border-border bg-surface px-5 sm:px-6 lg:px-8 shadow-subtle">
+      
+      {/* ── Left: AgroPredict Brand + Location Badge with Space ── */}
+      <div className="flex shrink-0 items-center gap-3.5 lg:gap-4">
         <button
           type="button"
           onClick={() => navigate('/')}
-          className="flex cursor-pointer items-center gap-2.5 border-0 bg-transparent p-0"
+          className="flex shrink-0 cursor-pointer items-center gap-2.5 border-0 bg-transparent p-0 text-left"
         >
-          <div className="flex h-[38px] w-[38px] items-center justify-center rounded-[11px] bg-gradient-to-br from-primary to-primary-light text-xl shadow-[0_2px_8px_rgba(30,94,58,0.25)]">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-gradient-to-br from-primary to-primary-light text-lg shadow-[0_2px_8px_rgba(30,94,58,0.25)]">
             🌱
           </div>
-          <div>
-            <h1 className="m-0 whitespace-nowrap text-xl font-extrabold leading-tight text-text-primary">
+          <div className="hidden sm:block">
+            <h1 className="m-0 whitespace-nowrap text-lg font-extrabold leading-tight text-text-primary">
               AgroPredict
             </h1>
-            <span className="whitespace-nowrap text-[0.64rem] font-bold tracking-wide text-text-muted">
+            <span className="block whitespace-nowrap text-[0.62rem] font-bold tracking-wide text-text-muted">
               Agricultural Intelligence Platform
             </span>
           </div>
         </button>
 
-        {locString && (
+        {/* Location badge with comfortable radius & padding covering text */}
+        {showNav && locString && (
           <div
             title={fullLocString}
-            className="navbar-location flex cursor-default items-center gap-1.5 whitespace-nowrap rounded-full border border-primary-border bg-primary-soft px-3 py-1 text-xs font-extrabold text-primary"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '5px 14px',
+              borderRadius: '9999px',
+              backgroundColor: '#EAF5ED',
+              border: '1.5px solid #C6E4CF',
+              color: '#1E5E3A',
+              fontSize: '0.78rem',
+              fontWeight: 800,
+              whiteSpace: 'nowrap',
+              boxShadow: '0 1px 3px rgba(30,94,58,0.06)',
+              flexShrink: 0
+            }}
           >
-            <span>📍</span>
-            <span className="overflow-hidden text-ellipsis whitespace-nowrap">{locString}</span>
+            <span style={{ fontSize: '0.85rem' }}>📍</span>
+            <span>{locString}</span>
           </div>
         )}
       </div>
 
-      <nav className="navbar-links hidden-mobile nav-scroll-container flex max-w-full flex-nowrap items-center gap-0.5 overflow-x-auto py-0.5">
-        {navItems.map(item => {
-          const isActive = currentPath === item.path || (item.path !== '/' && currentPath.startsWith(item.path));
-          return (
-            <Link
-              key={item.key}
-              to={item.path}
-              className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-[0.82rem] no-underline transition-all duration-150 ${
-                isActive
-                  ? 'border border-primary-border bg-primary-soft font-extrabold text-primary'
-                  : 'border border-transparent font-semibold text-text-secondary'
-              }`}
-            >
-              {item.icon}
-              <span className="whitespace-nowrap">{t(`nav.${item.key}`) || item.label}</span>
-            </Link>
-          );
-        })}
-      </nav>
+      {/* ── Center: Safe Container for Nav with NO Overlap ── */}
+      {showNav && (
+        <div className="hidden-mobile flex flex-1 items-center justify-center min-w-0 px-2 lg:px-4">
+          <nav
+            className="flex items-center gap-1.5 lg:gap-2 max-w-full overflow-x-auto py-1"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {navItems.filter(item => item.key !== 'map').map(item => {
+              const isActive = currentPath === item.path || (item.path !== '/' && currentPath.startsWith(item.path));
+              return (
+                <Link
+                  key={item.key}
+                  to={item.path}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0,
+                    textDecoration: 'none',
+                    fontSize: '0.8rem',
+                    lineHeight: '1.2',
+                    borderRadius: '9999px',
+                    padding: isActive ? '6px 14px' : '6px 10px',
+                    backgroundColor: isActive ? '#EAF5ED' : 'transparent',
+                    border: isActive ? '1.5px solid #C6E4CF' : '1.5px solid transparent',
+                    color: isActive ? '#1E5E3A' : '#4B5563',
+                    fontWeight: isActive ? 800 : 600,
+                    transition: 'all 0.15s ease',
+                    boxShadow: isActive ? '0 1px 4px rgba(30,94,58,0.08)' : 'none'
+                  }}
+                  onMouseEnter={e => {
+                    if (!isActive) {
+                      e.currentTarget.style.backgroundColor = '#F3F4F6';
+                      e.currentTarget.style.color = '#182420';
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (!isActive) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.color = '#4B5563';
+                    }
+                  }}
+                >
+                  <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {item.icon}
+                  </span>
+                  <span>{t(`nav.${item.key}`) || item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+      )}
 
-      <div className="navbar-actions flex items-center gap-3">
-        <div className="hidden-mobile flex items-center gap-1.5 rounded-full border border-primary-border bg-primary-soft px-2.5 py-1 text-[0.7rem] font-extrabold text-primary">
-          <span className="badge-live-dot h-1.5 w-1.5" />
-          <span>{t('common.engineActive', 'Telemetry Live')}</span>
+      {/* ── Right: Telemetry Live Button & Language Section with Space from Right Edge ── */}
+      <div className="flex shrink-0 items-center gap-3">
+        <div
+          className="hidden-mobile"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '7px',
+            backgroundColor: '#EAF5ED',
+            borderRadius: '9999px',
+            padding: '5px 12px 5px 8px',
+            whiteSpace: 'nowrap',
+            border: '1.5px solid #C6E4CF',
+            boxShadow: '0 1px 3px rgba(30,94,58,0.06)',
+            flexShrink: 0
+          }}
+        >
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '14px',
+              height: '14px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(30, 94, 58, 0.2)'
+            }}
+          >
+            <span
+              style={{
+                width: '6px',
+                height: '6px',
+                borderRadius: '50%',
+                backgroundColor: '#1E5E3A'
+              }}
+            />
+          </span>
+          <span
+            style={{
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              color: '#1E5E3A',
+              letterSpacing: '-0.01em'
+            }}
+          >
+            {t('common.engineActive', 'Telemetry Live')}
+          </span>
         </div>
         <LanguageToggle />
       </div>
+
     </header>
   );
 }

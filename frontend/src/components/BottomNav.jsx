@@ -1,5 +1,7 @@
+import { useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { FarmContext } from '../context/FarmContext';
 import HistoryIcon from '@mui/icons-material/History';
 import MapIcon from '@mui/icons-material/Map';
 import GrassIcon from '@mui/icons-material/Grass';
@@ -16,15 +18,19 @@ const navItems = [
   { path: '/history', icon: <HistoryIcon fontSize="small" />, key: 'history', label: 'History' }
 ];
 
-
 export default function BottomNav() {
+  const { sessionAnalyzed } = useContext(FarmContext) || {};
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
 
+  if (location.pathname === '/' && !sessionAnalyzed) {
+    return null;
+  }
+
   return (
     <div className="mobile-bottom-nav fixed right-0 bottom-0 left-0 z-[1000] flex h-16 items-center justify-between overflow-x-auto border-t border-border bg-surface px-0.5 shadow-[0_-4px_16px_rgba(24,36,32,0.05)]">
-      {navItems.map(item => {
+      {navItems.filter(item => item.key !== 'map').map(item => {
         const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
         return (
           <button

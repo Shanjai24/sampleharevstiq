@@ -10,8 +10,6 @@ createRoot(document.getElementById('root')).render(
   </StrictMode>,
 );
 
-if ('serviceWorker' in navigator && import.meta.env.PROD) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW reg error:', err));
-  });
-}
+// Service worker removed — it was caching stale JS bundles during development.
+// If PWA offline support is needed in production, re-add with a proper
+// cache-busting strategy (e.g. Workbox with precache manifest).
