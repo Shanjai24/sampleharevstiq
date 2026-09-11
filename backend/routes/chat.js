@@ -10,15 +10,15 @@ router.get('/status', async (req, res) => {
     const response = await axios.get(`${ML_URL}/ml/chat/health`, { timeout: 3000 });
     return res.json(response.data);
   } catch (err) {
-    // If ML chat health endpoint fails or times out, return fallback status
+    // If ML chat health endpoint fails or times out, report actual offline status honestly
     return res.json({
-      status: 'ok',
-      initialized: true,
+      status: 'error',
+      initialized: false,
       online: false,
       llm_available: false,
-      mode: 'limited',
-      model: 'Built-in Agricultural RAG Engine',
-      note: 'ML service online with rule-based fallback'
+      mode: 'offline',
+      model: 'None (ML service unreachable)',
+      note: 'ML service is offline or unreachable'
     });
   }
 });

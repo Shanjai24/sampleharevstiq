@@ -10,15 +10,21 @@ import GrassIcon from '@mui/icons-material/Grass';
 import StoreIcon from '@mui/icons-material/Store';
 import WbSunnyIcon from '@mui/icons-material/WbSunny';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import HistoryIcon from '@mui/icons-material/History';
 
 const navItems = [
   { path: '/', icon: <MapIcon sx={{ fontSize: 17 }} />, key: 'map', label: 'Map Analysis' },
   { path: '/dashboard', icon: <GrassIcon sx={{ fontSize: 17 }} />, key: 'crops', label: 'Dashboard' },
+  { path: '/tasks', icon: <CalendarMonthIcon sx={{ fontSize: 17 }} />, key: 'tasks', label: 'Tasks' },
+  { path: '/ledger', icon: <ReceiptLongIcon sx={{ fontSize: 17 }} />, key: 'ledger', label: 'Farm Ledger' },
   { path: '/chat', icon: <SmartToyIcon sx={{ fontSize: 17 }} />, key: 'chat', label: 'AI Advisory' },
   { path: '/market', icon: <StoreIcon sx={{ fontSize: 17 }} />, key: 'market', label: 'Mandi Market' },
   { path: '/sell-for-profit', icon: <MonetizationOnIcon sx={{ fontSize: 17 }} />, key: 'sell_profit', label: 'Sell For Profit' },
   { path: '/schemes-loans', icon: <AccountBalanceIcon sx={{ fontSize: 17 }} />, key: 'schemes', label: 'Schemes & Loans' },
-  { path: '/weather', icon: <WbSunnyIcon sx={{ fontSize: 17 }} />, key: 'weather', label: 'Weather' }
+  { path: '/weather', icon: <WbSunnyIcon sx={{ fontSize: 17 }} />, key: 'weather', label: 'Weather' },
+  { path: '/history', icon: <HistoryIcon sx={{ fontSize: 17 }} />, key: 'history', label: 'History' }
 ];
 
 const STATE_CODES = {

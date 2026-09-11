@@ -24,7 +24,14 @@ if (MONGODB_URI) {
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', service: 'HarvestIQ Backend' });
+  const dbState = mongoose.connection.readyState === 1 
+    ? 'connected' 
+    : (MONGODB_URI ? 'disconnected' : 'in-memory-fallback');
+  res.json({
+    status: 'ok',
+    service: 'HarvestIQ Backend',
+    database: dbState
+  });
 });
 
 // Mount Routes
@@ -38,6 +45,8 @@ app.use('/api/chat', require('./routes/chat'));
 app.use('/api/crops', require('./routes/crops'));
 app.use('/api/schemes', require('./routes/schemes'));
 app.use('/api/alerts', require('./routes/alerts'));
+app.use('/api/tasks', require('./routes/tasks'));
+app.use('/api/ledger', require('./routes/ledger'));
 
 const { startScheduler } = require('./jobs/scheduler');
 

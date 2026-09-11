@@ -1,0 +1,32 @@
+[
+  {
+    "crop": "sugarcane",
+    "soil_type": "loam",
+    "soil_ph": 6.5,
+    "avg_temperature": 30,
+    "rainfall_7day": 50,
+    "humidity": 65,
+    "area_acres": 1,
+    "elevation": 200,
+    "state": "Tamil Nadu",
+    "month": 9,
+    "actual_yield": 3.2,
+    "tier": "regional_fallback",
+    "recordedAt": "2026-09-09T09:32:16.813Z"
+  },
+  {
+    "crop": "cotton",
+    "soil_type": "loam",
+    "soil_ph": 6.5,
+    "avg_temperature": 30,
+    "rainfall_7day": 50,
+    "humidity": 65,
+    "area_acres": 12.5,
+    "elevation": 200,
+    "state": "Tamil Nadu",
+    "month": 9,
+    "actual_yield": 2.5,
+    "tier": "regional_fallback",
+    "recordedAt": "2026-09-11T04:21:30.675Z"
+  }
+]

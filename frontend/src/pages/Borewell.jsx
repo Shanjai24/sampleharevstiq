@@ -39,8 +39,11 @@ export default function Borewell() {
   }, [location]);
 
   useEffect(() => {
-    if (farmData?.borewell) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+    const isMatchingLocation = farmData?.location && location &&
+      Math.abs(farmData.location.lat - location.lat) < 0.005 &&
+      Math.abs(farmData.location.lng - location.lng) < 0.005;
+
+    if (isMatchingLocation && farmData?.borewell) {
       setRiskData(farmData.borewell);
       setLoading(false);
     } else if (location) {
@@ -164,13 +167,42 @@ export default function Borewell() {
             <h1 style={{ fontSize: '1.85rem', fontWeight: 800, margin: 0, color: '#182420', letterSpacing: '-0.02em' }}>
               Groundwater & Borewell Risk
             </h1>
-            <span className="badge-live">
-              <span className="badge-live-dot" />
-              LIVE GEOSPATIAL ANALYSIS
+            <span style={{
+              background: '#FFF8E7', color: '#D97706', border: '1px solid #FCE4B6',
+              fontSize: '0.72rem', fontWeight: 800, padding: '3px 10px', borderRadius: 12,
+              display: 'inline-flex', alignItems: 'center', gap: 5
+            }}>
+              ⚠️ HEURISTIC RISK ESTIMATE
             </span>
           </div>
           <p style={{ color: '#485954', fontSize: '0.88rem', margin: '2px 0 0' }}>
-            Hydro-geological failure risk calculated for {locDistrict}{locState ? `, ${locState}` : ''}
+            Pre-drilling agronomic risk estimate for {locDistrict}{locState ? `, ${locState}` : ''} — not a substitute for field geo-resistivity survey
+          </p>
+        </div>
+      </div>
+
+      {/* Methodology Disclosure Banner */}
+      <div style={{
+        background: '#FFF8E7', border: '1px solid #FCE4B6', borderRadius: 12,
+        padding: '14px 18px', marginBottom: 20,
+        display: 'flex', alignItems: 'flex-start', gap: 12
+      }}>
+        <WarningAmberIcon sx={{ color: '#D97706', fontSize: 22, flexShrink: 0, marginTop: 1 }} />
+        <div>
+          <span style={{ fontSize: '0.83rem', fontWeight: 800, color: '#B45309', display: 'block', marginBottom: 4 }}>
+            About This Estimate — Know What's Real vs. Approximated
+          </span>
+          <p style={{ fontSize: '0.77rem', color: '#485954', margin: 0, lineHeight: 1.6 }}>
+            This risk score is produced by an <strong>agronomic heuristic model trained on synthetic data</strong>,
+            not real borewell drill logs or satellite aquifer surveys.
+            Real inputs: <strong>Elevation</strong> (Open-Elevation API) &bull; <strong>Clay Content</strong> (ISRIC SoilGrids) &bull; <strong>Nearest River Distance</strong> (OpenStreetMap Overpass).
+            Approximated inputs: <strong>NDVI</strong> (coordinate-hash formula) &bull;
+            <strong>Annual Rainfall</strong> (7-day forecast × 52 — imprecise) &bull;
+            <strong>Soil Depth</strong> (rule-based formula from clay %).
+            {' '}<strong>Drilling a borewell costs ₹2–6 Lakh and is irreversible.</strong> Always commission a
+            2D geo-resistivity survey (cost: ₹5,000–15,000) from a licensed hydrogeologist before drilling, especially if this score is MODERATE or HIGH.{' '}
+            Real district-level groundwater data is available at
+            {' '}<a href="https://indiawris.gov.in" target="_blank" rel="noopener noreferrer" style={{ color: '#D97706', fontWeight: 700 }}>India-WRIS (CGWB)</a>.
           </p>
         </div>
       </div>

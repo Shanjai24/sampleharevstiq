@@ -42,6 +42,8 @@ export default function Chat() {
   // Voice state
   const [speakingId, setSpeakingId] = useState(null);
   const [isListening, setIsListening] = useState(false);
+  const [interimTranscript, setInterimTranscript] = useState('');
+  const [voiceError, setVoiceError] = useState('');
   const recognitionRef = useRef(null);
 
   const handleSpeak = (id, text) => {
@@ -55,14 +57,32 @@ export default function Chat() {
     if (isListening) {
       recognitionRef.current?.stop();
       setIsListening(false);
+      setInterimTranscript('');
       return;
     }
+    setVoiceError('');
     const rec = startListening({
       lang: i18n.language || 'en',
-      onStart: () => setIsListening(true),
-      onResult: (transcript) => { setInput(prev => prev + transcript); setIsListening(false); },
-      onError: () => setIsListening(false),
-      onEnd: () => setIsListening(false)
+      onStart: () => { setIsListening(true); setInterimTranscript(''); },
+      onInterim: (partial) => { setInterimTranscript(partial); },
+      onResult: (transcript) => {
+        // Append to any existing typed text, or just use transcript
+        setInput(prev => {
+          const base = prev.trim();
+          return base ? `${base} ${transcript}` : transcript;
+        });
+        setInterimTranscript('');
+        setIsListening(false);
+      },
+      onError: (event) => {
+        setIsListening(false);
+        setInterimTranscript('');
+        const msg = event?.userMessage || 'Voice recognition failed. Please try again or type your question.';
+        setVoiceError(msg);
+        // Auto-clear error after 5 seconds
+        setTimeout(() => setVoiceError(''), 5000);
+      },
+      onEnd: () => { setIsListening(false); setInterimTranscript(''); }
     });
     recognitionRef.current = rec;
   };
@@ -427,6 +447,30 @@ export default function Chat() {
             </div>
           )}
 
+          {/* Voice error banner — shows when mic fails */}
+          {voiceError && (
+            <div style={{
+              padding: '8px 16px', background: '#FEF2F2', border: '1px solid #FECACA',
+              borderTop: 'none', display: 'flex', alignItems: 'center', gap: 8
+            }}>
+              <span style={{ fontSize: '1rem' }}>🎤</span>
+              <span style={{ fontSize: '0.78rem', color: '#B91C1C', fontWeight: 700 }}>{voiceError}</span>
+            </div>
+          )}
+
+          {/* Live interim transcript banner — shown while farmer is speaking */}
+          {isListening && interimTranscript && (
+            <div style={{
+              padding: '6px 16px', background: '#FFF8E7', border: '1px solid #FCE4B6',
+              borderTop: 'none', display: 'flex', alignItems: 'center', gap: 8
+            }}>
+              <span style={{ fontSize: '0.82rem' }}>🎤</span>
+              <span style={{ fontSize: '0.82rem', color: '#B45309', fontStyle: 'italic' }}>
+                {interimTranscript}...
+              </span>
+            </div>
+          )}
+
           {/* Input Bar with Direct Camera Upload Button + Microphone STT */}
           <div style={{
             padding: '12px 16px', display: 'flex', gap: 10, alignItems: 'center',
@@ -601,7 +645,7 @@ export default function Chat() {
                     🔍 Uncertain Diagnosis — Try a Clearer Photo
                   </h4>
                   <p style={{ fontSize: '0.86rem', margin: '0 0 10px', lineHeight: 1.55 }}>
-                    {visionResult.message || 'Confidence score is below 50%. For an accurate diagnosis, please take a well-lit, close-up photo of an affected single leaf against a plain background and avoid direct lens glare.'}
+                    {visionResult.description || visionResult.message || 'Confidence score is below 50%. For an accurate diagnosis, please take a well-lit, close-up photo of an affected single leaf against a plain background and avoid direct lens glare.'}
                   </p>
                   <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                     <span style={{ fontSize: '0.74rem', background: '#FFFFFF', padding: '4px 10px', borderRadius: 8, border: '1px solid #FCE4B6', fontWeight: 600 }}>

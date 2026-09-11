@@ -63,13 +63,18 @@ router.post('/analyse', async (req, res) => {
     const roundedLat = Math.round(lat * 10000) / 10000;
     const roundedLng = Math.round(lng * 10000) / 10000;
 
-    // Check DB cache first if no custom manual soil overrides provided
+    // Check DB cache first if no custom manual soil overrides provided (max 30 mins to preserve live telemetry)
     if (!soilInputTier && FarmAnalysis && mongoose.connection.readyState === 1) {
       try {
         const cached = await FarmAnalysis.findOne({ lat: roundedLat, lng: roundedLng });
         if (cached) {
-          console.log(`[CACHE HIT] Returning cached analysis for AgroPredict (${roundedLat}, ${roundedLng})`);
-          return res.json(cached);
+          const ageMs = Date.now() - new Date(cached.createdAt || 0).getTime();
+          if (ageMs < 30 * 60 * 1000) {
+            console.log(`[CACHE HIT] Returning cached analysis for AgroPredict (${roundedLat}, ${roundedLng})`);
+            return res.json(cached);
+          } else {
+            console.log(`[CACHE EXPIRED] Cached analysis for (${roundedLat}, ${roundedLng}) is older than 30m; refreshing with live telemetry.`);
+          }
         }
       } catch (err) {
         console.error('Cache query error:', err.message);

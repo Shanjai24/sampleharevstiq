@@ -4,6 +4,16 @@
  * 1. Text-to-Speech (TTS) using window.speechSynthesis
  * 2. Speech-to-Text (STT) using SpeechRecognition / webkitSpeechRecognition
  * Supports English (en-IN), Hindi (hi-IN), and Tamil (ta-IN).
+ *
+ * STT Reliability Notes (as of 2026):
+ * - en-IN: Excellent support in Chrome/Edge on Android and Windows
+ * - hi-IN: Good support in Chrome on Android; patchy on Desktop Firefox
+ * - ta-IN: Limited — works in Chrome Android; often falls back to en recognition on Desktop
+ * - Safari (iOS): Uses webkit prefix, limited Indian language voice support
+ * - Firefox: SpeechRecognition not supported at all (returns null from isSpeechRecognitionSupported)
+ *
+ * RE-VERIFY SCHEDULE: Browser support changes frequently.
+ * Next check: March 2027 or after major Chrome/Edge engine update.
  */
 
 const LANG_MAP = {
@@ -121,10 +131,21 @@ export const isSpeaking = () => {
 
 /**
  * Starts speech recognition for voice input.
+ * Returns an object with the recognition instance and a stop() method.
+ *
+ * @param {Object} options
+ * @param {string} options.lang - 'en', 'hi', or 'ta'
+ * @param {Function} options.onStart - Called when listening starts
+ * @param {Function} options.onInterim - Called with partial (interim) transcript while speaking
+ * @param {Function} options.onResult - Called with final confirmed transcript
+ * @param {Function} options.onError - Called with error event; error.error contains reason string
+ * @param {Function} options.onEnd - Called when recognition ends (success or failure)
+ * @returns {SpeechRecognition|null} recognition instance, or null if unsupported
  */
 export const startListening = ({
   lang = 'en',
   onStart,
+  onInterim,
   onResult,
   onError,
   onEnd
@@ -141,7 +162,8 @@ export const startListening = ({
   const targetLang = LANG_MAP[lang] || 'en-IN';
   recognition.lang = targetLang;
   recognition.continuous = false;
-  recognition.interimResults = false;
+  // Enable interim results so the UI can show live transcription as the user speaks
+  recognition.interimResults = true;
   recognition.maxAlternatives = 1;
 
   recognition.onstart = () => {
@@ -149,15 +171,50 @@ export const startListening = ({
   };
 
   recognition.onresult = (event) => {
-    const transcript = event.results?.[0]?.[0]?.transcript || '';
-    if (transcript) {
-      onResult?.(transcript);
+    let interimTranscript = '';
+    let finalTranscript = '';
+
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const transcript = event.results[i][0].transcript;
+      if (event.results[i].isFinal) {
+        finalTranscript += transcript;
+      } else {
+        interimTranscript += transcript;
+      }
+    }
+
+    // Fire interim callback for partial live display
+    if (interimTranscript && onInterim) {
+      onInterim(interimTranscript);
+    }
+
+    // Fire final callback only once we have a confirmed result
+    if (finalTranscript && onResult) {
+      onResult(finalTranscript);
     }
   };
 
   recognition.onerror = (event) => {
-    console.warn('[VOICE STT Error]:', event.error);
-    onError?.(event);
+    // Translate browser error codes to user-readable messages
+    const errorMessages = {
+      'not-allowed': 'Microphone permission was denied. Please allow microphone access in your browser settings.',
+      'no-speech': 'No speech detected. Please speak clearly and try again.',
+      'network': 'Network error during voice recognition. Check your connection.',
+      'audio-capture': 'No microphone found. Please connect a microphone and try again.',
+      'service-not-allowed': 'Voice recognition service is not available in your browser.',
+      'bad-grammar': 'Voice recognition could not process speech. Try speaking more slowly.',
+      'aborted': null // User or code stopped — not an error
+    };
+
+    const userMessage = errorMessages[event.error];
+    if (userMessage !== undefined && userMessage !== null) {
+      console.warn('[VOICE STT Error]:', event.error, userMessage);
+      onError?.(Object.assign(event, { userMessage }));
+    } else if (userMessage !== null) {
+      console.warn('[VOICE STT Error]:', event.error);
+      onError?.(event);
+    }
+    // 'aborted' fires normally on stop() — don't propagate
   };
 
   recognition.onend = () => {
@@ -172,4 +229,58 @@ export const startListening = ({
     onError?.(err);
     return null;
   }
+};
+
+/**
+ * Parse a natural language voice command for ledger quick-add.
+ * Supports patterns like:
+ *   "add 500 rupees fertilizer expense today"
+ *   "record 1500 rupees seed purchase"
+ *   "log 800 labor expense yesterday"
+ *   "2000 rupees crop sale income"
+ *
+ * Returns a parsed object for confirmation before saving, or null if not a ledger command.
+ *
+ * @param {string} transcript - Raw voice transcript
+ * @returns {{ amount: number, category: string, entryType: string, note: string } | null}
+ */
+export const parseLedgerVoiceCommand = (transcript = '') => {
+  const text = transcript.toLowerCase().trim();
+
+  // Must contain a number (the amount)
+  const amountMatch = text.match(/(\d[\d,]*(?:\.\d+)?)\s*(?:rupees?|rs\.?|₹)?/);
+  if (!amountMatch) return null;
+
+  const amount = parseFloat(amountMatch[1].replace(/,/g, ''));
+  if (isNaN(amount) || amount <= 0) return null;
+
+  // Determine entry type
+  const incomeKeywords = ['income', 'sale', 'revenue', 'sold', 'received', 'subsidy', 'payment received'];
+  const entryType = incomeKeywords.some(k => text.includes(k)) ? 'income' : 'expense';
+
+  // Map keywords to categories
+  const CATEGORY_KEYWORDS = {
+    fertilizer: ['fertilizer', 'urea', 'dap', 'npk', 'nutrient', 'compost', 'manure'],
+    seed: ['seed', 'seedling', 'sapling', 'planting'],
+    pesticide: ['pesticide', 'spray', 'insecticide', 'fungicide', 'herbicide', 'weedicide'],
+    labor: ['labor', 'labour', 'worker', 'wages', 'field work', 'harvester'],
+    irrigation: ['irrigation', 'water', 'pump', 'electricity', 'drip'],
+    equipment_rental: ['tractor', 'machine', 'equipment', 'rental', 'hire', 'rotavator'],
+    transport: ['transport', 'truck', 'mandi', 'loading', 'freight'],
+    crop_sale: ['crop sale', 'mandi sale', 'sold crop', 'paddy sale', 'harvest sale'],
+    subsidy_received: ['subsidy', 'dbt', 'pm kisan', 'government payment', 'scheme amount']
+  };
+
+  let category = entryType === 'income' ? 'crop_sale' : 'fertilizer'; // defaults
+  for (const [cat, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
+    if (keywords.some(kw => text.includes(kw))) {
+      category = cat;
+      break;
+    }
+  }
+
+  // Build a readable note from the transcript
+  const note = transcript.trim();
+
+  return { amount, category, entryType, note, rawTranscript: transcript };
 };

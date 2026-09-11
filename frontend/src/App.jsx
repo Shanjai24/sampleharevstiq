@@ -15,6 +15,8 @@ import Chat from './pages/Chat';
 
 import SchemesAndLoans from './pages/SchemesAndLoans';
 import SellForProfit from './pages/SellForProfit';
+import Tasks from './pages/Tasks';
+import Ledger from './pages/Ledger';
 
 import { FarmContext } from './context/FarmContext';
 
@@ -132,6 +134,8 @@ function App() {
                 <Route path="/chat" element={<Chat />} />
                 <Route path="/schemes-loans" element={<SchemesAndLoans />} />
                 <Route path="/sell-for-profit" element={<SellForProfit />} />
+                <Route path="/tasks" element={<Tasks />} />
+                <Route path="/ledger" element={<Ledger />} />
 
               </Routes>
             </main>

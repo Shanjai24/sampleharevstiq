@@ -409,6 +409,23 @@ export default function Dashboard() {
     }
   }, [farmData]);
 
+  // Prevent stale data bug: If user selected a new location, auto-refresh analysis for new location
+  useEffect(() => {
+    if (location && farmData?.location) {
+      const isDifferent = Math.abs(location.lat - farmData.location.lat) > 0.005 ||
+                          Math.abs(location.lng - farmData.location.lng) > 0.005;
+      if (isDifferent && !reanalysing) {
+        setReanalysing(true);
+        analyseFarm(location.lat, location.lng, { areaAcres: areaAcres || 1.0 })
+          .then(data => {
+            setFarmData(data);
+          })
+          .catch(err => console.error('Auto-refresh on location change failed:', err))
+          .finally(() => setReanalysing(false));
+      }
+    }
+  }, [location, farmData, areaAcres, reanalysing, setFarmData]);
+
   const handleSpeak = (id, text) => {
     if (speakingId === id) {
       stopSpeaking();

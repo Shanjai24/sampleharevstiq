@@ -111,30 +111,37 @@ class VisionAnalyzer:
                 except Exception as e:
                     print(f"[VISION API ERROR with {model_name}]: {e}")
 
-        # Intelligent Fallback Response when API is unconfigured or offline
-        crop_title = crop_hint.capitalize() if crop_hint else 'Crop Foliage'
+        # Fallback when Gemini Vision API is unavailable or misconfigured.
+        # NOTE: No image analysis has been performed at this point.
+        # Returning a hardcoded diagnosis would be medically/agronomically misleading,
+        # so we return a clear "unavailable" response with zero confidence.
+        crop_title = crop_hint.capitalize() if crop_hint else 'your crop'
         return {
-            'type': 'disease_diagnosis',
-            'confidence': 0.82,
-            'title': f'Yellow Leaf Spot / Early Blight Suspected ({crop_title})',
+            'type': 'unclear_photo',
+            'confidence': 0.0,
+            'title': 'AI Vision Unavailable — Please Retry',
             'crop': crop_title,
-            'growthStage': 'Vegetative / Early Flowering Stage',
-            'description': 'Visible chlorotic yellow spots with mild necrosis observed on foliage, characteristic of early fungal leaf spot or nutrient stress under humid microclimates.',
-            'cause': 'High ambient humidity combined with prolonged dew retention on leaf surfaces.',
-            'idealConditions': 'Temperatures 24-32°C, well-aerated soil, balanced NPK ratio.',
+            'growthStage': 'Unknown',
+            'description': (
+                'The AI vision analysis service is currently unavailable (API not configured or offline). '
+                'Your photo could not be analyzed. Please try again later, or describe the symptoms '
+                'in the chat for text-based advisory.'
+            ),
+            'cause': 'N/A — image not analyzed.',
+            'idealConditions': 'N/A',
             'ai_mode': 'fallback-expert-rules',
             'steps': {
                 'immediate_organic': [
-                    'Spray Neem Cake Extract (5%) or Cold-Pressed Neem Oil @ 5ml/litre water every 7 days.',
-                    'Apply Bio-fungicide Trichoderma viride @ 5g/litre water on affected foliage.'
+                    'Describe the visible symptoms in the Advisory Chat for text-based expert guidance.',
+                    'Check for common signs: yellowing, spots, wilting, or unusual growths.'
                 ],
                 'chemical_options': [
-                    'Spray Mancozeb 75% WP @ 2g/litre water or Copper Oxychloride 50% WP @ 3g/litre water.',
-                    'For severe thrips/mite vectoring, apply Imidacloprid 17.8 SL @ 0.5ml/litre.'
+                    'Do not apply any treatment without a confirmed diagnosis.',
+                    'Retry photo upload when connectivity is restored.'
                 ],
                 'future_prevention': [
-                    'Ensure 40-50 cm crop spacing to promote canopy airflow and reduce leaf wetness.',
-                    'Incorporate organic compost / FYM @ 5 tons/acre during basal field prep.'
+                    'Ensure good lighting and a clear, close-up photo for best diagnosis results.',
+                    'Use the Advisory Chat tab to describe symptoms for immediate guidance.'
                 ]
             }
         }

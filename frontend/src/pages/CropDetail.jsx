@@ -162,13 +162,28 @@ export default function CropDetail() {
                   <h1 style={{ fontSize: '2rem', fontWeight: 800, textTransform: 'capitalize', margin: 0, color: '#182420', letterSpacing: '-0.02em' }}>
                     {crop.name || name} Agronomy Guide
                   </h1>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6, flexWrap: 'wrap' }}>
                     <span className="badge-fit-strong" style={{ fontSize: '0.78rem', padding: '4px 12px' }}>
                       {matchPct}% Suitability Match
                     </span>
                     <span style={{ fontSize: '0.82rem', color: '#485954', fontWeight: 500 }}>
                       {farmData?.location?.district || 'Selected Region'}, {farmData?.location?.state || 'Tamil Nadu'}
                     </span>
+                    <button
+                      onClick={() => navigate(`/tasks?generate=true&crop=${encodeURIComponent(crop.name || name)}`)}
+                      className="btn-primary"
+                      style={{
+                        padding: '4px 12px',
+                        fontSize: '0.76rem',
+                        borderRadius: 12,
+                        marginLeft: 4,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 4
+                      }}
+                    >
+                      📅 Start Task Calendar
+                    </button>
                   </div>
                 </div>
               </div>

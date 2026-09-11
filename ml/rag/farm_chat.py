@@ -169,15 +169,23 @@ class FarmChat:
         # 6. Invoke LLM if available
         if self.llm and LANGCHAIN_AVAILABLE:
             try:
-                return self._generate_with_llm(
+                result = self._generate_with_llm(
                     query_clean, rag_context, location, soil_type, soil_ph,
                     temperature, humidity, rainfall, area_acres, mandi_price, crops_str, rag_results
                 )
             except Exception as err:
                 print(f"[CHAT] LLM invocation failed ({err}), switching to Conversational Agronomist Engine.")
+                result = self._generate_conversational_fallback(query_clean, query_lower, rag_results, farm_context)
+        else:
+            # 7. Fallback to comprehensive Conversational Agronomist Engine
+            result = self._generate_conversational_fallback(query_clean, query_lower, rag_results, farm_context)
 
-        # 7. Fallback to comprehensive Conversational Agronomist Engine
-        return self._generate_conversational_fallback(query_clean, query_lower, rag_results, farm_context)
+        # Attach RAG source_mode so the frontend can optionally display a badge.
+        # 'vector-search' = ChromaDB + sentence-transformers active.
+        # 'keyword-fallback' = ChromaDB unavailable, using enhanced keyword scoring.
+        kb_status = self.knowledge_base.get_status()
+        result['source_mode'] = 'vector-search' if kb_status.get('vector_store') else 'keyword-fallback'
+        return result
 
     def _check_greetings(self, query_lower, farm_context):
         """Handle greetings and introductions conversationally."""

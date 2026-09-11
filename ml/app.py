@@ -47,6 +47,9 @@ threading.Thread(target=init_chat_bg, daemon=True).start()
 
 @app.route('/ml/health', methods=['GET'])
 def health():
+    # PricePredictor re-fits LinearRegression on-demand from input price arrays.
+    # It has no persistent .pkl file — it is always available as long as sklearn imported.
+    price_predictor_ok = price_model is not None
     return jsonify({
         'status': 'ok',
         'service': 'agropredict-ml',
@@ -54,7 +57,8 @@ def health():
         'models': {
             'crop_recommender': crop_model.model is not None,
             'borewell_risk': borewell_model.model is not None,
-            'price_predictor': True,
+            'price_predictor': price_predictor_ok,
+            'price_predictor_type': 'on-demand-linear-regression',  # no .pkl — fits live
             'yield_predictor': yield_model.model is not None
         }
     })

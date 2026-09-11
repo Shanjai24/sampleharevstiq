@@ -65,22 +65,29 @@ export default function Market() {
               alignItems: 'center',
               gap: '6px',
               borderRadius: '9999px',
-              backgroundColor: '#EBF5ED',
-              border: '1px solid #C6E4CF',
+              backgroundColor: data?.source === 'live' ? '#EBF5ED' : '#FFF8E7',
+              border: `1px solid ${data?.source === 'live' ? '#C6E4CF' : '#FCE4B6'}`,
               padding: '4px 12px',
               fontSize: '0.68rem',
               fontWeight: 800,
               textTransform: 'uppercase',
               letterSpacing: '0.04em',
-              color: '#1E5E3A',
+              color: data?.source === 'live' ? '#1E5E3A' : '#D97706',
               boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
             }}>
-              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#1E5E3A' }} />
-              LIVE APMC MANDI RATES
+              <span style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                backgroundColor: data?.source === 'live' ? '#1E5E3A' : '#D97706'
+              }} />
+              {data?.source === 'live' ? 'LIVE AGMARKNET FEED' : 'CURATED MANDI BENCHMARK (SAMPLE)'}
             </span>
           </div>
           <p style={{ margin: 0, fontSize: '0.88rem', color: '#64748B', fontWeight: 400 }}>
-            Daily arrival prices &amp; 30-day commodity trends across {district ? `${district}, ` : ''}{state} mandis
+            {data?.source === 'live'
+              ? `Live daily arrivals from Agmarknet API across ${district ? `${district}, ` : ''}${state}`
+              : `Curated seasonal baseline prices. (Set DATA_GOV_API_KEY in .env for live data.gov.in Agmarknet feed)`}
           </p>
         </div>
 

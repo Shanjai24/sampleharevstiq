@@ -9,6 +9,10 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import BusinessIcon from '@mui/icons-material/Business';
 import InfoIcon from '@mui/icons-material/Info';
+import CallIcon from '@mui/icons-material/Call';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import PlaceIcon from '@mui/icons-material/Place';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -199,15 +203,129 @@ export default function SellForProfit() {
                 💡 <strong>Key Advantage:</strong> {buyer.benefits}
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 10, borderTop: '1px solid #F0EFEA' }}>
-                <span style={{ fontSize: '0.75rem', color: '#748782', fontWeight: 600 }}>📞 {buyer.contactInfo}</span>
-                <button
-                  className="btn-primary"
-                  onClick={() => alert(`Connect with ${buyer.buyerName}:\n${buyer.contactInfo}\nLocation: ${buyer.location}\n\nDisclaimer: Always verify current rates and moisture specifications directly before dispatching produce.`)}
-                  style={{ padding: '6px 14px', fontSize: '0.78rem' }}
-                >
-                  Contact Channel
-                </button>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: 10,
+                paddingTop: 12,
+                borderTop: '1px solid #F0EFEA'
+              }}>
+                <div>
+                  <span style={{ fontSize: '0.75rem', color: '#748782', fontWeight: 600, display: 'block' }}>
+                    📞 {buyer.contactInfo}
+                  </span>
+                  <span style={{ fontSize: '0.72rem', color: '#94A3B8' }}>
+                    📍 {buyer.location}
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {(() => {
+                    const phoneMatch = buyer.contactInfo?.match(/(\+?\d[\d\s-]{8,}\d)/);
+                    const rawDigits = phoneMatch ? phoneMatch[1].replace(/[\s-]/g, '') : null;
+                    const waNumber = rawDigits ? (rawDigits.startsWith('+') ? rawDigits.slice(1) : (rawDigits.length === 10 ? '91' + rawDigits : rawDigits)) : null;
+                    const mapsQuery = encodeURIComponent(`${buyer.buyerName}, ${buyer.location}`);
+
+                    return (
+                      <>
+                        {rawDigits && (
+                          <a
+                            href={`tel:${rawDigits}`}
+                            className="btn-secondary"
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 4,
+                              padding: '6px 12px',
+                              fontSize: '0.76rem',
+                              textDecoration: 'none',
+                              color: '#1E5E3A',
+                              background: '#EBF5ED',
+                              border: '1px solid #C6E4CF',
+                              borderRadius: 8,
+                              fontWeight: 700
+                            }}
+                          >
+                            <CallIcon sx={{ fontSize: 14 }} />
+                            Call
+                          </a>
+                        )}
+
+                        {waNumber && (
+                          <a
+                            href={`https://wa.me/${waNumber}?text=${encodeURIComponent(`Hello, I am inquiring from HarvestIQ regarding selling ${crop} produce (${buyerData?.totalYieldQuintals || 10} quintals). Please share your current buying rate and quality specs.`)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 4,
+                              padding: '6px 12px',
+                              fontSize: '0.76rem',
+                              textDecoration: 'none',
+                              color: '#15803D',
+                              background: '#DCFCE7',
+                              border: '1px solid #86EFAC',
+                              borderRadius: 8,
+                              fontWeight: 700
+                            }}
+                          >
+                            <WhatsAppIcon sx={{ fontSize: 14 }} />
+                            WhatsApp
+                          </a>
+                        )}
+
+                        <a
+                          href={`https://www.google.com/maps/search/?api=1&query=${mapsQuery}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 4,
+                            padding: '6px 12px',
+                            fontSize: '0.76rem',
+                            textDecoration: 'none',
+                            color: '#0369A1',
+                            background: '#F0F9FF',
+                            border: '1px solid #BAE6FD',
+                            borderRadius: 8,
+                            fontWeight: 700
+                          }}
+                        >
+                          <PlaceIcon sx={{ fontSize: 14 }} />
+                          Directions
+                        </a>
+
+                        {buyer.buyerType === 'msp' && (
+                          <a
+                            href="https://enam.gov.in"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 4,
+                              padding: '6px 12px',
+                              fontSize: '0.76rem',
+                              textDecoration: 'none',
+                              color: '#475569',
+                              background: '#F1F5F9',
+                              border: '1px solid #CBD5E1',
+                              borderRadius: 8,
+                              fontWeight: 700
+                            }}
+                          >
+                            <OpenInNewIcon sx={{ fontSize: 14 }} />
+                            Portal
+                          </a>
+                        )}
+                      </>
+                    );
+                  })()}
+                </div>
               </div>
             </div>
           ))}
