@@ -13,6 +13,8 @@ import CallIcon from '@mui/icons-material/Call';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import PlaceIcon from '@mui/icons-material/Place';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import WarehouseIcon from '@mui/icons-material/Warehouse';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -29,6 +31,26 @@ export default function SellForProfit() {
   const [stateName, setStateName] = useState(selectedState);
   const [buyerData, setBuyerData] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Storage/transport directory — separate from buyers, fetched once
+  // (not crop/state-dependent, since it's national institutional data)
+  const [storageData, setStorageData] = useState(null);
+  const [storageLoading, setStorageLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await axios.get(`${API_BASE}/api/storage/directory`);
+        if (!cancelled) setStorageData(res.data);
+      } catch (e) {
+        console.error('Error fetching storage directory:', e);
+      } finally {
+        if (!cancelled) setStorageLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const fetchBuyers = useCallback(async (c, s) => {
     setLoading(true);
@@ -330,6 +352,75 @@ export default function SellForProfit() {
             </div>
           ))}
         </div>
+      )}
+
+      {/* Storage & Transport — "sell now" is incomplete advice if the
+          farmer can't get produce to market or store it if price dips.
+          Only real, verifiable national institutions here — see the
+          _notes field in storage_directory.json for why this does not
+          list fabricated private business contacts. */}
+      <h2 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#182420', margin: '32px 0 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
+        <WarehouseIcon sx={{ color: '#0369A1', fontSize: 22 }} />
+        Storage & Transport
+      </h2>
+
+      {storageLoading ? (
+        <div style={{ textAlign: 'center', padding: 24, color: '#748782' }}>Loading storage options...</div>
+      ) : (
+        <>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 18 }}>
+            {(storageData?.national || []).map((entry) => (
+              <div key={entry.id} className="glass-card fade-in" style={{ padding: 18, background: '#FFFFFF', border: '1px solid #E5E2D8' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10 }}>
+                  <div style={{ flex: 1, minWidth: 220 }}>
+                    <h3 style={{ fontSize: '1.02rem', fontWeight: 800, color: '#182420', margin: '0 0 4px' }}>
+                      {entry.name}
+                    </h3>
+                    <p style={{ fontSize: '0.82rem', color: '#485954', margin: '0 0 6px', lineHeight: 1.5 }}>
+                      {entry.description}
+                    </p>
+                    <span style={{ fontSize: '0.76rem', color: '#748782', fontWeight: 600 }}>
+                      {entry.contactInfo}
+                    </span>
+                  </div>
+                  <a
+                    href={entry.sourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 4,
+                      padding: '6px 12px', fontSize: '0.76rem', textDecoration: 'none',
+                      color: '#0369A1', background: '#F0F9FF', border: '1px solid #BAE6FD',
+                      borderRadius: 8, fontWeight: 700, whiteSpace: 'nowrap'
+                    }}
+                  >
+                    <OpenInNewIcon sx={{ fontSize: 14 }} />
+                    Official Site
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {storageData?.howToFindLocalTransport && (
+            <div className="glass-card fade-in" style={{ padding: 18, background: '#F8F7F2', border: '1px solid #E5E2D8' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <LocalShippingIcon sx={{ color: '#748782', fontSize: 20 }} />
+                <span style={{ fontSize: '0.86rem', fontWeight: 800, color: '#182420' }}>Finding Local Transport</span>
+              </div>
+              <p style={{ fontSize: '0.78rem', color: '#748782', margin: '0 0 8px' }}>
+                {storageData.howToFindLocalTransport.note}
+              </p>
+              <ul style={{ margin: 0, paddingLeft: 18 }}>
+                {storageData.howToFindLocalTransport.steps.map((step, i) => (
+                  <li key={i} style={{ fontSize: '0.8rem', color: '#485954', marginBottom: 4, lineHeight: 1.5 }}>
+                    {step}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

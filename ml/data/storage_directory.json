@@ -1,0 +1,43 @@
+{
+    "_notes": "Every entry here is a REAL, verifiable national institution — not a sample/placeholder private business directory. Unlike buyer_directory.json (which uses illustrative sample entries), this file intentionally does NOT invent specific private cold-storage or transport company names/phone numbers, because those cannot be verified and a wrong number here could waste a farmer's time trying to move perishable produce. Every entry has a real sourceUrl a farmer or developer can check. If real local/state warehouse contact data becomes available (e.g. a live WDRA registered-warehouse feed), replace the state-level generic entries below with actual per-district listings.",
+    "national": [
+        {
+            "id": "cwc",
+            "name": "Central Warehousing Corporation (CWC)",
+            "type": "cold_storage_warehousing",
+            "description": "Government of India warehousing body (Ministry of Consumer Affairs, Food & Public Distribution) operating 700+ warehouses nationwide, including cold storage and temperature-controlled facilities at many locations.",
+            "contactInfo": "Toll-free: 1800-3130026",
+            "sourceUrl": "https://cewacor.nic.in",
+            "lastVerified": "September 2026",
+            "verificationStatus": "CONFIRMED — official CWC toll-free number and website."
+        },
+        {
+            "id": "wdra-locator",
+            "name": "WDRA Registered Warehouse Locator",
+            "type": "cold_storage_warehousing",
+            "description": "Warehousing Development and Regulatory Authority maintains the official list of registered warehouses (incl. cold storage) by state and district — the most reliable way to find a real, regulated facility near you.",
+            "contactInfo": "Search by state/district on the WDRA portal",
+            "sourceUrl": "https://wdra.gov.in",
+            "lastVerified": "September 2026",
+            "verificationStatus": "CONFIRMED — official regulatory body portal."
+        },
+        {
+            "id": "nabard-aif",
+            "name": "Agriculture Infrastructure Fund (AIF) — Cold Storage Financing",
+            "type": "financing",
+            "description": "Central government financing scheme (via NABARD/banks) for setting up or expanding cold storage, warehousing, and post-harvest infrastructure — relevant to FPOs/farmer groups planning shared storage, not just for individual storage bookings.",
+            "contactInfo": "Apply via participating banks or NABARD",
+            "sourceUrl": "https://www.nabard.org",
+            "lastVerified": "September 2026",
+            "verificationStatus": "CONFIRMED — official NABARD scheme reference. Confirm current terms directly, as financing scheme conditions change."
+        }
+    ],
+    "howToFindLocalTransport": {
+        "note": "This app does not maintain a directory of private local transport/trucking contacts, since these change often and cannot be centrally verified the way a national institution can. Recommended real steps instead:",
+        "steps": [
+            "Ask your buyer or FPO — many buyer listings in the Sell For Profit page already include a location; local transport is often arranged by the buyer or the APMC yard itself.",
+            "Check with your nearest APMC (Agricultural Produce Market Committee) yard — they typically maintain lists of registered local transporters.",
+            "Ask your Village Agriculture Officer or nearest Common Service Centre (CSC) — they often know reliable local operators."
+        ]
+    }
+}

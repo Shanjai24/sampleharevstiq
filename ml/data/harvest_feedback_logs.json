@@ -28,5 +28,20 @@
     "actual_yield": 2.5,
     "tier": "regional_fallback",
     "recordedAt": "2026-09-11T04:21:30.675Z"
+  },
+  {
+    "crop": "rice",
+    "soil_type": "loam",
+    "soil_ph": 6.5,
+    "avg_temperature": 33.9,
+    "rainfall_7day": 12.600000000000001,
+    "humidity": 44,
+    "area_acres": 1,
+    "elevation": 334,
+    "state": "Tamil Nadu",
+    "month": 9,
+    "actual_yield": 2.5,
+    "tier": "regional_gov_db",
+    "recordedAt": "2026-09-11T09:07:43.679Z"
   }
 ]

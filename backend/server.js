@@ -47,6 +47,7 @@ app.use('/api/schemes', require('./routes/schemes'));
 app.use('/api/alerts', require('./routes/alerts'));
 app.use('/api/tasks', require('./routes/tasks'));
 app.use('/api/ledger', require('./routes/ledger'));
+app.use('/api/storage', require('./routes/storage'));
 
 const { startScheduler } = require('./jobs/scheduler');
 

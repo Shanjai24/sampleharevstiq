@@ -49,7 +49,12 @@ export default function CropDetail() {
   const [marketData, setMarketData] = useState(null);
 
   // Yield prediction inputs (derived from farmData, used in handlePredict)
-  const area = '1.0';
+  // BUG FIX: this was previously hardcoded to '1.0', meaning every yield
+  // prediction and confidence score on this page was computed as if every
+  // farm is exactly 1 acre — regardless of the farmer's actual plot size.
+  // The Economics section further down already correctly used
+  // farmData?.areaAcres; this now matches that same source of truth.
+  const area = String(farmData?.areaAcres || 1.0);
   const soilType = farmData?.soil?.soilType || 'loam';
   const soilPh = farmData?.soil?.ph || '6.5';
   const temp = farmData?.weather?.current?.temperature || '30.0';
@@ -262,7 +267,7 @@ export default function CropDetail() {
           style={{
             padding: '20px 24px', marginBottom: 20,
             borderLeft: `4px solid ${predictedData.confidence === 'HIGH' ? '#1E5E3A' :
-                predictedData.confidence === 'MEDIUM' ? '#D97706' : '#C85A32'
+              predictedData.confidence === 'MEDIUM' ? '#D97706' : '#C85A32'
               }`
           }}
         >
@@ -301,7 +306,9 @@ export default function CropDetail() {
           uses (utils/insurance.js), so this number can't drift from the
           one shown on the Schemes page. */}
       {(predictedData?.confidence === 'LOW' || predictedData?.confidence === 'MEDIUM') && (() => {
-        const areaForCalc = parseFloat(area) > 0 ? parseFloat(area) : (farmData?.areaAcres || 1.0);
+        // 'area' now derives from farmData?.areaAcres (fixed above), so this
+        // simply uses the same authoritative source the rest of the page uses.
+        const areaForCalc = farmData?.areaAcres || parseFloat(area) || 1.0;
         const { premiumPct, premium } = computePmfbyPremium(name, areaForCalc);
         return (
           <div
