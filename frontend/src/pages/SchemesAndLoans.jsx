@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { FarmContext } from '../context/FarmContext';
 import axios from 'axios';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -14,12 +14,14 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import CancelIcon from '@mui/icons-material/Cancel';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import UpdateIcon from '@mui/icons-material/Update';
+import { computePmfbyPremium, PMFBY_DISCLAIMER } from '../utils/insurance';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export default function SchemesAndLoans() {
   const { farmData, areaAcres } = useContext(FarmContext);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const selectedCrop = farmData?.crops?.[0]?.crop || 'rice';
   const selectedState = farmData?.location?.state || 'Tamil Nadu';
@@ -46,21 +48,27 @@ export default function SchemesAndLoans() {
     fetchSchemes();
   }, [fetchSchemes]);
 
+  // React Router does not auto-scroll to a #hash on navigation — this
+  // handles the deep link from CropDetail.jsx's insurance nudge
+  // (/schemes-loans#pmfby-insurance). Runs after schemes finish loading
+  // so the target element actually exists in the DOM by then.
+  useEffect(() => {
+    if (!loading && location.hash) {
+      const el = document.getElementById(location.hash.replace('#', ''));
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [loading, location.hash]);
+
   const currentArea = areaAcres || 1.0;
   const isSmallMarginal = currentArea <= 5.0;
-
-  // Crop season classification
-  const KHARIF_CROPS = ['rice', 'cotton', 'maize', 'soybean', 'groundnut', 'turmeric', 'millet', 'chilli'];
-  const RABI_CROPS = ['wheat', 'mustard', 'chickpea'];
-  const cropLower = selectedCrop.toLowerCase();
-  const isRabi = RABI_CROPS.includes(cropLower);
-  const pmfbyPremiumPct = KHARIF_CROPS.includes(cropLower) ? 2.0 : isRabi ? 1.5 : 5.0;
 
   const kccLoanAmount = Math.round(currentArea * 24000);
   const dripCost = Math.round(currentArea * 45000);
   const dripSubsidy = Math.round(dripCost * (isSmallMarginal ? 0.55 : 0.45));
-  const pmfbyCropValue = Math.round(currentArea * 35000);
-  const pmfbyPremium = Math.round(pmfbyCropValue * (pmfbyPremiumPct / 100));
+  // Single source of truth for the PMFBY premium math — see utils/insurance.js.
+  // CropDetail.jsx's risk-based insurance nudge uses this exact same function.
+  const { premiumPct: pmfbyPremiumPct, cropValue: pmfbyCropValue, premium: pmfbyPremium } =
+    computePmfbyPremium(selectedCrop, currentArea);
 
   const eligibleSchemes = schemes.filter(s => s.eligible);
   const ineligibleSchemes = schemes.filter(s => !s.eligible);
@@ -144,7 +152,7 @@ export default function SchemesAndLoans() {
           <p style={{ fontSize: '0.78rem', color: '#485954', margin: 0, lineHeight: 1.55 }}>
             Scheme eligibility shown here is determined by algorithmic rule-based screening based on your land size,
             crop type, and state. <strong>Official approval requires physical field visit and document verification
-            at your nearest Block Agricultural Office / CSC / Gram Panchayat.</strong> Do not make any loan
+              at your nearest Block Agricultural Office / CSC / Gram Panchayat.</strong> Do not make any loan
             application, insurance enrollment, or subsidy deposit based solely on this screening result.
           </p>
         </div>
@@ -198,7 +206,7 @@ export default function SchemesAndLoans() {
         </div>
 
         {/* PMFBY Insurance Premium */}
-        <div className="glass-card fade-in" style={{ padding: 20, borderLeft: '4px solid #C85A32' }}>
+        <div id="pmfby-insurance" className="glass-card fade-in" style={{ padding: 20, borderLeft: '4px solid #C85A32', scrollMarginTop: 90 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
             <SecurityIcon sx={{ color: '#C85A32', fontSize: 20 }} />
             <span style={{ fontSize: '0.78rem', color: '#485954', fontWeight: 700 }}>PMFBY Crop Insurance</span>

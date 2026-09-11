@@ -16,7 +16,9 @@ import TimerIcon from '@mui/icons-material/Timer';
 import ScaleIcon from '@mui/icons-material/Scale';
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import SecurityIcon from '@mui/icons-material/Security';
 import { Card } from '../components/ui';
+import { computePmfbyPremium, PMFBY_DISCLAIMER } from '../utils/insurance';
 
 const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -107,7 +109,7 @@ export default function CropDetail() {
     if (farmData && name) {
       handlePredict();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [farmData, name]);
 
   const plantWindow = crop.plantMonths?.map(m => monthNames[m - 1]).join(', ') || 'Year-round';
@@ -249,6 +251,88 @@ export default function CropDetail() {
           </p>
         </Card>
       </div>
+
+      {/* Yield Confidence — was fetched (predictedData) but never rendered
+          before this fix. Confidence is what the insurance nudge below
+          reacts to, so it needs to actually be visible to the farmer,
+          not just sit unused in state. */}
+      {predictedData?.confidence && (
+        <Card
+          className="fade-in"
+          style={{
+            padding: '20px 24px', marginBottom: 20,
+            borderLeft: `4px solid ${predictedData.confidence === 'HIGH' ? '#1E5E3A' :
+                predictedData.confidence === 'MEDIUM' ? '#D97706' : '#C85A32'
+              }`
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <TrendingUpIcon sx={{
+                fontSize: 22,
+                color: predictedData.confidence === 'HIGH' ? '#1E5E3A' :
+                  predictedData.confidence === 'MEDIUM' ? '#D97706' : '#C85A32'
+              }} />
+              <div>
+                <span style={{ fontSize: '0.76rem', color: '#748782', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Model Yield Confidence
+                </span>
+                <p style={{ fontWeight: 800, margin: '2px 0 0', fontSize: '1.05rem', color: '#182420' }}>
+                  {predictedData.confidence === 'HIGH' ? '✅ High — conditions closely match ideal profile' :
+                    predictedData.confidence === 'MEDIUM' ? '⚠️ Medium — some conditions are off from ideal' :
+                      '🔻 Low — several conditions diverge from ideal for this crop'}
+                </p>
+              </div>
+            </div>
+            {predictedData.predictedYieldPerAcre != null && (
+              <div style={{ textAlign: 'right' }}>
+                <span style={{ fontSize: '0.72rem', color: '#748782', fontWeight: 700 }}>Predicted Yield</span>
+                <p style={{ fontWeight: 800, margin: '2px 0 0', fontSize: '1.15rem', color: '#182420' }}>
+                  {predictedData.predictedYieldPerAcre} / acre
+                </p>
+              </div>
+            )}
+          </div>
+        </Card>
+      )}
+
+      {/* Insurance nudge — only surfaced when the model's own confidence
+          is not HIGH. Reuses the exact same premium math SchemesAndLoans.jsx
+          uses (utils/insurance.js), so this number can't drift from the
+          one shown on the Schemes page. */}
+      {(predictedData?.confidence === 'LOW' || predictedData?.confidence === 'MEDIUM') && (() => {
+        const areaForCalc = parseFloat(area) > 0 ? parseFloat(area) : (farmData?.areaAcres || 1.0);
+        const { premiumPct, premium } = computePmfbyPremium(name, areaForCalc);
+        return (
+          <div
+            className="glass-card fade-in"
+            style={{ padding: '18px 22px', marginBottom: 28, borderLeft: '4px solid #C85A32', background: '#FDF3F0' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
+              <SecurityIcon sx={{ color: '#C85A32', fontSize: 26, marginTop: 2 }} />
+              <div style={{ flex: 1, minWidth: 240 }}>
+                <p style={{ fontWeight: 800, margin: 0, fontSize: '0.98rem', color: '#182420' }}>
+                  Yield confidence is {predictedData.confidence.toLowerCase()} this season — PMFBY crop insurance may reduce your risk
+                </p>
+                <p style={{ margin: '6px 0 0', fontSize: '0.84rem', color: '#485954' }}>
+                  Estimated farmer-paid premium: <strong>₹{premium.toLocaleString()}</strong> ({premiumPct}% of assumed coverage value)
+                </p>
+                <p style={{ margin: '8px 0 0', fontSize: '0.72rem', color: '#748782', lineHeight: 1.5 }}>
+                  {PMFBY_DISCLAIMER}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate('/schemes-loans#pmfby-insurance')}
+                className="btn-secondary"
+                style={{ padding: '8px 16px', fontSize: '0.82rem', whiteSpace: 'nowrap' }}
+              >
+                View PMFBY Details →
+              </button>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Professional Economics Section */}
       <div className="card-hero fade-in" style={{ padding: '28px 32px', marginBottom: 28 }}>
