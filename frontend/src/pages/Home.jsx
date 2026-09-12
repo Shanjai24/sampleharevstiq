@@ -247,6 +247,9 @@ export default function Home() {
     }
   };
 
+  const CARTO_API_KEY = import.meta.env.VITE_CARTO_API_KEY;
+
+
   return (
     <div style={{ position: 'relative', height: 'calc(100vh - 57px)', minHeight: 480, overflow: 'hidden' }}>
       {/* Map Layer */}
@@ -267,7 +270,7 @@ export default function Home() {
         */}
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+          url={`https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${CARTO_API_KEY}`}
           subdomains="abcd"
           maxZoom={19}
         />
