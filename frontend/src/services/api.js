@@ -66,5 +66,58 @@ export const getChatStatus = () =>
 export const predictYield = (data) =>
   api.post('/api/crops/predict-yield', data).then(r => r.data);
 
-export default api;
+// ---------------------------------------------------------------------------
+// Offline-first cache layer (Phase 4)
+//
+// Wraps a handful of read-only endpoints (weather, market prices) so that a
+// dropped connection falls back to the last successful response instead of
+// showing a blank error page. Nothing is ever silently presented as live —
+// callers get back `{ data, stale, cachedAt }` and are responsible for
+// showing a visible "offline / last updated" indicator when `stale` is true.
+// ---------------------------------------------------------------------------
 
+const CACHE_PREFIX = 'harvestiq_cache_';
+
+function readCache(key) {
+  try {
+    const raw = localStorage.getItem(CACHE_PREFIX + key);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeCache(key, data) {
+  try {
+    localStorage.setItem(CACHE_PREFIX + key, JSON.stringify({ data, cachedAt: Date.now() }));
+  } catch {
+    // localStorage full or unavailable (e.g. private browsing) — degrade silently,
+    // live fetches still work, we just won't have anything to fall back on next time.
+  }
+}
+
+/**
+ * Fetches live data via fetchFn; on failure, falls back to the last cached
+ * response for `key`. Throws only when there is no live data AND no cache.
+ */
+async function fetchWithCache(key, fetchFn) {
+  try {
+    const data = await fetchFn();
+    writeCache(key, data);
+    return { data, stale: false, cachedAt: Date.now() };
+  } catch (err) {
+    const cached = readCache(key);
+    if (cached) {
+      return { data: cached.data, stale: true, cachedAt: cached.cachedAt };
+    }
+    throw err;
+  }
+}
+
+export const getWeatherCached = (lat, lng) =>
+  fetchWithCache(`weather_${lat}_${lng}`, () => getWeather(lat, lng));
+
+export const getMarketPricesCached = (state, crop) =>
+  fetchWithCache(`market_${state}_${crop}`, () => getMarketPrices(state, crop));
+
+export default api;

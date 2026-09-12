@@ -2,6 +2,7 @@ import { useState, useEffect, useContext, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FarmContext } from '../context/FarmContext';
 import { getMarketPrices } from '../services/api';
+import { saveToCache, readFromCache, timeAgo } from '../utils/offlineCache';
 import SkeletonBlock from '../components/ui/SkeletonBlock';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
@@ -29,17 +30,30 @@ export default function Market() {
   const [crop, setCrop] = useState('rice');
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isOffline, setIsOffline] = useState(false);
+  const [cachedAt, setCachedAt] = useState(null);
 
   const state = farmData?.location?.state || 'Tamil Nadu';
   const district = farmData?.location?.district || 'Erode';
 
   const fetchPrices = useCallback(async () => {
+    const cacheKey = `market_${state}_${crop}`;
     setLoading(true);
     try {
       const res = await getMarketPrices(state, crop, district);
       setData(res);
+      setIsOffline(false);
+      saveToCache(cacheKey, res);
     } catch {
-      setData(null);
+      const cached = readFromCache(cacheKey);
+      if (cached) {
+        setData(cached.data);
+        setIsOffline(true);
+        setCachedAt(cached.cachedAt);
+      } else {
+        setData(null);
+        setIsOffline(false);
+      }
     } finally {
       setLoading(false);
     }
@@ -84,6 +98,26 @@ export default function Market() {
               {data?.source === 'live' ? 'LIVE AGMARKNET FEED' : 'CURATED MANDI BENCHMARK (SAMPLE)'}
             </span>
           </div>
+          {/* Offline fallback badge — distinct from the LIVE/SAMPLE badge
+              above. That badge describes the DATA SOURCE; this one
+              describes whether the CURRENT fetch succeeded or is showing
+              a cached copy because the network call just failed. */}
+          {isOffline && (
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: 8,
+              padding: '6px 12px', fontSize: '0.78rem', fontWeight: 700, color: '#92400E',
+              marginTop: 4
+            }}>
+              <span>📡 Offline — showing prices from {timeAgo(cachedAt)}</span>
+              <button
+                onClick={fetchPrices}
+                style={{ background: 'none', border: 'none', color: '#92400E', textDecoration: 'underline', cursor: 'pointer', fontSize: '0.76rem', fontWeight: 700 }}
+              >
+                Retry
+              </button>
+            </div>
+          )}
           <p style={{ margin: 0, fontSize: '0.88rem', color: '#64748B', fontWeight: 400 }}>
             {data?.source === 'live'
               ? `Live daily arrivals from Agmarknet API across ${district ? `${district}, ` : ''}${state}`

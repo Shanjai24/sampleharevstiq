@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FarmContext } from '../context/FarmContext';
 import { getWeather } from '../services/api';
+import { saveToCache, readFromCache, timeAgo } from '../utils/offlineCache';
 import WbSunnyIcon from '@mui/icons-material/WbSunny';
 import WaterDropIcon from '@mui/icons-material/WaterDrop';
 import AirIcon from '@mui/icons-material/Air';
@@ -33,6 +34,11 @@ export default function Weather() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  // Set only when showing cached data because the live fetch failed —
+  // drives the "offline" badge. Never set when the live fetch succeeded,
+  // even if a cache also exists, so fresh data is never mislabeled.
+  const [isOffline, setIsOffline] = useState(false);
+  const [cachedAt, setCachedAt] = useState(null);
 
   const fetchWeather = useCallback(() => {
     const lat = location?.lat || farmData?.location?.lat;
@@ -41,16 +47,27 @@ export default function Weather() {
       setLoading(false);
       return;
     }
+    const cacheKey = `weather_${lat}_${lng}`;
     setLoading(true);
     setError('');
     getWeather(lat, lng)
       .then(d => {
         setData(d);
+        setIsOffline(false);
         setLoading(false);
+        saveToCache(cacheKey, d);
       })
       .catch((err) => {
         console.error(err);
-        setError('Failed to fetch weather forecast. Please check network connection.');
+        const cached = readFromCache(cacheKey);
+        if (cached) {
+          setData(cached.data);
+          setIsOffline(true);
+          setCachedAt(cached.cachedAt);
+          setError('');
+        } else {
+          setError('Failed to fetch weather forecast. Please check network connection.');
+        }
         setLoading(false);
       });
   }, [location, farmData]);
@@ -121,8 +138,8 @@ export default function Weather() {
   const cur = data?.current || {};
   const fc = data?.forecast || [];
   const todayFc = fc[0] || {};
-  const effectiveCode = (cur.precipitation > 0 || todayFc.precipitation > 0) 
-    ? (cur.weatherCode > 0 ? cur.weatherCode : (todayFc.weatherCode || 61)) 
+  const effectiveCode = (cur.precipitation > 0 || todayFc.precipitation > 0)
+    ? (cur.weatherCode > 0 ? cur.weatherCode : (todayFc.weatherCode || 61))
     : cur.weatherCode;
   const effectivePrecip = cur.precipitation > 0 ? cur.precipitation : (todayFc.precipitation || 0);
   const w = codeToW(effectiveCode, effectivePrecip);
@@ -133,6 +150,27 @@ export default function Weather() {
 
   return (
     <div className="page-container">
+      {/* Offline fallback badge — only shown when the live fetch failed
+          and we're displaying cached data instead. Never shown on a
+          successful live fetch, so this can't be mistaken for a live
+          reading. */}
+      {isOffline && (
+        <div style={{
+          background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: 12,
+          padding: '10px 16px', marginBottom: 16, display: 'flex', alignItems: 'center',
+          gap: 10, fontSize: '0.82rem', fontWeight: 700, color: '#92400E'
+        }}>
+          <span>📡</span>
+          <span>Offline — showing last saved forecast from {timeAgo(cachedAt)}</span>
+          <button
+            onClick={fetchWeather}
+            style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#92400E', textDecoration: 'underline', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700 }}
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
       {/* Session Plot Alert */}
       {!sessionAnalyzed && farmData && (
         <div style={{

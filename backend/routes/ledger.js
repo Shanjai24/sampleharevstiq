@@ -17,6 +17,25 @@ function isDbReady() {
   return mongoose.connection.readyState === 1;
 }
 
+// Loads calibrated cost/price benchmarks written by
+// ml/calibrate_cost_benchmarks.py, if it has run and found enough real
+// farmer data for a given crop. Re-read on every request rather than
+// cached at startup, since the calibration file can be updated by a
+// periodic job while the server keeps running.
+function getCalibratedBenchmark(cropKey) {
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    const calPath = path.join(__dirname, '../../ml/data/cost_benchmarks_calibrated.json');
+    if (!fs.existsSync(calPath)) return null;
+    const calibrated = JSON.parse(fs.readFileSync(calPath, 'utf8'));
+    return calibrated[cropKey] || null;
+  } catch (e) {
+    console.warn('[CALIBRATION READ WARN]', e.message);
+    return null;
+  }
+}
+
 // Benchmark agronomic costs and revenues (per acre) for fallback comparisons
 const CROP_BENCHMARKS = {
   rice: { costPerAcre: 18000, expectedYieldPerAcre: 2.5, modalPricePerTon: 24000 },
@@ -126,10 +145,19 @@ router.get('/:farmId/summary', async (req, res) => {
 
     const actualNetProfit = totalIncome - totalExpenses;
 
-    // Retrieve original estimated benchmark
+    // Retrieve original estimated benchmark, and use calibrated real-data
+    // values where enough farmers have logged data for this crop
+    // (see ml/calibrate_cost_benchmarks.py — MIN_SAMPLES_PER_CROP guard).
     const bench = CROP_BENCHMARKS[cropKey] || CROP_BENCHMARKS['rice'];
-    const estimatedCost = Math.round(bench.costPerAcre * parsedArea);
-    const estimatedRevenue = Math.round(bench.expectedYieldPerAcre * bench.modalPricePerTon * parsedArea);
+    const calibrated = getCalibratedBenchmark(cropKey);
+    const effectiveCostPerAcre = calibrated?.costPerAcre ?? bench.costPerAcre;
+    const effectiveModalPrice = calibrated?.modalPricePerTon ?? bench.modalPricePerTon;
+    const benchmarkSource = calibrated
+      ? `Calibrated from ${calibrated.sample_farm_count} real farms' ledger data (${calibrated.calibrated_at?.slice(0, 10)})`
+      : 'Hardcoded agronomic default (not yet enough real farm data to calibrate)';
+
+    const estimatedCost = Math.round(effectiveCostPerAcre * parsedArea);
+    const estimatedRevenue = Math.round(bench.expectedYieldPerAcre * effectiveModalPrice * parsedArea);
     const estimatedProfit = estimatedRevenue - estimatedCost;
 
     const profitVariance = actualNetProfit - estimatedProfit;
@@ -154,7 +182,7 @@ router.get('/:farmId/summary', async (req, res) => {
           cost: estimatedCost,
           revenue: estimatedRevenue,
           profit: estimatedProfit,
-          source: 'ML Agronomic & Mandi Benchmark Projections'
+          source: benchmarkSource
         },
         actual: {
           cost: totalExpenses,
@@ -192,7 +220,8 @@ router.post('/', async (req, res) => {
       date = new Date(),
       note = '',
       source = 'manual',
-      relatedTaskId
+      relatedTaskId,
+      areaAcres
     } = req.body;
 
     if (amount === undefined || isNaN(Number(amount)) || Number(amount) < 0) {
@@ -213,13 +242,15 @@ router.post('/', async (req, res) => {
       date: new Date(date),
       note: note.trim(),
       source,
-      relatedTaskId
+      relatedTaskId,
+      areaAcres: areaAcres ? Number(areaAcres) : undefined
     };
 
+    let savedDoc;
     if (isDbReady()) {
       const doc = new FarmLedgerEntry(newEntry);
       await doc.save();
-      return res.status(201).json(doc);
+      savedDoc = doc;
     } else {
       const doc = {
         ...newEntry,
@@ -230,8 +261,38 @@ router.post('/', async (req, res) => {
       const list = memoryLedger.get(farmId) || [];
       list.unshift(doc);
       memoryLedger.set(farmId, list);
-      return res.status(201).json(doc);
+      savedDoc = doc;
     }
+
+    // Sync to ml/data/ledger_cost_logs.json as a file-based fallback so
+    // ml/calibrate_cost_benchmarks.py can read real cost/income data even
+    // without direct Mongo access — same pattern already used for
+    // harvest feedback in backend/routes/history.js.
+    try {
+      const path = require('path');
+      const fs = require('fs');
+      const jsonPath = path.join(__dirname, '../../ml/data/ledger_cost_logs.json');
+      let currentLogs = [];
+      if (fs.existsSync(jsonPath)) {
+        currentLogs = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+      }
+      currentLogs.push({
+        farmId: newEntry.farmId,
+        crop: newEntry.crop,
+        entryType: newEntry.entryType,
+        category: newEntry.category,
+        amount: newEntry.amount,
+        quantity: newEntry.quantity,
+        areaAcres: newEntry.areaAcres,
+        date: newEntry.date,
+        recordedAt: new Date().toISOString()
+      });
+      fs.writeFileSync(jsonPath, JSON.stringify(currentLogs, null, 2), 'utf8');
+    } catch (fsErr) {
+      console.warn('[LEDGER JSON SYNC WARN]', fsErr.message);
+    }
+
+    return res.status(201).json(savedDoc);
   } catch (error) {
     res.status(500).json({ error: 'Failed to record ledger entry', message: error.message });
   }

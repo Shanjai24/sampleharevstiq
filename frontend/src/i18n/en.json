@@ -1,6 +1,6 @@
 {
   "app": { "name": "HarvestIQ", "tagline": "AI-Powered Smart Farming" },
-  "nav": { "map": "Map Analysis", "crops": "Dashboard", "dashboard": "Dashboard", "borewell": "Groundwater", "chat": "AI Advisory", "market": "Mandi Market", "weather": "Weather", "history": "Saved Plots", "sell_profit": "Sell For Profit", "schemes": "Schemes & Loans" },
+  "nav": { "map": "Map Analysis", "crops": "Dashboard", "dashboard": "Dashboard", "tasks": "Tasks", "ledger": "Farm Ledger", "borewell": "Groundwater", "chat": "AI Advisory", "market": "Mandi Market", "weather": "Weather", "history": "Saved Plots", "sell_profit": "Sell For Profit", "schemes": "Schemes & Loans" },
   "home": {
     "title": "Analyse My Farm",
     "subtitle": "Tap to get AI-powered recommendations for your location",

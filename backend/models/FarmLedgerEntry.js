@@ -71,6 +71,13 @@ const farmLedgerEntrySchema = new mongoose.Schema({
   relatedTaskId: {
     type: String
   },
+  // Area at time of entry — needed to normalize cost-per-acre when
+  // calibrating benchmarks from real data (ml/calibrate_cost_benchmarks.py).
+  // Not required so existing entries created before this field existed
+  // don't break; those simply won't count toward calibration.
+  areaAcres: {
+    type: Number
+  },
   createdAt: {
     type: Date,
     default: Date.now

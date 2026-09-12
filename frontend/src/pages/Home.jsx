@@ -20,6 +20,18 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 });
 
+// Common Indian state abbreviations for the compact "Annur, Coimbatore, TN" display format.
+const STATE_ABBR = {
+  'Tamil Nadu': 'TN', 'Kerala': 'KL', 'Karnataka': 'KA', 'Andhra Pradesh': 'AP',
+  'Telangana': 'TS', 'Maharashtra': 'MH', 'Gujarat': 'GJ', 'Rajasthan': 'RJ',
+  'Madhya Pradesh': 'MP', 'Uttar Pradesh': 'UP', 'Punjab': 'PB', 'Haryana': 'HR',
+  'Bihar': 'BR', 'West Bengal': 'WB', 'Odisha': 'OD', 'Assam': 'AS'
+};
+
+// Minimum gap between reverse-geocode calls to Nominatim (their usage policy asks for
+// max ~1 request/second per app; this also cuts down on GPS-jitter-triggered repeat calls).
+const GEOCODE_MIN_INTERVAL_MS = 1200;
+
 function FlyToLocation({ position }) {
   const map = useMap();
   useEffect(() => {
@@ -50,23 +62,58 @@ export default function Home() {
   const [mapZoom] = useState(7);
   const prefetchedDataRef = useRef(null);
   const searchTimeoutRef = useRef(null);
+  const lastGeocodeAtRef = useRef(0);
   const navigate = useNavigate();
   const { t } = useTranslation();
 
+  // Fix #2: settlement-level place name first, district as secondary context, not the
+  // other way around. Nominatim's `address` block usually has town/village AND
+  // state_district for the same point — previously we picked state_district first,
+  // which is why GPS points near Annur/Sathyamangalam showed as "Erode"/"Coimbatore"
+  // (the district they administratively fall under) instead of the actual town, and
+  // why the label flickered near district borders even when the real location barely moved.
   const reverseGeocode = async (lat, lng) => {
+    const now = Date.now();
+    if (now - lastGeocodeAtRef.current < GEOCODE_MIN_INTERVAL_MS) {
+      // Skip — too soon after the last call. Respects Nominatim's rate-limit guidance
+      // and avoids firing a burst of requests from rapid map clicks or GPS jitter.
+      return;
+    }
+    lastGeocodeAtRef.current = now;
+
     try {
       const res = await axios.get('https://nominatim.openstreetmap.org/reverse', {
         params: { lat, lon: lng, format: 'json', 'accept-language': 'en' },
-        headers: { 'User-Agent': 'AgroPredict/2.0' },
+        // NOTE: 'User-Agent' cannot actually be set by browser JS — browsers silently
+        // strip it, so this request is sent unidentified regardless of this header.
+        // Nominatim's usage policy asks for an identifiable user agent + contact info;
+        // properly fixing this means proxying this call through the backend (which CAN
+        // set real headers) rather than calling Nominatim directly from the browser.
         timeout: 4000
       });
       const addr = res.data?.address || {};
-      const dist = (addr.state_district || addr.district || addr.county || addr.city || addr.town || addr.village || '').replace(/\s+District$/i, '');
+
+      const settlement = addr.town || addr.village || addr.suburb || addr.hamlet || addr.city || '';
+      const district = (addr.state_district || addr.county || addr.city || '')
+        .replace(/\s+District$/i, '');
       const state = addr.state || '';
-      const name = dist && state ? `${dist}, ${state}` : res.data?.display_name?.split(',').slice(0, 2).join(',') || '';
+      const stateAbbrev = STATE_ABBR[state] || state;
+
+      // "Annur, Coimbatore, TN" — settlement + district + state abbreviation,
+      // dropping district when it duplicates the settlement (e.g. inside a district HQ town).
+      const parts = [
+        settlement,
+        district && district !== settlement ? district : null,
+        stateAbbrev
+      ].filter(Boolean);
+
+      const name = parts.length > 0
+        ? parts.join(', ')
+        : (res.data?.display_name?.split(',').slice(0, 2).join(',') || '');
+
       if (name) setSelectedPlaceName(name);
     } catch {
-      // ignore geocode error
+      // ignore geocode error — selectedPlaceName just stays as whatever it was
     }
   };
 
@@ -104,7 +151,6 @@ export default function Home() {
       try {
         const res = await axios.get('https://nominatim.openstreetmap.org/search', {
           params: { q: `${val}, India`, format: 'json', limit: 5, 'accept-language': 'en' },
-          headers: { 'User-Agent': 'AgroPredict/2.0' },
           timeout: 4000
         });
         setSearchResults(res.data || []);
@@ -210,9 +256,20 @@ export default function Home() {
         style={{ position: 'absolute', inset: 0, height: '100%', width: '100%' }}
         zoomControl={false}
       >
+        {/*
+          Fix #3: switched off the raw tile.openstreetmap.org endpoint.
+          That server's usage policy explicitly disallows non-trivial production traffic
+          hitting it directly and will rate-limit/block IPs that do — fine for local dev,
+          risky the moment this gets real demo/user traffic. CARTO's Voyager basemap is
+          free, requires no API key, and its usage terms explicitly permit this kind of
+          moderate-traffic app use. For a real production deployment beyond the hackathon,
+          swap this for a paid tile provider (MapTiler/Mapbox) or a self-hosted tile cache.
+        */}
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-          url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+          subdomains="abcd"
+          maxZoom={19}
         />
         <MapClickHandler onSelectPoint={handleSelectPoint} />
         <FlyToLocation position={location ? [location.lat, location.lng] : null} />
@@ -558,4 +615,3 @@ export default function Home() {
     </div>
   );
 }
-

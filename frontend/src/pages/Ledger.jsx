@@ -171,7 +171,11 @@ export default function Ledger() {
       date,
       note: note.trim(),
       source: linkedTaskId ? 'linked_to_task' : 'manual',
-      relatedTaskId: linkedTaskId || undefined
+      relatedTaskId: linkedTaskId || undefined,
+      // Needed downstream by ml/calibrate_cost_benchmarks.py — cost/income
+      // per unit area only means something if the area is recorded
+      // alongside the entry, not looked up separately later.
+      areaAcres: currentArea
     };
 
     try {
@@ -248,7 +252,7 @@ export default function Ledger() {
 
   return (
     <div className="page-container" style={{ paddingBottom: 80, maxWidth: 960, margin: '0 auto' }}>
-      
+
       {/* Top Header */}
       <div className="fade-in" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14, marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
@@ -420,7 +424,7 @@ export default function Ledger() {
 
         {/* 2-Column Comparison: Model Prediction vs Real Farmer Actuals */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 18, marginBottom: 16 }}>
-          
+
           {/* Box A: Model Prediction */}
           <div style={{ background: '#FAF9F5', padding: '18px 20px', borderRadius: 14, border: '1px solid #EAE7DC' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
@@ -494,7 +498,7 @@ export default function Ledger() {
 
       {/* Financial Snapshot Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 24 }}>
-        
+
         {/* Total Expenses */}
         <div className="glass-card fade-in" style={{ padding: 20, borderLeft: '4px solid #C85A32' }}>
           <span style={{ fontSize: '0.74rem', color: '#748782', fontWeight: 700, textTransform: 'uppercase' }}>Total Expenses</span>
@@ -679,7 +683,7 @@ export default function Ledger() {
             </div>
 
             <form onSubmit={handleAddEntry}>
-              
+
               {/* Type Switcher: Expense vs Income */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
                 <button
